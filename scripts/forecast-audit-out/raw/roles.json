@@ -1,0 +1,362 @@
+[
+  {
+    "id": 393717,
+    "name": "Frontend Developer",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2023-03-31T12:39:47Z",
+    "updated_at": "2023-05-31T12:29:34Z"
+  },
+  {
+    "id": 393821,
+    "name": " English Copywriter",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2023-04-06T08:15:30Z",
+    "updated_at": "2025-06-26T09:45:11Z"
+  },
+  {
+    "id": 393822,
+    "name": "Strategy",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2023-04-06T08:15:43Z",
+    "updated_at": "2023-10-12T13:31:45Z"
+  },
+  {
+    "id": 393830,
+    "name": "Lead Performance Marketing Specialist",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2023-04-06T08:28:36Z",
+    "updated_at": "2024-05-14T06:29:15Z"
+  },
+  {
+    "id": 394929,
+    "name": "Operations manager",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2023-05-22T07:49:07Z",
+    "updated_at": "2024-07-04T06:49:46Z"
+  },
+  {
+    "id": 394992,
+    "name": "Hubspot Dev Lead",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2023-05-23T12:14:10Z",
+    "updated_at": "2025-06-26T09:45:49Z"
+  },
+  {
+    "id": 394993,
+    "name": "Account Manager",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2023-05-23T12:14:26Z",
+    "updated_at": "2023-06-21T11:58:42Z"
+  },
+  {
+    "id": 394997,
+    "name": "Marketing Automation Specialist",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2023-05-23T12:23:35Z",
+    "updated_at": "2024-07-04T06:49:57Z"
+  },
+  {
+    "id": 394998,
+    "name": "Web Designer",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2023-05-23T12:23:42Z",
+    "updated_at": "2023-05-23T12:23:42Z"
+  },
+  {
+    "id": 395133,
+    "name": "Performance Marketing Specialist",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2023-05-31T12:27:24Z",
+    "updated_at": "2023-07-24T14:23:33Z"
+  },
+  {
+    "id": 395134,
+    "name": " Motion Graphic Designer",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2023-05-31T12:28:15Z",
+    "updated_at": "2024-07-04T06:43:04Z"
+  },
+  {
+    "id": 395135,
+    "name": "HubSpot Developer",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2023-05-31T12:29:05Z",
+    "updated_at": "2023-05-31T12:29:05Z"
+  },
+  {
+    "id": 395136,
+    "name": "Lead Wordpress Developer",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2023-05-31T12:29:07Z",
+    "updated_at": "2023-07-24T14:32:08Z"
+  },
+  {
+    "id": 395137,
+    "name": "WordPress Developer",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2023-05-31T12:29:13Z",
+    "updated_at": "2023-05-31T12:29:13Z"
+  },
+  {
+    "id": 395138,
+    "name": "Lead Frontend Developer",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2023-05-31T12:29:37Z",
+    "updated_at": "2023-07-24T14:55:22Z"
+  },
+  {
+    "id": 395139,
+    "name": "Arabic Copywriter",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2023-05-31T12:30:10Z",
+    "updated_at": "2024-07-04T06:48:05Z"
+  },
+  {
+    "id": 395186,
+    "name": "Content Lead",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2023-06-01T11:59:44Z",
+    "updated_at": "2023-07-24T14:51:17Z"
+  },
+  {
+    "id": 395187,
+    "name": "Senior Software Engineer",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2023-06-01T12:01:43Z",
+    "updated_at": "2023-07-20T12:04:23Z"
+  },
+  {
+    "id": 395190,
+    "name": "Videographer/Editor",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2023-06-01T12:04:35Z",
+    "updated_at": "2025-06-24T10:55:02Z"
+  },
+  {
+    "id": 395232,
+    "name": "Graphic Designer",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2023-06-01T17:56:13Z",
+    "updated_at": "2023-06-01T17:56:13Z"
+  },
+  {
+    "id": 395450,
+    "name": "Senior SEO Specialist",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2023-06-11T14:17:34Z",
+    "updated_at": "2023-07-24T14:52:19Z"
+  },
+  {
+    "id": 395452,
+    "name": "Senior MA Specialist",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2023-06-11T14:18:06Z",
+    "updated_at": "2024-07-04T06:44:01Z"
+  },
+  {
+    "id": 395453,
+    "name": "SEO Specialist",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2023-06-11T14:18:36Z",
+    "updated_at": "2023-07-20T12:28:39Z"
+  },
+  {
+    "id": 395454,
+    "name": "Senior Search Manager",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2023-06-11T14:30:02Z",
+    "updated_at": "2023-07-20T12:28:48Z"
+  },
+  {
+    "id": 395455,
+    "name": "Inbound Lead",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2023-06-11T14:30:22Z",
+    "updated_at": "2024-07-04T06:48:24Z"
+  },
+  {
+    "id": 395503,
+    "name": "Head of Client Services",
+    "created_by": 594346,
+    "updated_by": 627893,
+    "created_at": "2023-06-13T11:03:00Z",
+    "updated_at": "2025-06-30T05:51:19Z"
+  },
+  {
+    "id": 396198,
+    "name": "Junior Project Manager",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2023-07-25T07:19:56Z",
+    "updated_at": "2023-07-25T07:19:56Z"
+  },
+  {
+    "id": 398664,
+    "name": "3rd party provider",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2023-11-16T05:36:13Z",
+    "updated_at": "2024-07-04T06:48:04Z"
+  },
+  {
+    "id": 399208,
+    "name": "Content Creator",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2024-01-05T07:34:52Z",
+    "updated_at": "2024-01-05T07:34:52Z"
+  },
+  {
+    "id": 399369,
+    "name": "Intern",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2024-01-23T08:48:32Z",
+    "updated_at": "2024-01-23T08:48:32Z"
+  },
+  {
+    "id": 400341,
+    "name": "Design Lead ",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2024-04-22T08:52:06Z",
+    "updated_at": "2024-07-04T06:48:21Z"
+  },
+  {
+    "id": 400624,
+    "name": "Performance Lead",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2024-05-14T06:29:25Z",
+    "updated_at": "2024-07-04T06:42:49Z"
+  },
+  {
+    "id": 401023,
+    "name": " 3D Graphic Designer",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2024-07-04T06:42:09Z",
+    "updated_at": "2024-07-04T06:42:25Z"
+  },
+  {
+    "id": 401025,
+    "name": "Account Executive",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2024-07-04T06:48:48Z",
+    "updated_at": "2024-07-04T06:48:48Z"
+  },
+  {
+    "id": 401026,
+    "name": "Marketing Automation Manager",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2024-07-04T06:50:03Z",
+    "updated_at": "2024-07-04T06:50:03Z"
+  },
+  {
+    "id": 401042,
+    "name": "Senior Performance Marketing Specialist",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2024-07-08T12:33:43Z",
+    "updated_at": "2025-06-24T10:54:15Z"
+  },
+  {
+    "id": 401043,
+    "name": "Senior English Copywriter",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2024-07-08T12:34:15Z",
+    "updated_at": "2024-07-08T12:34:15Z"
+  },
+  {
+    "id": 401877,
+    "name": "Project Manager",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2024-08-26T07:10:23Z",
+    "updated_at": "2024-08-26T07:10:23Z"
+  },
+  {
+    "id": 405441,
+    "name": "Data Analyst",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2025-10-15T05:06:59Z",
+    "updated_at": "2025-10-15T05:06:59Z"
+  },
+  {
+    "id": 405524,
+    "name": "Senior CRM Specialist",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2025-11-04T08:30:39Z",
+    "updated_at": "2025-11-04T08:30:39Z"
+  },
+  {
+    "id": 406492,
+    "name": "Senior Performance & Operations Manager",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2026-03-01T09:50:37Z",
+    "updated_at": "2026-03-01T09:50:37Z"
+  },
+  {
+    "id": 406679,
+    "name": "AI Developer",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2026-03-24T05:19:30Z",
+    "updated_at": "2026-03-24T05:19:30Z"
+  },
+  {
+    "id": 406772,
+    "name": "Brand Designer",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2026-04-01T07:59:13Z",
+    "updated_at": "2026-04-01T07:59:13Z"
+  },
+  {
+    "id": 406773,
+    "name": "Head of Marketing",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2026-04-01T07:59:30Z",
+    "updated_at": "2026-04-01T08:00:25Z"
+  },
+  {
+    "id": 406774,
+    "name": "Junior Brand Designer",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2026-04-01T08:11:28Z",
+    "updated_at": "2026-04-01T08:11:28Z"
+  }
+]

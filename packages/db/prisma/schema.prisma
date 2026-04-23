@@ -1,0 +1,536 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum SeatType {
+  core
+  collaborator
+  @@map("seat_type")
+}
+
+enum PermissionProfile {
+  super_admin
+  admin
+  collaborator
+  @@map("permission_profile")
+}
+
+enum ProjectStatus {
+  running
+  halted
+  done
+  @@map("project_status")
+}
+
+enum BudgetType {
+  fixed_price
+  time_and_materials
+  retainer
+  fixed_hours
+  @@map("budget_type")
+}
+
+enum RetainerPeriod {
+  monthly
+  weekly
+  daily
+  @@map("retainer_period")
+}
+
+enum TaskStatus {
+  todo
+  in_progress
+  done
+  @@map("task_status")
+}
+
+enum TimeEntryType {
+  project
+  internal
+  time_off
+  @@map("time_entry_type")
+}
+
+enum ReportType {
+  utilization
+  burn_rate
+  logged_vs_estimated
+  forecast
+  @@map("report_type")
+}
+
+enum ReportStatus {
+  pending
+  ready
+  failed
+  @@map("report_status")
+}
+
+model Workspace {
+  id                     String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name                   String
+  plan                   String   @default("free")
+  billableUtilizationPct Int      @default(80)  @map("billable_utilization_pct")
+  weekendsEnabled        Boolean  @default(true) @map("weekends_enabled")
+  defaultCurrency        String   @default("AED") @map("default_currency")
+  syncState              Json     @default("{}") @map("sync_state")
+  createdAt              DateTime @default(now()) @map("created_at")
+  updatedAt              DateTime @updatedAt      @map("updated_at")
+
+  users                  User[]
+  departments            Department[]
+  projects               Project[]
+  clients                Client[]
+  reports                Report[]
+  holidayCalendars       HolidayCalendar[]
+  internalTimeCategories InternalTimeCategory[]
+  timeOffCategories      TimeOffCategory[]
+  rateCards              RateCard[]
+  labels                 ProjectLabel[]
+  clientInvoices         ClientInvoice[]
+  projectTemplates       ProjectTemplate[]
+
+  @@map("workspaces")
+}
+
+model Department {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  workspaceId String   @map("workspace_id") @db.Uuid
+  name        String
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt      @map("updated_at")
+
+  workspace  Workspace       @relation(fields: [workspaceId], references: [id])
+  users      User[]
+  rateEntries RateCardEntry[]
+
+  @@unique([workspaceId, name])
+  @@map("departments")
+}
+
+model HolidayCalendar {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  workspaceId String   @map("workspace_id") @db.Uuid
+  name        String
+  country     String?
+  isDefault   Boolean  @default(false) @map("is_default")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt      @map("updated_at")
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id])
+  holidays  Holiday[]
+  users     User[]
+
+  @@map("holiday_calendars")
+}
+
+model Holiday {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  calendarId String   @map("calendar_id") @db.Uuid
+  name       String
+  date       DateTime @db.Date
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  calendar HolidayCalendar @relation(fields: [calendarId], references: [id], onDelete: Cascade)
+
+  @@unique([calendarId, date])
+  @@map("holidays")
+}
+
+model User {
+  id                 String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  workspaceId        String            @map("workspace_id") @db.Uuid
+  departmentId       String?           @map("department_id") @db.Uuid
+  holidayCalendarId  String?           @map("holiday_calendar_id") @db.Uuid
+  email              String            @unique
+  passwordHash       String?           @map("password_hash")
+  name               String
+  jobTitle           String?           @map("job_title")
+  avatarUrl          String?           @map("avatar_url")
+  seatType           SeatType          @default(collaborator) @map("seat_type")
+  permissionProfile  PermissionProfile @default(collaborator) @map("permission_profile")
+  capacityHrs        Decimal           @default(40) @map("capacity_hrs") @db.Decimal(4,1)
+  internalHourlyCost Decimal           @default(0)  @map("internal_hourly_cost") @db.Decimal(8,2)
+  timezone           String            @default("UTC")
+  startDate          DateTime?         @map("start_date") @db.Date
+  active             Boolean           @default(true)
+  createdAt          DateTime          @default(now()) @map("created_at")
+  updatedAt          DateTime          @updatedAt      @map("updated_at")
+  deletedAt          DateTime?         @map("deleted_at")
+
+  workspace       Workspace        @relation(fields: [workspaceId], references: [id])
+  department      Department?      @relation(fields: [departmentId], references: [id])
+  holidayCalendar HolidayCalendar? @relation(fields: [holidayCalendarId], references: [id])
+  timeEntries     TimeEntry[]
+  taskAssignees   TaskAssignee[]
+  refreshTokens   RefreshToken[]
+
+  @@index([workspaceId])
+  @@index([departmentId])
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  token     String   @unique
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+model InternalTimeCategory {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  workspaceId String   @map("workspace_id") @db.Uuid
+  name        String
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  workspace   Workspace   @relation(fields: [workspaceId], references: [id])
+  timeEntries TimeEntry[]
+
+  @@unique([workspaceId, name])
+  @@map("internal_time_categories")
+}
+
+model TimeOffCategory {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  workspaceId String   @map("workspace_id") @db.Uuid
+  name        String
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  workspace   Workspace   @relation(fields: [workspaceId], references: [id])
+  timeEntries TimeEntry[]
+
+  @@unique([workspaceId, name])
+  @@map("time_off_categories")
+}
+
+model RateCard {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  workspaceId String   @map("workspace_id") @db.Uuid
+  name        String
+  currency    String   @default("AED")
+  isDefault   Boolean  @default(false) @map("is_default")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt      @map("updated_at")
+
+  workspace      Workspace       @relation(fields: [workspaceId], references: [id])
+  rates          RateCardEntry[]
+  projects       Project[]
+  defaultClients Client[]        @relation("ClientDefaultRateCard")
+
+  @@map("rate_cards")
+}
+
+model RateCardEntry {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  rateCardId   String   @map("rate_card_id") @db.Uuid
+  jobTitle     String?  @map("job_title")
+  departmentId String?  @map("department_id") @db.Uuid
+  hourlyRate   Decimal  @map("hourly_rate") @db.Decimal(8,2)
+
+  rateCard   RateCard    @relation(fields: [rateCardId], references: [id], onDelete: Cascade)
+  department Department? @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+
+  @@map("rate_card_entries")
+}
+
+model ClientInvoice {
+  id                 String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  workspaceId        String   @map("workspace_id") @db.Uuid
+  clientId           String?  @map("client_id") @db.Uuid
+  month              DateTime @db.Date
+  invoiceDate        DateTime? @map("invoice_date") @db.Date
+  invoiceNo          String?  @map("invoice_no")
+  clientNameRaw      String   @map("client_name_raw")
+  salesPerson        String?  @map("sales_person")
+  serviceDepartment  String?  @map("service_department")
+  serviceCategory    String?  @map("service_category")
+  type               String?
+  classification     String?
+  servicesDetail     String?  @map("services_detail")
+  salesAmount        Decimal  @map("sales_amount") @db.Decimal(12,2)
+  thirdParty         Decimal? @map("third_party") @db.Decimal(12,2)
+  advertisingBudget  Decimal? @map("advertising_budget") @db.Decimal(12,2)
+  currency           String   @default("AED")
+  sourceRowHash      String   @map("source_row_hash")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt      @map("updated_at")
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id])
+  client    Client?   @relation(fields: [clientId], references: [id], onDelete: SetNull)
+
+  @@unique([workspaceId, sourceRowHash])
+  @@index([workspaceId, month])
+  @@index([clientId, month])
+  @@map("client_invoices")
+}
+
+model Client {
+  id                 String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  workspaceId        String    @map("workspace_id") @db.Uuid
+  clientCode         String?   @map("client_code")
+  name               String
+  logoUrl            String?   @map("logo_url")
+  country            String?
+  address            String?
+  defaultRateCardId  String?   @map("default_rate_card_id") @db.Uuid
+  parentClientId     String?   @map("parent_client_id") @db.Uuid
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt      @map("updated_at")
+  deletedAt          DateTime? @map("deleted_at")
+
+  workspace       Workspace       @relation(fields: [workspaceId], references: [id])
+  projects        Project[]
+  invoices        ClientInvoice[]
+  defaultRateCard RateCard?       @relation("ClientDefaultRateCard", fields: [defaultRateCardId], references: [id], onDelete: SetNull)
+
+  // Self-referential parent / children — lets accounts like Nexa Cognition
+  // own sub-clients like Redwood or Bisco (Apr 17 meeting with Murtaza).
+  // onDelete: SetNull means deleting a parent orphans its children rather
+  // than cascading — if Nexa Cognition gets soft-deleted, the sub-clients
+  // become top-level clients instead of being dragged into the trash.
+  parent   Client?  @relation("ClientHierarchy", fields: [parentClientId], references: [id], onDelete: SetNull)
+  children Client[] @relation("ClientHierarchy")
+
+  @@index([workspaceId])
+  @@index([defaultRateCardId])
+  @@index([parentClientId])
+  @@map("clients")
+}
+
+model ProjectLabel {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  workspaceId String   @map("workspace_id") @db.Uuid
+  name        String
+  color       String   @default("#0D9488")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  workspace Workspace               @relation(fields: [workspaceId], references: [id])
+  projects  ProjectLabelOnProject[]
+
+  @@unique([workspaceId, name])
+  @@map("project_labels")
+}
+
+model ProjectLabelOnProject {
+  projectId String @map("project_id") @db.Uuid
+  labelId   String @map("label_id")   @db.Uuid
+
+  project Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  label   ProjectLabel @relation(fields: [labelId],   references: [id], onDelete: Cascade)
+
+  @@id([projectId, labelId])
+  @@map("project_label_on_projects")
+}
+
+model Project {
+  id             String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  workspaceId    String        @map("workspace_id") @db.Uuid
+  clientId       String?       @map("client_id")   @db.Uuid
+  rateCardId     String?       @map("rate_card_id") @db.Uuid
+  name           String
+  description    String?
+  status         ProjectStatus @default(running)
+  color          String        @default("#0D9488")
+  budgetType     BudgetType    @default(fixed_price) @map("budget_type")
+  budgetAmount   Decimal?      @map("budget_amount") @db.Decimal(12,2)
+  budgetHrs      Decimal?      @map("budget_hrs")    @db.Decimal(8,2)
+  currency       String        @default("AED")
+  retainerPeriod RetainerPeriod? @map("retainer_period")
+  retainerCount  Int?            @map("retainer_count")
+  startDate      DateTime?     @map("start_date") @db.Date
+  endDate        DateTime?     @map("end_date")   @db.Date
+  alertAt70      Boolean       @default(true) @map("alert_at_70")
+  alertAt80      Boolean       @default(true) @map("alert_at_80")
+  alertAt90      Boolean       @default(true) @map("alert_at_90")
+  billable       Boolean       @default(true)
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt      @map("updated_at")
+  deletedAt      DateTime?     @map("deleted_at")
+
+  workspace Workspace               @relation(fields: [workspaceId], references: [id])
+  client    Client?                 @relation(fields: [clientId],    references: [id])
+  rateCard  RateCard?               @relation(fields: [rateCardId],  references: [id])
+  phases    Phase[]
+  labels    ProjectLabelOnProject[]
+  reports   Report[]
+
+  @@index([workspaceId])
+  @@index([clientId])
+  @@map("projects")
+}
+
+model Phase {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  projectId   String    @map("project_id") @db.Uuid
+  name        String
+  description String?
+  startDate   DateTime? @map("start_date") @db.Date
+  endDate     DateTime? @map("end_date")   @db.Date
+  sortOrder   Int       @default(0) @map("sort_order")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt      @map("updated_at")
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tasks   Task[]
+
+  @@index([projectId])
+  @@map("phases")
+}
+
+model Task {
+  id           String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  phaseId      String     @map("phase_id") @db.Uuid
+  title        String
+  description  String?
+  estimatedHrs Decimal?   @map("estimated_hrs") @db.Decimal(6,2)
+  status       TaskStatus @default(todo)
+  billable     Boolean    @default(true)
+  startDate    DateTime?  @map("start_date") @db.Date
+  dueDate      DateTime?  @map("due_date")   @db.Date
+  sortOrder    Int        @default(0) @map("sort_order")
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt      @map("updated_at")
+
+  phase       Phase          @relation(fields: [phaseId], references: [id], onDelete: Cascade)
+  assignees   TaskAssignee[]
+  timeEntries TimeEntry[]
+
+  @@index([phaseId])
+  @@map("tasks")
+}
+
+model TaskAssignee {
+  taskId    String   @map("task_id") @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at")
+
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([taskId, userId])
+  @@map("task_assignees")
+}
+
+model TimeEntry {
+  id                     String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId                 String        @map("user_id") @db.Uuid
+  date                   DateTime      @db.Date
+  hours                  Decimal       @db.Decimal(4,2)
+  billable               Boolean       @default(true)
+  note                   String?
+  type                   TimeEntryType @default(project)
+  taskId                 String?       @map("task_id") @db.Uuid
+  internalTimeCategoryId String?       @map("internal_time_category_id") @db.Uuid
+  timeOffCategoryId      String?       @map("time_off_category_id")      @db.Uuid
+  createdAt              DateTime      @default(now()) @map("created_at")
+  updatedAt              DateTime      @updatedAt      @map("updated_at")
+
+  user                 User                  @relation(fields: [userId], references: [id])
+  task                 Task?                 @relation(fields: [taskId],   references: [id])
+  internalTimeCategory InternalTimeCategory? @relation(fields: [internalTimeCategoryId], references: [id])
+  timeOffCategory      TimeOffCategory?      @relation(fields: [timeOffCategoryId],      references: [id])
+
+  @@unique([userId, taskId, date])
+  @@index([userId, date])
+  @@index([taskId])
+  @@map("time_entries")
+}
+
+model Report {
+  id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  workspaceId String       @map("workspace_id") @db.Uuid
+  projectId   String?      @map("project_id") @db.Uuid
+  type        ReportType
+  filters     Json         @default("{}")
+  status      ReportStatus @default(pending)
+  fileUrl     String?      @map("file_url")
+  generatedAt DateTime?    @map("generated_at")
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt      @map("updated_at")
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id])
+  project   Project?  @relation(fields: [projectId],   references: [id])
+
+  @@index([workspaceId])
+  @@map("reports")
+}
+
+model ProjectTemplate {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  workspaceId String    @map("workspace_id") @db.Uuid
+  name        String
+  description String?
+  color       String    @default("#0D9488")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt      @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+
+  workspace Workspace       @relation(fields: [workspaceId], references: [id])
+  phases    TemplatePhase[]
+
+  @@index([workspaceId])
+  @@map("project_templates")
+}
+
+model TemplatePhase {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  templateId  String   @map("template_id") @db.Uuid
+  name        String
+  description String?
+  sortOrder   Int      @default(0) @map("sort_order")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt      @map("updated_at")
+
+  template ProjectTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  tasks    TemplateTask[]
+
+  @@index([templateId])
+  @@map("template_phases")
+}
+
+model TemplateTask {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  templatePhaseId String   @map("template_phase_id") @db.Uuid
+  title           String
+  description     String?
+  estimatedHrs    Decimal? @map("estimated_hrs") @db.Decimal(6,2)
+  billable        Boolean  @default(true)
+  sortOrder       Int      @default(0) @map("sort_order")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt      @map("updated_at")
+
+  phase TemplatePhase @relation(fields: [templatePhaseId], references: [id], onDelete: Cascade)
+
+  @@index([templatePhaseId])
+  @@map("template_tasks")
+}
+
+model SavedReportConfig {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  workspaceId String   @map("workspace_id") @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  name        String
+  reportType  String   @map("report_type")
+  config      Json     @default("{}")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt      @map("updated_at")
+
+  @@unique([userId, name], map: "saved_report_configs_user_name_uq")
+  @@index([userId, createdAt(sort: Desc)], map: "saved_report_configs_user_idx")
+  @@index([workspaceId], map: "saved_report_configs_ws_idx")
+  @@map("saved_report_configs")
+}

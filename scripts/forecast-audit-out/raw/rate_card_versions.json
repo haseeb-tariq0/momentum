@@ -1,0 +1,3068 @@
+[
+  {
+    "start_date": null,
+    "end_date": "2024-01-14",
+    "default_rate": 200,
+    "rates": [
+      {
+        "role": 394993,
+        "rate": 200,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-06-01T12:08:47Z",
+        "updated_at": "2023-06-01T12:08:47Z"
+      },
+      {
+        "role": 395139,
+        "rate": 200,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-06-01T12:08:47Z",
+        "updated_at": "2023-06-01T17:58:44Z"
+      },
+      {
+        "role": 393821,
+        "rate": 200,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-06-01T12:08:47Z",
+        "updated_at": "2023-06-01T17:58:44Z"
+      },
+      {
+        "role": 394997,
+        "rate": 200,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-06-01T12:08:47Z",
+        "updated_at": "2023-06-01T12:08:47Z"
+      },
+      {
+        "role": 395503,
+        "rate": 200,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-06-22T05:43:04Z",
+        "updated_at": "2023-07-20T12:02:02Z"
+      }
+    ],
+    "rate_card_id": 120615,
+    "rate_card_name": "Standard Rate AED 2023"
+  },
+  {
+    "start_date": "2024-01-15",
+    "end_date": null,
+    "default_rate": 200,
+    "rates": [
+      {
+        "role": 394993,
+        "rate": 200,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2024-01-15T08:13:48Z",
+        "updated_at": "2024-01-15T08:13:48Z"
+      },
+      {
+        "role": 395503,
+        "rate": 200,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2024-01-15T08:13:48Z",
+        "updated_at": "2024-01-15T08:13:48Z"
+      },
+      {
+        "role": 395139,
+        "rate": 200,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2024-01-15T08:13:48Z",
+        "updated_at": "2024-01-15T08:13:48Z"
+      },
+      {
+        "role": 393821,
+        "rate": 200,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2024-01-15T08:13:48Z",
+        "updated_at": "2024-01-15T08:13:48Z"
+      },
+      {
+        "role": 394997,
+        "rate": 200,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2024-01-15T08:13:48Z",
+        "updated_at": "2024-01-15T08:13:48Z"
+      }
+    ],
+    "rate_card_id": 120615,
+    "rate_card_name": "Standard Rate AED 2023"
+  },
+  {
+    "start_date": null,
+    "end_date": null,
+    "default_rate": 0,
+    "rates": [],
+    "rate_card_id": 120617,
+    "rate_card_name": "Barter ratecard"
+  },
+  {
+    "start_date": null,
+    "end_date": null,
+    "default_rate": 0,
+    "rates": [
+      {
+        "role": 394997,
+        "rate": 180,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-06-02T05:19:45Z",
+        "updated_at": "2023-06-02T05:21:47Z"
+      },
+      {
+        "role": 395453,
+        "rate": 180,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-06-22T05:47:23Z",
+        "updated_at": "2023-06-22T05:47:23Z"
+      },
+      {
+        "role": 395450,
+        "rate": 200,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-06-22T05:47:23Z",
+        "updated_at": "2023-06-22T05:47:23Z"
+      },
+      {
+        "role": 395454,
+        "rate": 225,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-06-22T05:47:23Z",
+        "updated_at": "2023-06-22T05:47:23Z"
+      },
+      {
+        "role": 395452,
+        "rate": 200,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-06-22T05:47:23Z",
+        "updated_at": "2023-06-22T05:47:23Z"
+      },
+      {
+        "role": 395455,
+        "rate": 225,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-06-22T05:47:22Z",
+        "updated_at": "2023-06-22T05:47:22Z"
+      },
+      {
+        "role": 395503,
+        "rate": 225,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-06-22T05:47:22Z",
+        "updated_at": "2023-06-22T05:47:22Z"
+      },
+      {
+        "role": 395232,
+        "rate": 180,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-06-02T05:21:46Z",
+        "updated_at": "2023-06-02T05:21:46Z"
+      },
+      {
+        "role": 394993,
+        "rate": 180,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-06-02T05:19:45Z",
+        "updated_at": "2023-06-02T05:21:47Z"
+      },
+      {
+        "role": 395139,
+        "rate": 180,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-06-02T05:19:45Z",
+        "updated_at": "2023-06-02T05:21:47Z"
+      },
+      {
+        "role": 393821,
+        "rate": 180,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-06-02T05:19:45Z",
+        "updated_at": "2023-06-02T05:21:47Z"
+      },
+      {
+        "role": 393717,
+        "rate": 180,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-06-02T05:19:45Z",
+        "updated_at": "2023-06-02T05:21:47Z"
+      },
+      {
+        "role": 395135,
+        "rate": 180,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-06-02T05:19:45Z",
+        "updated_at": "2023-06-02T05:21:47Z"
+      },
+      {
+        "role": 395134,
+        "rate": 225,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-06-02T05:19:45Z",
+        "updated_at": "2023-06-02T05:21:47Z"
+      },
+      {
+        "role": 395186,
+        "rate": 225,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-06-02T05:19:45Z",
+        "updated_at": "2023-06-02T05:21:47Z"
+      },
+      {
+        "role": 395138,
+        "rate": 225,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-06-02T05:19:45Z",
+        "updated_at": "2023-06-02T05:21:47Z"
+      },
+      {
+        "role": 394992,
+        "rate": 225,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-06-02T05:19:45Z",
+        "updated_at": "2023-06-02T05:21:47Z"
+      },
+      {
+        "role": 393830,
+        "rate": 200,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-06-02T05:19:45Z",
+        "updated_at": "2023-06-02T05:21:47Z"
+      },
+      {
+        "role": 395136,
+        "rate": 200,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-06-02T05:19:45Z",
+        "updated_at": "2023-06-02T05:21:47Z"
+      },
+      {
+        "role": 395133,
+        "rate": 180,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-06-02T05:19:45Z",
+        "updated_at": "2023-06-02T05:21:47Z"
+      },
+      {
+        "role": 395187,
+        "rate": 200,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-06-02T05:19:45Z",
+        "updated_at": "2023-06-02T05:21:47Z"
+      },
+      {
+        "role": 395190,
+        "rate": 180,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-06-02T05:19:45Z",
+        "updated_at": "2023-06-02T05:21:47Z"
+      },
+      {
+        "role": 394998,
+        "rate": 180,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-06-02T05:19:45Z",
+        "updated_at": "2023-06-02T05:21:47Z"
+      },
+      {
+        "role": 395137,
+        "rate": 180,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-06-02T05:19:45Z",
+        "updated_at": "2023-06-02T05:21:47Z"
+      }
+    ],
+    "rate_card_id": 122002,
+    "rate_card_name": "Multi-Service discount - 10%"
+  },
+  {
+    "start_date": null,
+    "end_date": null,
+    "default_rate": 0,
+    "rates": [
+      {
+        "role": 394993,
+        "rate": 60,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-06-13T06:28:32Z",
+        "updated_at": "2023-06-13T06:36:44Z"
+      },
+      {
+        "role": 395139,
+        "rate": 60,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-06-13T06:28:32Z",
+        "updated_at": "2023-06-13T06:36:44Z"
+      },
+      {
+        "role": 393821,
+        "rate": 60,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-06-13T06:28:32Z",
+        "updated_at": "2023-06-13T06:36:44Z"
+      },
+      {
+        "role": 393717,
+        "rate": 60,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-06-13T06:28:32Z",
+        "updated_at": "2023-06-13T06:36:44Z"
+      },
+      {
+        "role": 395135,
+        "rate": 60,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-06-13T06:28:32Z",
+        "updated_at": "2023-06-13T06:36:44Z"
+      },
+      {
+        "role": 394997,
+        "rate": 60,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-06-13T06:28:32Z",
+        "updated_at": "2023-06-13T06:36:44Z"
+      },
+      {
+        "role": 395186,
+        "rate": 65,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-06-13T06:28:32Z",
+        "updated_at": "2023-06-13T06:36:44Z"
+      },
+      {
+        "role": 395138,
+        "rate": 65,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-06-13T06:28:32Z",
+        "updated_at": "2023-06-13T06:36:44Z"
+      },
+      {
+        "role": 395134,
+        "rate": 65,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-06-13T06:28:32Z",
+        "updated_at": "2023-06-13T06:36:44Z"
+      },
+      {
+        "role": 394992,
+        "rate": 65,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-06-13T06:28:32Z",
+        "updated_at": "2023-06-13T06:36:44Z"
+      },
+      {
+        "role": 393830,
+        "rate": 62,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-06-13T06:28:32Z",
+        "updated_at": "2023-06-13T06:36:44Z"
+      },
+      {
+        "role": 395136,
+        "rate": 62,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-06-13T06:28:32Z",
+        "updated_at": "2023-06-13T06:36:44Z"
+      },
+      {
+        "role": 395133,
+        "rate": 60,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-06-13T06:28:32Z",
+        "updated_at": "2023-06-13T06:36:44Z"
+      },
+      {
+        "role": 395187,
+        "rate": 62,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-06-13T06:28:32Z",
+        "updated_at": "2023-06-13T06:36:45Z"
+      },
+      {
+        "role": 395190,
+        "rate": 60,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-06-13T06:28:32Z",
+        "updated_at": "2023-06-13T06:36:45Z"
+      },
+      {
+        "role": 394998,
+        "rate": 60,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-06-13T06:28:32Z",
+        "updated_at": "2023-06-13T06:36:45Z"
+      },
+      {
+        "role": 395137,
+        "rate": 60,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-06-13T06:28:32Z",
+        "updated_at": "2023-06-13T06:36:45Z"
+      },
+      {
+        "role": 395232,
+        "rate": 60,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-06-13T06:28:32Z",
+        "updated_at": "2023-06-13T06:36:44Z"
+      },
+      {
+        "role": 395455,
+        "rate": 65,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-06-13T06:28:32Z",
+        "updated_at": "2023-06-13T06:36:44Z"
+      },
+      {
+        "role": 395452,
+        "rate": 62,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-06-13T06:28:32Z",
+        "updated_at": "2023-06-13T06:36:44Z"
+      },
+      {
+        "role": 395454,
+        "rate": 65,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-06-13T06:28:32Z",
+        "updated_at": "2023-06-13T06:36:44Z"
+      },
+      {
+        "role": 395450,
+        "rate": 62,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-06-13T06:28:32Z",
+        "updated_at": "2023-06-13T06:36:44Z"
+      },
+      {
+        "role": 395453,
+        "rate": 60,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-06-13T06:28:32Z",
+        "updated_at": "2023-06-13T06:36:45Z"
+      }
+    ],
+    "rate_card_id": 122245,
+    "rate_card_name": "Standard USD"
+  },
+  {
+    "start_date": null,
+    "end_date": null,
+    "default_rate": 250,
+    "rates": [],
+    "rate_card_id": 124006,
+    "rate_card_name": "Extra rate"
+  },
+  {
+    "start_date": null,
+    "end_date": null,
+    "default_rate": 300,
+    "rates": [],
+    "rate_card_id": 124007,
+    "rate_card_name": "Premium rate"
+  },
+  {
+    "start_date": null,
+    "end_date": null,
+    "default_rate": 220,
+    "rates": [],
+    "rate_card_id": 124113,
+    "rate_card_name": " Standard Rate AED plus 10%"
+  },
+  {
+    "start_date": null,
+    "end_date": null,
+    "default_rate": 210,
+    "rates": [],
+    "rate_card_id": 124114,
+    "rate_card_name": " Standard Rate AED plus 5%"
+  },
+  {
+    "start_date": null,
+    "end_date": null,
+    "default_rate": 262,
+    "rates": [],
+    "rate_card_id": 124148,
+    "rate_card_name": "Extra rate plus 5%"
+  },
+  {
+    "start_date": null,
+    "end_date": null,
+    "default_rate": 172,
+    "rates": [
+      {
+        "role": 394993,
+        "rate": 176,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-10-23T09:16:13Z",
+        "updated_at": "2023-10-23T09:31:57Z"
+      },
+      {
+        "role": 393717,
+        "rate": 220,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-10-23T09:16:13Z",
+        "updated_at": "2023-10-23T09:31:57Z"
+      },
+      {
+        "role": 395135,
+        "rate": 220,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-10-23T09:16:13Z",
+        "updated_at": "2023-10-23T09:31:57Z"
+      },
+      {
+        "role": 395138,
+        "rate": 220,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-10-23T09:16:13Z",
+        "updated_at": "2023-10-23T09:31:57Z"
+      },
+      {
+        "role": 394992,
+        "rate": 220,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-10-23T09:16:13Z",
+        "updated_at": "2023-10-23T09:31:57Z"
+      },
+      {
+        "role": 393830,
+        "rate": 176,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-10-23T09:16:13Z",
+        "updated_at": "2023-10-23T09:31:57Z"
+      },
+      {
+        "role": 395136,
+        "rate": 220,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-10-23T09:16:13Z",
+        "updated_at": "2023-10-23T09:31:57Z"
+      },
+      {
+        "role": 395133,
+        "rate": 176,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-10-23T09:16:13Z",
+        "updated_at": "2023-10-23T09:31:57Z"
+      },
+      {
+        "role": 395187,
+        "rate": 220,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-10-23T09:16:13Z",
+        "updated_at": "2023-10-23T09:31:57Z"
+      },
+      {
+        "role": 394998,
+        "rate": 220,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-10-23T09:16:13Z",
+        "updated_at": "2023-10-23T09:31:57Z"
+      },
+      {
+        "role": 395137,
+        "rate": 220,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-10-23T09:16:13Z",
+        "updated_at": "2023-10-23T09:31:57Z"
+      },
+      {
+        "role": 395503,
+        "rate": 176,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-10-23T09:31:56Z",
+        "updated_at": "2023-10-23T09:31:56Z"
+      },
+      {
+        "role": 396198,
+        "rate": 220,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-10-23T09:31:56Z",
+        "updated_at": "2023-10-23T09:31:56Z"
+      },
+      {
+        "role": 394929,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-10-23T09:31:57Z",
+        "updated_at": "2023-10-23T09:31:57Z"
+      }
+    ],
+    "rate_card_id": 124392,
+    "rate_card_name": "MAZ NEXA rates"
+  },
+  {
+    "start_date": null,
+    "end_date": "2023-12-31",
+    "default_rate": 45,
+    "rates": [
+      {
+        "role": 395450,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-10-23T12:10:28Z",
+        "updated_at": "2023-10-23T12:10:28Z"
+      },
+      {
+        "role": 395137,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-10-23T12:10:28Z",
+        "updated_at": "2023-10-23T12:10:28Z"
+      },
+      {
+        "role": 394998,
+        "rate": 70,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-10-23T12:10:28Z",
+        "updated_at": "2023-10-23T12:10:28Z"
+      },
+      {
+        "role": 395190,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-10-23T12:10:28Z",
+        "updated_at": "2023-10-23T12:10:28Z"
+      },
+      {
+        "role": 393822,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-10-23T12:10:28Z",
+        "updated_at": "2023-10-23T12:10:28Z"
+      },
+      {
+        "role": 395453,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-10-23T12:10:28Z",
+        "updated_at": "2023-10-23T12:10:28Z"
+      },
+      {
+        "role": 395187,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-10-23T12:10:28Z",
+        "updated_at": "2023-10-23T12:10:28Z"
+      },
+      {
+        "role": 395138,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-10-23T12:10:28Z",
+        "updated_at": "2023-10-23T12:10:28Z"
+      },
+      {
+        "role": 394993,
+        "rate": 40,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-10-23T12:10:27Z",
+        "updated_at": "2023-10-23T12:10:27Z"
+      },
+      {
+        "role": 395503,
+        "rate": 40,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-10-23T12:10:27Z",
+        "updated_at": "2023-10-23T12:10:27Z"
+      },
+      {
+        "role": 395186,
+        "rate": 40,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-10-23T12:10:27Z",
+        "updated_at": "2023-10-25T12:31:49Z"
+      },
+      {
+        "role": 395139,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-10-23T12:10:27Z",
+        "updated_at": "2023-10-23T12:10:27Z"
+      },
+      {
+        "role": 393821,
+        "rate": 40,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-10-23T12:10:27Z",
+        "updated_at": "2023-10-25T12:31:49Z"
+      },
+      {
+        "role": 393717,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-10-23T12:10:27Z",
+        "updated_at": "2023-10-23T12:10:27Z"
+      },
+      {
+        "role": 395232,
+        "rate": 45,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-10-23T12:10:27Z",
+        "updated_at": "2023-10-23T12:10:27Z"
+      },
+      {
+        "role": 395135,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-10-23T12:10:27Z",
+        "updated_at": "2023-10-23T12:10:27Z"
+      },
+      {
+        "role": 395455,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-10-23T12:10:27Z",
+        "updated_at": "2023-10-23T12:24:12Z"
+      },
+      {
+        "role": 396198,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-10-23T12:10:27Z",
+        "updated_at": "2023-10-23T12:10:27Z"
+      },
+      {
+        "role": 394992,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-10-23T12:10:28Z",
+        "updated_at": "2023-10-23T12:10:28Z"
+      },
+      {
+        "role": 393830,
+        "rate": 45,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-10-23T12:10:28Z",
+        "updated_at": "2023-10-23T12:10:28Z"
+      },
+      {
+        "role": 395136,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-10-23T12:10:28Z",
+        "updated_at": "2023-10-23T12:10:28Z"
+      },
+      {
+        "role": 394997,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-10-23T12:10:28Z",
+        "updated_at": "2023-10-23T12:24:12Z"
+      },
+      {
+        "role": 394929,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-10-23T12:10:28Z",
+        "updated_at": "2023-11-07T07:34:40Z"
+      },
+      {
+        "role": 395133,
+        "rate": 45,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-10-23T12:10:28Z",
+        "updated_at": "2023-10-23T12:10:28Z"
+      },
+      {
+        "role": 395134,
+        "rate": 45,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-10-23T12:10:28Z",
+        "updated_at": "2023-10-23T12:10:28Z"
+      },
+      {
+        "role": 395452,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-10-23T12:10:28Z",
+        "updated_at": "2023-10-23T12:24:12Z"
+      },
+      {
+        "role": 395454,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-10-23T12:10:28Z",
+        "updated_at": "2023-10-23T12:10:28Z"
+      }
+    ],
+    "rate_card_id": 124393,
+    "rate_card_name": "COGNITION  Hourly Ratecard"
+  },
+  {
+    "start_date": "2024-01-01",
+    "end_date": null,
+    "default_rate": 70,
+    "rates": [
+      {
+        "role": 395137,
+        "rate": 80,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-01-16T11:29:05Z",
+        "updated_at": "2025-01-16T11:29:05Z"
+      },
+      {
+        "role": 401023,
+        "rate": 80,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-01-16T11:29:05Z",
+        "updated_at": "2025-01-16T11:29:05Z"
+      },
+      {
+        "role": 393717,
+        "rate": 80,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-01-16T11:29:05Z",
+        "updated_at": "2025-01-16T11:29:05Z"
+      },
+      {
+        "role": 395135,
+        "rate": 80,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-01-16T11:29:05Z",
+        "updated_at": "2025-01-16T11:29:05Z"
+      },
+      {
+        "role": 395455,
+        "rate": 80,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-01-16T11:29:05Z",
+        "updated_at": "2025-01-16T11:29:05Z"
+      },
+      {
+        "role": 396198,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-01-16T11:29:05Z",
+        "updated_at": "2025-01-16T11:29:05Z"
+      },
+      {
+        "role": 395138,
+        "rate": 80,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-01-16T11:29:05Z",
+        "updated_at": "2025-01-16T11:29:05Z"
+      },
+      {
+        "role": 394992,
+        "rate": 80,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-01-16T11:29:05Z",
+        "updated_at": "2025-01-16T11:29:05Z"
+      },
+      {
+        "role": 395136,
+        "rate": 80,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-01-16T11:29:05Z",
+        "updated_at": "2025-01-16T11:29:05Z"
+      },
+      {
+        "role": 394997,
+        "rate": 80,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-01-16T11:29:05Z",
+        "updated_at": "2025-01-16T11:29:05Z"
+      },
+      {
+        "role": 394929,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-01-16T11:29:05Z",
+        "updated_at": "2025-01-16T11:29:05Z"
+      },
+      {
+        "role": 395452,
+        "rate": 80,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-01-16T11:29:05Z",
+        "updated_at": "2025-01-16T11:29:05Z"
+      },
+      {
+        "role": 395187,
+        "rate": 80,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-01-16T11:29:05Z",
+        "updated_at": "2025-01-16T11:29:05Z"
+      },
+      {
+        "role": 394998,
+        "rate": 80,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-01-16T11:29:05Z",
+        "updated_at": "2025-01-16T11:29:05Z"
+      }
+    ],
+    "rate_card_id": 124393,
+    "rate_card_name": "COGNITION  Hourly Ratecard"
+  },
+  {
+    "start_date": null,
+    "end_date": null,
+    "default_rate": 50,
+    "rates": [],
+    "rate_card_id": 124394,
+    "rate_card_name": "Isuzu Retainer ratecard"
+  },
+  {
+    "start_date": null,
+    "end_date": null,
+    "default_rate": 170,
+    "rates": [],
+    "rate_card_id": 124470,
+    "rate_card_name": "Standard rate minus 15%"
+  },
+  {
+    "start_date": null,
+    "end_date": null,
+    "default_rate": 285,
+    "rates": [],
+    "rate_card_id": 124542,
+    "rate_card_name": "Premium minus 15%"
+  },
+  {
+    "start_date": null,
+    "end_date": null,
+    "default_rate": 400,
+    "rates": [],
+    "rate_card_id": 124599,
+    "rate_card_name": "PWC rate"
+  },
+  {
+    "start_date": null,
+    "end_date": null,
+    "default_rate": 187.5,
+    "rates": [],
+    "rate_card_id": 124623,
+    "rate_card_name": "Extra rate minus 25%"
+  },
+  {
+    "start_date": null,
+    "end_date": null,
+    "default_rate": 145,
+    "rates": [
+      {
+        "role": 395136,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-11-16T06:26:37Z",
+        "updated_at": "2023-11-16T06:26:37Z"
+      },
+      {
+        "role": 395137,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-11-16T06:26:38Z",
+        "updated_at": "2023-11-16T06:26:38Z"
+      },
+      {
+        "role": 394998,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-11-16T06:26:38Z",
+        "updated_at": "2023-11-16T06:26:38Z"
+      },
+      {
+        "role": 395190,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-11-16T06:26:38Z",
+        "updated_at": "2023-11-16T06:26:38Z"
+      },
+      {
+        "role": 393822,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-11-16T06:26:38Z",
+        "updated_at": "2023-11-16T06:26:38Z"
+      },
+      {
+        "role": 395453,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-11-16T06:26:38Z",
+        "updated_at": "2023-11-16T06:26:38Z"
+      },
+      {
+        "role": 395187,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-11-16T06:26:38Z",
+        "updated_at": "2023-11-16T06:26:38Z"
+      },
+      {
+        "role": 395450,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-11-16T06:26:38Z",
+        "updated_at": "2023-11-16T06:26:38Z"
+      },
+      {
+        "role": 395454,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-11-16T06:26:38Z",
+        "updated_at": "2023-11-16T06:26:38Z"
+      },
+      {
+        "role": 395452,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-11-16T06:26:38Z",
+        "updated_at": "2023-11-16T06:26:38Z"
+      },
+      {
+        "role": 395134,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-11-16T06:26:38Z",
+        "updated_at": "2023-11-16T06:26:38Z"
+      },
+      {
+        "role": 395133,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-11-16T06:26:38Z",
+        "updated_at": "2023-11-16T06:26:38Z"
+      },
+      {
+        "role": 394929,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-11-16T06:26:38Z",
+        "updated_at": "2023-11-16T06:26:38Z"
+      },
+      {
+        "role": 394997,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-11-16T06:26:38Z",
+        "updated_at": "2023-11-16T06:26:38Z"
+      },
+      {
+        "role": 393830,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-11-16T06:26:37Z",
+        "updated_at": "2023-11-16T06:26:37Z"
+      },
+      {
+        "role": 394992,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-11-16T06:26:37Z",
+        "updated_at": "2023-11-16T06:26:37Z"
+      },
+      {
+        "role": 395138,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-11-16T06:26:37Z",
+        "updated_at": "2023-11-16T06:26:37Z"
+      },
+      {
+        "role": 396198,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-11-16T06:26:37Z",
+        "updated_at": "2023-11-16T06:26:37Z"
+      },
+      {
+        "role": 395455,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-11-16T06:26:37Z",
+        "updated_at": "2023-11-16T06:26:37Z"
+      },
+      {
+        "role": 395135,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-11-16T06:26:37Z",
+        "updated_at": "2023-11-16T06:26:37Z"
+      },
+      {
+        "role": 395232,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-11-16T06:26:37Z",
+        "updated_at": "2023-11-16T06:26:37Z"
+      },
+      {
+        "role": 393717,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-11-16T06:26:37Z",
+        "updated_at": "2023-11-16T06:26:37Z"
+      },
+      {
+        "role": 393821,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-11-16T06:26:37Z",
+        "updated_at": "2023-11-16T06:26:37Z"
+      },
+      {
+        "role": 395139,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-11-16T06:26:37Z",
+        "updated_at": "2023-11-16T06:26:37Z"
+      },
+      {
+        "role": 395186,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-11-16T06:26:37Z",
+        "updated_at": "2023-11-16T06:26:37Z"
+      },
+      {
+        "role": 395503,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-11-16T06:26:37Z",
+        "updated_at": "2023-11-16T06:26:37Z"
+      },
+      {
+        "role": 394993,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2023-11-16T06:26:37Z",
+        "updated_at": "2023-11-16T06:26:37Z"
+      }
+    ],
+    "rate_card_id": 124724,
+    "rate_card_name": "Spiral"
+  },
+  {
+    "start_date": null,
+    "end_date": "2024-01-14",
+    "default_rate": 200,
+    "rates": [
+      {
+        "role": 395503,
+        "rate": 200,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2024-01-15T08:14:23Z",
+        "updated_at": "2024-01-15T08:14:23Z"
+      },
+      {
+        "role": 394997,
+        "rate": 200,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2024-01-15T08:14:23Z",
+        "updated_at": "2024-01-15T08:14:23Z"
+      },
+      {
+        "role": 393821,
+        "rate": 200,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2024-01-15T08:14:23Z",
+        "updated_at": "2024-01-15T08:14:23Z"
+      },
+      {
+        "role": 395139,
+        "rate": 200,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2024-01-15T08:14:23Z",
+        "updated_at": "2024-01-15T08:14:23Z"
+      },
+      {
+        "role": 394993,
+        "rate": 200,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2024-01-15T08:14:23Z",
+        "updated_at": "2024-01-15T08:14:23Z"
+      }
+    ],
+    "rate_card_id": 125865,
+    "rate_card_name": "Basic Rate AED 2024"
+  },
+  {
+    "start_date": "2024-01-15",
+    "end_date": null,
+    "default_rate": 270,
+    "rates": [
+      {
+        "role": 395133,
+        "rate": 230,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2024-11-01T08:25:38Z",
+        "updated_at": "2024-11-01T08:25:38Z"
+      },
+      {
+        "role": 393717,
+        "rate": 270,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2024-11-01T08:25:38Z",
+        "updated_at": "2024-11-01T08:25:38Z"
+      },
+      {
+        "role": 395232,
+        "rate": 190,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2024-11-01T08:25:38Z",
+        "updated_at": "2024-11-01T08:25:38Z"
+      },
+      {
+        "role": 395135,
+        "rate": 190,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2024-11-01T08:25:38Z",
+        "updated_at": "2024-11-01T08:25:38Z"
+      },
+      {
+        "role": 395455,
+        "rate": 540,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2024-11-01T08:25:38Z",
+        "updated_at": "2024-11-01T08:25:38Z"
+      },
+      {
+        "role": 399369,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2024-11-01T08:25:38Z",
+        "updated_at": "2024-11-01T08:25:38Z"
+      },
+      {
+        "role": 396198,
+        "rate": 270,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2024-11-01T08:25:38Z",
+        "updated_at": "2024-11-01T08:25:38Z"
+      },
+      {
+        "role": 393830,
+        "rate": 270,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2024-11-01T08:25:38Z",
+        "updated_at": "2024-11-01T08:25:38Z"
+      },
+      {
+        "role": 401026,
+        "rate": 350,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2024-11-01T08:25:38Z",
+        "updated_at": "2024-11-01T08:25:38Z"
+      },
+      {
+        "role": 400624,
+        "rate": 270,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2024-11-01T08:25:38Z",
+        "updated_at": "2024-11-01T08:25:38Z"
+      },
+      {
+        "role": 400341,
+        "rate": 242,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2024-11-01T08:25:38Z",
+        "updated_at": "2024-11-01T08:25:38Z"
+      },
+      {
+        "role": 401877,
+        "rate": 270,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2024-11-01T08:25:38Z",
+        "updated_at": "2024-11-01T08:25:38Z"
+      },
+      {
+        "role": 401043,
+        "rate": 300,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2024-11-01T08:25:38Z",
+        "updated_at": "2024-11-01T08:25:38Z"
+      },
+      {
+        "role": 401042,
+        "rate": 380,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2024-11-01T08:25:38Z",
+        "updated_at": "2024-11-01T08:25:38Z"
+      },
+      {
+        "role": 395454,
+        "rate": 540,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2024-11-01T08:25:38Z",
+        "updated_at": "2024-11-01T08:25:38Z"
+      },
+      {
+        "role": 395450,
+        "rate": 220,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2024-11-01T08:25:38Z",
+        "updated_at": "2024-11-01T08:25:38Z"
+      },
+      {
+        "role": 395453,
+        "rate": 180,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2024-11-01T08:25:38Z",
+        "updated_at": "2024-11-01T08:25:38Z"
+      },
+      {
+        "role": 395190,
+        "rate": 225,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2024-11-01T08:25:38Z",
+        "updated_at": "2024-11-01T08:25:38Z"
+      },
+      {
+        "role": 394998,
+        "rate": 190,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2024-11-01T08:25:38Z",
+        "updated_at": "2024-11-01T08:25:38Z"
+      },
+      {
+        "role": 401023,
+        "rate": 260,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2024-11-01T08:25:38Z",
+        "updated_at": "2024-11-01T08:25:38Z"
+      },
+      {
+        "role": 394997,
+        "rate": 190,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2024-01-15T08:14:23Z",
+        "updated_at": "2024-11-01T08:25:38Z"
+      },
+      {
+        "role": 398664,
+        "rate": 270,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2024-01-15T08:15:20Z",
+        "updated_at": "2024-01-15T08:15:20Z"
+      },
+      {
+        "role": 393821,
+        "rate": 180,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2024-11-01T08:25:38Z",
+        "updated_at": "2024-11-01T08:25:38Z"
+      },
+      {
+        "role": 395134,
+        "rate": 260,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2024-11-01T08:25:38Z",
+        "updated_at": "2024-11-01T08:25:38Z"
+      },
+      {
+        "role": 401025,
+        "rate": 220,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2024-11-01T08:25:38Z",
+        "updated_at": "2024-11-01T08:25:38Z"
+      },
+      {
+        "role": 394993,
+        "rate": 340,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2024-11-01T08:25:38Z",
+        "updated_at": "2024-11-01T08:25:38Z"
+      },
+      {
+        "role": 395503,
+        "rate": 540,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2024-11-01T08:25:38Z",
+        "updated_at": "2024-11-01T08:25:38Z"
+      },
+      {
+        "role": 395139,
+        "rate": 200,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2024-11-01T08:25:38Z",
+        "updated_at": "2024-11-01T08:25:38Z"
+      },
+      {
+        "role": 399208,
+        "rate": 225,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2024-11-01T08:25:38Z",
+        "updated_at": "2024-11-01T08:25:38Z"
+      },
+      {
+        "role": 395186,
+        "rate": 180,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2024-11-01T08:25:38Z",
+        "updated_at": "2024-11-01T08:25:38Z"
+      }
+    ],
+    "rate_card_id": 125865,
+    "rate_card_name": "Basic Rate AED 2024"
+  },
+  {
+    "start_date": null,
+    "end_date": null,
+    "default_rate": 300,
+    "rates": [],
+    "rate_card_id": 125866,
+    "rate_card_name": "Extra rate 2024"
+  },
+  {
+    "start_date": null,
+    "end_date": null,
+    "default_rate": 350,
+    "rates": [],
+    "rate_card_id": 125867,
+    "rate_card_name": "Premium rate 2024"
+  },
+  {
+    "start_date": null,
+    "end_date": "2024-01-14",
+    "default_rate": 200,
+    "rates": [
+      {
+        "role": 394993,
+        "rate": 200,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2024-03-27T05:51:01Z",
+        "updated_at": "2024-03-27T05:51:01Z"
+      },
+      {
+        "role": 395139,
+        "rate": 200,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2024-03-27T05:51:01Z",
+        "updated_at": "2024-03-27T05:51:01Z"
+      },
+      {
+        "role": 393821,
+        "rate": 200,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2024-03-27T05:51:01Z",
+        "updated_at": "2024-03-27T05:51:01Z"
+      },
+      {
+        "role": 394997,
+        "rate": 200,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2024-03-27T05:51:01Z",
+        "updated_at": "2024-03-27T05:51:01Z"
+      },
+      {
+        "role": 395503,
+        "rate": 200,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2024-03-27T05:51:01Z",
+        "updated_at": "2024-03-27T05:51:01Z"
+      }
+    ],
+    "rate_card_id": 126895,
+    "rate_card_name": "Basic Rate AED 2024- 10%"
+  },
+  {
+    "start_date": "2024-01-15",
+    "end_date": null,
+    "default_rate": 240,
+    "rates": [
+      {
+        "role": 394997,
+        "rate": 200,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2024-03-27T05:51:01Z",
+        "updated_at": "2024-03-27T05:51:01Z"
+      },
+      {
+        "role": 398664,
+        "rate": 270,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2024-03-27T05:51:01Z",
+        "updated_at": "2024-03-27T05:51:01Z"
+      }
+    ],
+    "rate_card_id": 126895,
+    "rate_card_name": "Basic Rate AED 2024- 10%"
+  },
+  {
+    "start_date": null,
+    "end_date": "2024-04-30",
+    "default_rate": 45,
+    "rates": [
+      {
+        "role": 395232,
+        "rate": 45,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-01-16T11:29:11Z",
+        "updated_at": "2025-01-16T11:29:11Z"
+      },
+      {
+        "role": 395135,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-01-16T11:29:11Z",
+        "updated_at": "2025-01-16T11:29:11Z"
+      },
+      {
+        "role": 395455,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-01-16T11:29:11Z",
+        "updated_at": "2025-01-16T11:29:11Z"
+      },
+      {
+        "role": 396198,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-01-16T11:29:11Z",
+        "updated_at": "2025-01-16T11:29:11Z"
+      },
+      {
+        "role": 394992,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-01-16T11:29:11Z",
+        "updated_at": "2025-01-16T11:29:11Z"
+      },
+      {
+        "role": 393830,
+        "rate": 45,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-01-16T11:29:11Z",
+        "updated_at": "2025-01-16T11:29:11Z"
+      },
+      {
+        "role": 395136,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-01-16T11:29:11Z",
+        "updated_at": "2025-01-16T11:29:11Z"
+      },
+      {
+        "role": 394997,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-01-16T11:29:11Z",
+        "updated_at": "2025-01-16T11:29:11Z"
+      },
+      {
+        "role": 394929,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-01-16T11:29:11Z",
+        "updated_at": "2025-01-16T11:29:11Z"
+      },
+      {
+        "role": 395133,
+        "rate": 45,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-01-16T11:29:11Z",
+        "updated_at": "2025-01-16T11:29:11Z"
+      },
+      {
+        "role": 395134,
+        "rate": 45,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-01-16T11:29:11Z",
+        "updated_at": "2025-01-16T11:29:11Z"
+      },
+      {
+        "role": 395452,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-01-16T11:29:11Z",
+        "updated_at": "2025-01-16T11:29:11Z"
+      },
+      {
+        "role": 395454,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-01-16T11:29:11Z",
+        "updated_at": "2025-01-16T11:29:11Z"
+      },
+      {
+        "role": 393717,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-01-16T11:29:11Z",
+        "updated_at": "2025-01-16T11:29:11Z"
+      },
+      {
+        "role": 393821,
+        "rate": 40,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-01-16T11:29:11Z",
+        "updated_at": "2025-01-16T11:29:11Z"
+      },
+      {
+        "role": 395139,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-01-16T11:29:11Z",
+        "updated_at": "2025-01-16T11:29:11Z"
+      },
+      {
+        "role": 395186,
+        "rate": 40,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-01-16T11:29:11Z",
+        "updated_at": "2025-01-16T11:29:11Z"
+      },
+      {
+        "role": 395503,
+        "rate": 40,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-01-16T11:29:11Z",
+        "updated_at": "2025-01-16T11:29:11Z"
+      },
+      {
+        "role": 394993,
+        "rate": 40,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-01-16T11:29:11Z",
+        "updated_at": "2025-01-16T11:29:11Z"
+      },
+      {
+        "role": 395138,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-01-16T11:29:11Z",
+        "updated_at": "2025-01-16T11:29:11Z"
+      },
+      {
+        "role": 395187,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-01-16T11:29:11Z",
+        "updated_at": "2025-01-16T11:29:11Z"
+      },
+      {
+        "role": 395453,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-01-16T11:29:11Z",
+        "updated_at": "2025-01-16T11:29:11Z"
+      },
+      {
+        "role": 393822,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-01-16T11:29:11Z",
+        "updated_at": "2025-01-16T11:29:11Z"
+      },
+      {
+        "role": 395190,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-01-16T11:29:11Z",
+        "updated_at": "2025-01-16T11:29:11Z"
+      },
+      {
+        "role": 394998,
+        "rate": 70,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-01-16T11:29:10Z",
+        "updated_at": "2025-01-16T11:29:10Z"
+      },
+      {
+        "role": 395137,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-01-16T11:29:10Z",
+        "updated_at": "2025-01-16T11:29:10Z"
+      },
+      {
+        "role": 395450,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-01-16T11:29:10Z",
+        "updated_at": "2025-01-16T11:29:10Z"
+      }
+    ],
+    "rate_card_id": 130189,
+    "rate_card_name": "MG Empower Hourly Ratecard"
+  },
+  {
+    "start_date": "2024-05-01",
+    "end_date": null,
+    "default_rate": 70,
+    "rates": [
+      {
+        "role": 395137,
+        "rate": 80,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-01-16T11:29:10Z",
+        "updated_at": "2025-01-16T11:29:53Z"
+      },
+      {
+        "role": 394998,
+        "rate": 80,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-01-16T11:29:10Z",
+        "updated_at": "2025-01-16T11:29:53Z"
+      },
+      {
+        "role": 395187,
+        "rate": 80,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-01-16T11:29:10Z",
+        "updated_at": "2025-01-16T11:29:53Z"
+      },
+      {
+        "role": 395452,
+        "rate": 80,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-01-16T11:29:10Z",
+        "updated_at": "2025-01-16T11:29:53Z"
+      },
+      {
+        "role": 394929,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-01-16T11:29:10Z",
+        "updated_at": "2025-01-16T11:29:53Z"
+      },
+      {
+        "role": 394997,
+        "rate": 80,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-01-16T11:29:10Z",
+        "updated_at": "2025-01-16T11:29:53Z"
+      },
+      {
+        "role": 395136,
+        "rate": 80,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-01-16T11:29:10Z",
+        "updated_at": "2025-01-16T11:29:53Z"
+      },
+      {
+        "role": 395138,
+        "rate": 80,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-01-16T11:29:10Z",
+        "updated_at": "2025-01-16T11:29:53Z"
+      },
+      {
+        "role": 396198,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-01-16T11:29:10Z",
+        "updated_at": "2025-01-16T11:29:53Z"
+      },
+      {
+        "role": 395455,
+        "rate": 80,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-01-16T11:29:10Z",
+        "updated_at": "2025-01-16T11:29:53Z"
+      },
+      {
+        "role": 395135,
+        "rate": 80,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-01-16T11:29:10Z",
+        "updated_at": "2025-01-16T11:29:53Z"
+      },
+      {
+        "role": 393717,
+        "rate": 80,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-01-16T11:29:10Z",
+        "updated_at": "2025-01-16T11:29:53Z"
+      },
+      {
+        "role": 401023,
+        "rate": 80,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-01-16T11:29:10Z",
+        "updated_at": "2025-01-16T11:29:53Z"
+      },
+      {
+        "role": 394992,
+        "rate": 80,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-01-16T11:29:10Z",
+        "updated_at": "2025-01-16T11:29:53Z"
+      }
+    ],
+    "rate_card_id": 130189,
+    "rate_card_name": "MG Empower Hourly Ratecard"
+  },
+  {
+    "start_date": null,
+    "end_date": "2024-12-31",
+    "default_rate": 45,
+    "rates": [
+      {
+        "role": 395187,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:26:05Z",
+        "updated_at": "2025-02-03T08:26:05Z"
+      },
+      {
+        "role": 395450,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:26:05Z",
+        "updated_at": "2025-02-03T08:26:05Z"
+      },
+      {
+        "role": 395137,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:26:05Z",
+        "updated_at": "2025-02-03T08:26:05Z"
+      },
+      {
+        "role": 394998,
+        "rate": 70,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:26:05Z",
+        "updated_at": "2025-02-03T08:26:05Z"
+      },
+      {
+        "role": 395190,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:26:05Z",
+        "updated_at": "2025-02-03T08:26:05Z"
+      },
+      {
+        "role": 393822,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:26:05Z",
+        "updated_at": "2025-02-03T08:26:05Z"
+      },
+      {
+        "role": 395453,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:26:05Z",
+        "updated_at": "2025-02-03T08:26:05Z"
+      },
+      {
+        "role": 393830,
+        "rate": 45,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:26:05Z",
+        "updated_at": "2025-02-03T08:26:05Z"
+      },
+      {
+        "role": 395186,
+        "rate": 40,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:26:05Z",
+        "updated_at": "2025-02-03T08:26:05Z"
+      },
+      {
+        "role": 395139,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:26:05Z",
+        "updated_at": "2025-02-03T08:26:05Z"
+      },
+      {
+        "role": 393821,
+        "rate": 40,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:26:05Z",
+        "updated_at": "2025-02-03T08:26:05Z"
+      },
+      {
+        "role": 393717,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:26:05Z",
+        "updated_at": "2025-02-03T08:26:05Z"
+      },
+      {
+        "role": 395232,
+        "rate": 45,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:26:05Z",
+        "updated_at": "2025-02-03T08:26:05Z"
+      },
+      {
+        "role": 395135,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:26:05Z",
+        "updated_at": "2025-02-03T08:26:05Z"
+      },
+      {
+        "role": 395455,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:26:05Z",
+        "updated_at": "2025-02-03T08:26:05Z"
+      },
+      {
+        "role": 396198,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:26:05Z",
+        "updated_at": "2025-02-03T08:26:05Z"
+      },
+      {
+        "role": 394992,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:26:05Z",
+        "updated_at": "2025-02-03T08:26:05Z"
+      },
+      {
+        "role": 395503,
+        "rate": 40,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:26:05Z",
+        "updated_at": "2025-02-03T08:26:05Z"
+      },
+      {
+        "role": 395136,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:26:05Z",
+        "updated_at": "2025-02-03T08:26:05Z"
+      },
+      {
+        "role": 394997,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:26:05Z",
+        "updated_at": "2025-02-03T08:26:05Z"
+      },
+      {
+        "role": 394929,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:26:05Z",
+        "updated_at": "2025-02-03T08:26:05Z"
+      },
+      {
+        "role": 395133,
+        "rate": 45,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:26:05Z",
+        "updated_at": "2025-02-03T08:26:05Z"
+      },
+      {
+        "role": 395134,
+        "rate": 45,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:26:05Z",
+        "updated_at": "2025-02-03T08:26:05Z"
+      },
+      {
+        "role": 395452,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:26:05Z",
+        "updated_at": "2025-02-03T08:26:05Z"
+      },
+      {
+        "role": 395454,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:26:05Z",
+        "updated_at": "2025-02-03T08:26:05Z"
+      },
+      {
+        "role": 394993,
+        "rate": 40,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:26:05Z",
+        "updated_at": "2025-02-03T08:26:05Z"
+      },
+      {
+        "role": 395138,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:26:05Z",
+        "updated_at": "2025-02-03T08:26:05Z"
+      }
+    ],
+    "rate_card_id": 130502,
+    "rate_card_name": "NEXA COGNITION Internal"
+  },
+  {
+    "start_date": "2025-01-01",
+    "end_date": null,
+    "default_rate": 0,
+    "rates": [
+      {
+        "role": 393830,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:57:08Z",
+        "updated_at": "2025-02-03T08:58:20Z"
+      },
+      {
+        "role": 393821,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:57:08Z",
+        "updated_at": "2025-02-03T08:58:20Z"
+      },
+      {
+        "role": 395134,
+        "rate": 36,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:57:08Z",
+        "updated_at": "2025-02-03T08:58:20Z"
+      },
+      {
+        "role": 401025,
+        "rate": 30,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:57:08Z",
+        "updated_at": "2025-02-03T08:58:20Z"
+      },
+      {
+        "role": 394993,
+        "rate": 46,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:57:08Z",
+        "updated_at": "2025-02-03T08:58:20Z"
+      },
+      {
+        "role": 395503,
+        "rate": 75,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:57:08Z",
+        "updated_at": "2025-02-03T08:58:20Z"
+      },
+      {
+        "role": 395139,
+        "rate": 27,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:57:08Z",
+        "updated_at": "2025-02-03T08:58:20Z"
+      },
+      {
+        "role": 399208,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:57:08Z",
+        "updated_at": "2025-02-03T08:58:20Z"
+      },
+      {
+        "role": 395186,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:57:08Z",
+        "updated_at": "2025-02-03T08:58:20Z"
+      },
+      {
+        "role": 400341,
+        "rate": 33,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:57:08Z",
+        "updated_at": "2025-02-03T08:58:20Z"
+      },
+      {
+        "role": 395232,
+        "rate": 26,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:57:08Z",
+        "updated_at": "2025-02-03T08:58:20Z"
+      },
+      {
+        "role": 399369,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:57:08Z",
+        "updated_at": "2025-02-03T08:58:20Z"
+      },
+      {
+        "role": 401026,
+        "rate": 48,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:57:08Z",
+        "updated_at": "2025-02-03T08:58:20Z"
+      },
+      {
+        "role": 400624,
+        "rate": 75,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:57:08Z",
+        "updated_at": "2025-02-03T08:58:20Z"
+      },
+      {
+        "role": 395133,
+        "rate": 31,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:57:08Z",
+        "updated_at": "2025-02-03T08:58:20Z"
+      },
+      {
+        "role": 401877,
+        "rate": 37,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:57:08Z",
+        "updated_at": "2025-02-03T08:58:20Z"
+      },
+      {
+        "role": 401043,
+        "rate": 41,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:57:08Z",
+        "updated_at": "2025-02-03T08:58:20Z"
+      },
+      {
+        "role": 401042,
+        "rate": 52,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:57:08Z",
+        "updated_at": "2025-02-03T08:58:20Z"
+      },
+      {
+        "role": 395454,
+        "rate": 75,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:57:08Z",
+        "updated_at": "2025-02-03T08:58:20Z"
+      },
+      {
+        "role": 395450,
+        "rate": 31,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:57:08Z",
+        "updated_at": "2025-02-03T08:58:20Z"
+      },
+      {
+        "role": 395453,
+        "rate": 25,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:57:08Z",
+        "updated_at": "2025-02-03T08:58:20Z"
+      },
+      {
+        "role": 393822,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:57:08Z",
+        "updated_at": "2025-02-03T08:58:20Z"
+      },
+      {
+        "role": 395190,
+        "rate": 31,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:57:08Z",
+        "updated_at": "2025-02-03T08:58:20Z"
+      },
+      {
+        "role": 395137,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:26:05Z",
+        "updated_at": "2025-02-03T08:58:20Z"
+      },
+      {
+        "role": 394998,
+        "rate": 26,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:26:05Z",
+        "updated_at": "2025-02-03T08:58:20Z"
+      },
+      {
+        "role": 395187,
+        "rate": 37,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:26:05Z",
+        "updated_at": "2025-02-03T08:58:20Z"
+      },
+      {
+        "role": 395452,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:26:05Z",
+        "updated_at": "2025-02-03T08:58:20Z"
+      },
+      {
+        "role": 394929,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:26:05Z",
+        "updated_at": "2025-02-03T08:58:20Z"
+      },
+      {
+        "role": 394997,
+        "rate": 27,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:26:05Z",
+        "updated_at": "2025-02-03T08:58:20Z"
+      },
+      {
+        "role": 395136,
+        "rate": 37,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:26:05Z",
+        "updated_at": "2025-02-03T08:58:20Z"
+      },
+      {
+        "role": 394992,
+        "rate": 37,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:26:05Z",
+        "updated_at": "2025-02-03T08:58:20Z"
+      },
+      {
+        "role": 395138,
+        "rate": 37,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:26:05Z",
+        "updated_at": "2025-02-03T08:58:20Z"
+      },
+      {
+        "role": 396198,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:26:05Z",
+        "updated_at": "2025-02-03T08:58:20Z"
+      },
+      {
+        "role": 395455,
+        "rate": 75,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:26:05Z",
+        "updated_at": "2025-02-03T08:58:20Z"
+      },
+      {
+        "role": 395135,
+        "rate": 26,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:26:05Z",
+        "updated_at": "2025-02-03T08:58:20Z"
+      },
+      {
+        "role": 393717,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:26:05Z",
+        "updated_at": "2025-02-03T08:58:20Z"
+      },
+      {
+        "role": 401023,
+        "rate": 36,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:26:05Z",
+        "updated_at": "2025-02-03T08:58:20Z"
+      }
+    ],
+    "rate_card_id": 130502,
+    "rate_card_name": "NEXA COGNITION Internal"
+  },
+  {
+    "start_date": null,
+    "end_date": "2024-12-31",
+    "default_rate": 45,
+    "rates": [
+      {
+        "role": 395455,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T08:59:15Z"
+      },
+      {
+        "role": 396198,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T08:59:15Z"
+      },
+      {
+        "role": 394992,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T08:59:15Z"
+      },
+      {
+        "role": 395503,
+        "rate": 40,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T08:59:15Z"
+      },
+      {
+        "role": 395136,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T08:59:15Z"
+      },
+      {
+        "role": 394997,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T08:59:15Z"
+      },
+      {
+        "role": 394929,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T08:59:15Z"
+      },
+      {
+        "role": 395133,
+        "rate": 45,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T08:59:15Z"
+      },
+      {
+        "role": 395134,
+        "rate": 45,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T08:59:15Z"
+      },
+      {
+        "role": 395452,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T08:59:15Z"
+      },
+      {
+        "role": 395454,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T08:59:15Z"
+      },
+      {
+        "role": 394993,
+        "rate": 40,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T08:59:15Z"
+      },
+      {
+        "role": 395138,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T08:59:15Z"
+      },
+      {
+        "role": 395135,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T08:59:15Z"
+      },
+      {
+        "role": 395232,
+        "rate": 45,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T08:59:15Z"
+      },
+      {
+        "role": 393717,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T08:59:15Z"
+      },
+      {
+        "role": 393821,
+        "rate": 40,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T08:59:15Z"
+      },
+      {
+        "role": 395139,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T08:59:15Z"
+      },
+      {
+        "role": 395186,
+        "rate": 40,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T08:59:15Z"
+      },
+      {
+        "role": 393830,
+        "rate": 45,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T08:59:15Z"
+      },
+      {
+        "role": 395453,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T08:59:15Z"
+      },
+      {
+        "role": 393822,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T08:59:15Z"
+      },
+      {
+        "role": 395190,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T08:59:15Z"
+      },
+      {
+        "role": 394998,
+        "rate": 70,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T08:59:15Z"
+      },
+      {
+        "role": 395137,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T08:59:15Z"
+      },
+      {
+        "role": 395450,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T08:59:15Z"
+      },
+      {
+        "role": 395187,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T08:59:15Z"
+      }
+    ],
+    "rate_card_id": 130503,
+    "rate_card_name": "NEXA COGNITION External"
+  },
+  {
+    "start_date": "2025-01-01",
+    "end_date": null,
+    "default_rate": 0,
+    "rates": [
+      {
+        "role": 394997,
+        "rate": 29,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T09:03:05Z"
+      },
+      {
+        "role": 395450,
+        "rate": 33,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T09:03:06Z"
+      },
+      {
+        "role": 395453,
+        "rate": 27,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T09:03:06Z"
+      },
+      {
+        "role": 393822,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T08:59:15Z"
+      },
+      {
+        "role": 395190,
+        "rate": 34,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T09:03:06Z"
+      },
+      {
+        "role": 395137,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T08:59:15Z"
+      },
+      {
+        "role": 394998,
+        "rate": 28,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T09:03:06Z"
+      },
+      {
+        "role": 395187,
+        "rate": 40,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T09:03:06Z"
+      },
+      {
+        "role": 395452,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T08:59:15Z"
+      },
+      {
+        "role": 394929,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T08:59:15Z"
+      },
+      {
+        "role": 393821,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T08:59:15Z"
+      },
+      {
+        "role": 395136,
+        "rate": 40,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T09:03:05Z"
+      },
+      {
+        "role": 394992,
+        "rate": 40,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T09:03:05Z"
+      },
+      {
+        "role": 395138,
+        "rate": 40,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T09:03:05Z"
+      },
+      {
+        "role": 396198,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T08:59:15Z"
+      },
+      {
+        "role": 395455,
+        "rate": 81,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T09:03:05Z"
+      },
+      {
+        "role": 395135,
+        "rate": 28,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T09:03:05Z"
+      },
+      {
+        "role": 393717,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T08:59:15Z"
+      },
+      {
+        "role": 401023,
+        "rate": 38,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T09:03:05Z"
+      },
+      {
+        "role": 401042,
+        "rate": 56,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T09:03:06Z"
+      },
+      {
+        "role": 395454,
+        "rate": 81,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T09:03:06Z"
+      },
+      {
+        "role": 393830,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T08:59:15Z"
+      },
+      {
+        "role": 395134,
+        "rate": 38,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T09:03:05Z"
+      },
+      {
+        "role": 401025,
+        "rate": 33,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T09:03:05Z"
+      },
+      {
+        "role": 394993,
+        "rate": 50,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T09:03:05Z"
+      },
+      {
+        "role": 395503,
+        "rate": 81,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T09:03:05Z"
+      },
+      {
+        "role": 395139,
+        "rate": 29,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T09:03:05Z"
+      },
+      {
+        "role": 399208,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T08:59:15Z"
+      },
+      {
+        "role": 395186,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T08:59:15Z"
+      },
+      {
+        "role": 395232,
+        "rate": 29,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T09:03:05Z"
+      },
+      {
+        "role": 399369,
+        "rate": 0,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T08:59:15Z"
+      },
+      {
+        "role": 401026,
+        "rate": 52,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T09:03:05Z"
+      },
+      {
+        "role": 400624,
+        "rate": 81,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T09:03:05Z"
+      },
+      {
+        "role": 395133,
+        "rate": 34,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T09:03:05Z"
+      },
+      {
+        "role": 401877,
+        "rate": 40,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T09:03:06Z"
+      },
+      {
+        "role": 401043,
+        "rate": 44,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T09:03:06Z"
+      },
+      {
+        "role": 400341,
+        "rate": 36,
+        "created_by": 594346,
+        "updated_by": 594346,
+        "created_at": "2025-02-03T08:59:15Z",
+        "updated_at": "2025-02-03T09:03:05Z"
+      }
+    ],
+    "rate_card_id": 130503,
+    "rate_card_name": "NEXA COGNITION External"
+  }
+]

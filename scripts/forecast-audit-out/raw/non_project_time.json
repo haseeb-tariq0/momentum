@@ -1,0 +1,155 @@
+[
+  {
+    "id": 414899,
+    "name": "Content revisions- content team only",
+    "is_internal_time": true,
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2023-03-31T12:39:47Z",
+    "updated_at": "2026-02-20T11:36:19Z"
+  },
+  {
+    "id": 414900,
+    "name": "Sickness/Doctor/Emergency",
+    "is_internal_time": false,
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2023-03-31T12:39:47Z",
+    "updated_at": "2023-07-06T07:05:20Z"
+  },
+  {
+    "id": 414901,
+    "name": "Vacation",
+    "is_internal_time": false,
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2023-03-31T12:39:47Z",
+    "updated_at": "2025-07-27T11:21:47Z"
+  },
+  {
+    "id": 414903,
+    "name": "Internal - general trouble-shooting/brainstorming/discussions",
+    "is_internal_time": true,
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2023-03-31T12:39:47Z",
+    "updated_at": "2023-07-11T08:05:16Z"
+  },
+  {
+    "id": 417696,
+    "name": "Trainings - internal trainings, knowledge sharing",
+    "is_internal_time": true,
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2023-06-12T11:14:48Z",
+    "updated_at": "2024-01-03T05:32:18Z"
+  },
+  {
+    "id": 417698,
+    "name": "Travelling to the client",
+    "is_internal_time": true,
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2023-06-12T11:15:16Z",
+    "updated_at": "2024-01-03T05:33:04Z"
+  },
+  {
+    "id": 418222,
+    "name": "SEO updates",
+    "is_internal_time": true,
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2023-06-22T06:33:50Z",
+    "updated_at": "2024-11-21T06:40:08Z"
+  },
+  {
+    "id": 418223,
+    "name": "Server Maintenance",
+    "is_internal_time": true,
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2023-06-22T06:34:01Z",
+    "updated_at": "2024-01-03T05:32:28Z"
+  },
+  {
+    "id": 418571,
+    "name": "Regular internal meetings",
+    "is_internal_time": true,
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2023-07-10T08:15:36Z",
+    "updated_at": "2024-01-03T05:32:11Z"
+  },
+  {
+    "id": 420712,
+    "name": "Unpaid leave",
+    "is_internal_time": false,
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2023-10-03T07:14:39Z",
+    "updated_at": "2025-02-19T11:02:00Z"
+  },
+  {
+    "id": 426760,
+    "name": "Work Trip ",
+    "is_internal_time": false,
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2025-02-21T05:55:39Z",
+    "updated_at": "2025-02-21T05:55:39Z"
+  },
+  {
+    "id": 427013,
+    "name": "Maternity/Paternity Leave ",
+    "is_internal_time": false,
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2025-04-14T06:39:32Z",
+    "updated_at": "2025-07-21T11:11:48Z"
+  },
+  {
+    "id": 427522,
+    "name": "2026 Planning Meeting",
+    "is_internal_time": true,
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2025-07-13T14:20:38Z",
+    "updated_at": "2026-02-20T11:36:15Z"
+  },
+  {
+    "id": 428083,
+    "name": "Yet to Join",
+    "is_internal_time": false,
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2025-11-07T05:46:07Z",
+    "updated_at": "2025-11-07T05:46:07Z"
+  },
+  {
+    "id": 428084,
+    "name": "Terminated/Resigned",
+    "is_internal_time": false,
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2025-11-07T05:46:07Z",
+    "updated_at": "2025-11-07T05:46:26Z"
+  },
+  {
+    "id": 428604,
+    "name": "Ramadan Timing",
+    "is_internal_time": true,
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2026-02-18T05:43:47Z",
+    "updated_at": "2026-04-01T07:24:36Z"
+  },
+  {
+    "id": 428700,
+    "name": "In-lieu Leave",
+    "is_internal_time": false,
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2026-03-12T09:30:39Z",
+    "updated_at": "2026-03-12T09:30:43Z"
+  }
+]

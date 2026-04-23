@@ -1,0 +1,1 @@
+                  <input type="checkbox" checked={!!settings.alert_at_80} onChange={e => setSettings((s: any) => ({ ...s, alert_at_80: e.target.checked }))} /> Alert at 80%

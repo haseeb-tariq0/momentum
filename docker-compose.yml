@@ -1,0 +1,21 @@
+version: "3.9"
+
+# Supabase handles PostgreSQL — only Redis runs locally in dev
+# For production Redis use Upstash: https://upstash.com
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: forecast_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  redis_data:

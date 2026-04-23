@@ -1,0 +1,242 @@
+[
+  {
+    "id": 120615,
+    "name": "Standard Rate AED 2023",
+    "default_rate": 200,
+    "currency": "AED",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2023-03-31T12:39:47Z",
+    "updated_at": "2024-01-15T08:15:32Z"
+  },
+  {
+    "id": 120617,
+    "name": "Barter ratecard",
+    "default_rate": 0,
+    "currency": "AED",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2023-03-31T12:39:47Z",
+    "updated_at": "2023-06-02T05:18:49Z"
+  },
+  {
+    "id": 122002,
+    "name": "Multi-Service discount - 10%",
+    "default_rate": 0,
+    "currency": "AED",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2023-06-02T05:19:45Z",
+    "updated_at": "2023-06-22T05:47:23Z"
+  },
+  {
+    "id": 122245,
+    "name": "Standard USD",
+    "default_rate": 0,
+    "currency": "USD",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2023-06-13T06:28:32Z",
+    "updated_at": "2023-06-13T06:36:44Z"
+  },
+  {
+    "id": 124006,
+    "name": "Extra rate",
+    "default_rate": 250,
+    "currency": "AED",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2023-10-03T10:32:49Z",
+    "updated_at": "2023-10-03T10:32:49Z"
+  },
+  {
+    "id": 124007,
+    "name": "Premium rate",
+    "default_rate": 300,
+    "currency": "AED",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2023-10-03T10:49:21Z",
+    "updated_at": "2024-01-15T08:17:26Z"
+  },
+  {
+    "id": 124113,
+    "name": " Standard Rate AED plus 10%",
+    "default_rate": 220,
+    "currency": "AED",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2023-10-09T06:45:37Z",
+    "updated_at": "2023-10-09T06:46:08Z"
+  },
+  {
+    "id": 124114,
+    "name": " Standard Rate AED plus 5%",
+    "default_rate": 210,
+    "currency": "AED",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2023-10-09T06:46:12Z",
+    "updated_at": "2023-10-09T06:46:39Z"
+  },
+  {
+    "id": 124148,
+    "name": "Extra rate plus 5%",
+    "default_rate": 262,
+    "currency": "AED",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2023-10-11T06:54:06Z",
+    "updated_at": "2023-10-11T06:54:55Z"
+  },
+  {
+    "id": 124392,
+    "name": "MAZ NEXA rates",
+    "default_rate": 172,
+    "currency": "AED",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2023-10-23T09:16:13Z",
+    "updated_at": "2023-10-23T09:31:57Z"
+  },
+  {
+    "id": 124393,
+    "name": "COGNITION  Hourly Ratecard",
+    "default_rate": 70,
+    "currency": "GBP",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2023-10-23T12:10:27Z",
+    "updated_at": "2025-01-16T11:29:06Z"
+  },
+  {
+    "id": 124394,
+    "name": "Isuzu Retainer ratecard",
+    "default_rate": 50,
+    "currency": "AED",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2023-10-23T12:12:20Z",
+    "updated_at": "2023-10-23T12:12:20Z"
+  },
+  {
+    "id": 124470,
+    "name": "Standard rate minus 15%",
+    "default_rate": 170,
+    "currency": "AED",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2023-10-30T05:19:43Z",
+    "updated_at": "2023-10-30T05:20:18Z"
+  },
+  {
+    "id": 124542,
+    "name": "Premium minus 15%",
+    "default_rate": 285,
+    "currency": "AED",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2023-11-02T07:23:38Z",
+    "updated_at": "2023-11-02T07:23:38Z"
+  },
+  {
+    "id": 124599,
+    "name": "PWC rate",
+    "default_rate": 400,
+    "currency": "AED",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2023-11-07T13:43:15Z",
+    "updated_at": "2023-11-07T13:44:39Z"
+  },
+  {
+    "id": 124623,
+    "name": "Extra rate minus 25%",
+    "default_rate": 187.5,
+    "currency": "AED",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2023-11-08T12:22:26Z",
+    "updated_at": "2023-11-08T12:22:26Z"
+  },
+  {
+    "id": 124724,
+    "name": "Spiral",
+    "default_rate": 145,
+    "currency": "AED",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2023-11-16T06:26:37Z",
+    "updated_at": "2023-11-16T06:26:37Z"
+  },
+  {
+    "id": 125865,
+    "name": "Basic Rate AED 2024",
+    "default_rate": 270,
+    "currency": "AED",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2024-01-15T08:14:23Z",
+    "updated_at": "2024-11-14T06:34:23Z"
+  },
+  {
+    "id": 125866,
+    "name": "Extra rate 2024",
+    "default_rate": 300,
+    "currency": "AED",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2024-01-15T08:16:12Z",
+    "updated_at": "2024-01-15T08:16:29Z"
+  },
+  {
+    "id": 125867,
+    "name": "Premium rate 2024",
+    "default_rate": 350,
+    "currency": "AED",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2024-01-15T08:17:32Z",
+    "updated_at": "2024-01-15T08:17:57Z"
+  },
+  {
+    "id": 126895,
+    "name": "Basic Rate AED 2024- 10%",
+    "default_rate": 240,
+    "currency": "AED",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2024-03-27T05:51:01Z",
+    "updated_at": "2024-03-27T05:51:57Z"
+  },
+  {
+    "id": 130189,
+    "name": "MG Empower Hourly Ratecard",
+    "default_rate": 70,
+    "currency": "GBP",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2025-01-16T11:29:10Z",
+    "updated_at": "2025-01-16T11:29:53Z"
+  },
+  {
+    "id": 130502,
+    "name": "NEXA COGNITION Internal",
+    "default_rate": 0,
+    "currency": "GBP",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2025-02-03T08:26:05Z",
+    "updated_at": "2025-02-03T08:58:20Z"
+  },
+  {
+    "id": 130503,
+    "name": "NEXA COGNITION External",
+    "default_rate": 0,
+    "currency": "GBP",
+    "created_by": 594346,
+    "updated_by": 594346,
+    "created_at": "2025-02-03T08:59:15Z",
+    "updated_at": "2025-02-03T09:03:05Z"
+  }
+]

@@ -1,0 +1,27 @@
+{
+  "name": "@forecast/time-service",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev":       "tsx watch src/index.ts",
+    "build":     "tsc",
+    "start":     "node dist/index.js",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@forecast/db": "workspace:*",
+    "@forecast/types": "workspace:*",
+    "@forecast/events": "workspace:*",
+    "dotenv": "^16.4.0",
+    "fastify": "^4.27.0",
+    "@fastify/cors": "^9.0.0",
+    "ioredis": "^5.3.2",
+    "zod": "^3.23.0",
+    "pg": "^8.11.0"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.11.0",
+    "tsx": "^4.11.0",
+    "typescript": "^5.4.0"
+  }
+}

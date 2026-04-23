@@ -1,0 +1,33 @@
+{
+  "name": "forecast",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "db:generate":   "pnpm --filter=@forecast/db generate",
+    "db:migrate":    "pnpm --filter=@forecast/db migrate",
+    "db:migrate:dev":"pnpm --filter=@forecast/db migrate:dev",
+    "db:seed":       "pnpm --filter=@forecast/db seed",
+    "db:studio":     "pnpm --filter=@forecast/db studio",
+    "db:reset":      "pnpm --filter=@forecast/db reset"
+  },
+  "devDependencies": {
+    "turbo": "^2.0.0",
+    "typescript": "^5.4.0",
+    "prettier": "^3.2.0",
+    "@types/node": "^20.0.0"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "packageManager": "pnpm@8.15.0"
+}

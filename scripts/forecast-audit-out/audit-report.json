@@ -1,0 +1,457 @@
+{
+  "generatedAt": "2026-04-21T12:00:10.790Z",
+  "workspace": {
+    "earliestRecord": "2023-03-31T12:39:47Z"
+  },
+  "persons": {
+    "total": 169,
+    "staff": 143,
+    "active": 53,
+    "former": 90,
+    "clientLogins": 21,
+    "systemUsers": [
+      {
+        "id": 594362,
+        "name": "API",
+        "type": "SYSTEM"
+      },
+      {
+        "id": 594354,
+        "name": "Forecast Service User",
+        "type": "SYSTEM"
+      },
+      {
+        "id": 634047,
+        "name": "Hubspot",
+        "type": "SYSTEM"
+      },
+      {
+        "id": 594346,
+        "name": "Operations",
+        "type": "ADMIN"
+      },
+      {
+        "id": 701416,
+        "name": "Slack",
+        "type": "SYSTEM"
+      }
+    ],
+    "byUserType": {
+      "CLIENT": 21,
+      "COLLABORATOR": 96,
+      "CONTROLLER": 38,
+      "MANAGER": 5,
+      "SYSTEM": 4,
+      "ADMIN": 3,
+      "COORDINATOR": 2
+    },
+    "byDepartment": {
+      "9135": 64,
+      "15215": 12,
+      "15216": 17,
+      "15218": 12,
+      "15219": 8,
+      "15220": 11,
+      "15353": 2,
+      "15646": 8,
+      "16308": 3,
+      "(null)": 6
+    },
+    "missingEmail": 0,
+    "missingDepartment": 6,
+    "missingCost": 40,
+    "duplicateEmails": [],
+    "duplicateNames": [
+      {
+        "key": "monica condrache",
+        "count": 2,
+        "ids": [
+          642036,
+          704953
+        ],
+        "names": [
+          null,
+          null
+        ]
+      }
+    ],
+    "costStats": {
+      "min": 90,
+      "max": 543,
+      "median": 162,
+      "outliers": [
+        {
+          "id": 701514,
+          "name": "Moey Shawash",
+          "cost": 543
+        }
+      ]
+    },
+    "dateRange": {
+      "earliest": "2023-03-31T12:39:47Z",
+      "latest": "2026-04-01T08:15:04Z",
+      "withValue": 169
+    }
+  },
+  "clients": {
+    "total": 341,
+    "withNotes": 4,
+    "withAddress": 1,
+    "exactDuplicates": [
+      {
+        "key": "jalapeno",
+        "count": 2,
+        "ids": [
+          168978,
+          196380
+        ],
+        "names": [
+          "Jalapeno",
+          "Jalapeno"
+        ]
+      },
+      {
+        "key": "mohamed & obaid almulla group",
+        "count": 2,
+        "ids": [
+          183211,
+          187223
+        ],
+        "names": [
+          "MOHAMED & OBAID ALMULLA GROUP",
+          "Mohamed & Obaid Almulla Group"
+        ]
+      },
+      {
+        "key": "e r e property l.l.c",
+        "count": 2,
+        "ids": [
+          184516,
+          187359
+        ],
+        "names": [
+          "E R E PROPERTY L.L.C",
+          "E R E PROPERTY L.L.C"
+        ]
+      },
+      {
+        "key": "grey wolf",
+        "count": 2,
+        "ids": [
+          195986,
+          195988
+        ],
+        "names": [
+          "Grey Wolf",
+          "Grey Wolf"
+        ]
+      },
+      {
+        "key": "ks2",
+        "count": 2,
+        "ids": [
+          196070,
+          196071
+        ],
+        "names": [
+          "KS2",
+          "KS2"
+        ]
+      },
+      {
+        "key": "boo boo entertainment",
+        "count": 2,
+        "ids": [
+          197037,
+          197038
+        ],
+        "names": [
+          "Boo Boo Entertainment",
+          "Boo Boo Entertainment "
+        ]
+      }
+    ],
+    "possibleContainmentDuplicates": [
+      {
+        "a": "EMIR",
+        "b": "The Emirates Academy of Hospitality Management",
+        "aId": 168751,
+        "bId": 168911
+      },
+      {
+        "a": "EMIR",
+        "b": "Coface Emirates Services",
+        "aId": 168751,
+        "bId": 214415
+      },
+      {
+        "a": "Nexa",
+        "b": "MAZ NEXA",
+        "aId": 169353,
+        "bId": 169354
+      },
+      {
+        "a": "Nexa",
+        "b": "Nexa Cognition",
+        "aId": 169353,
+        "bId": 193144
+      },
+      {
+        "a": "Nexa",
+        "b": "NEXA AI Labs",
+        "aId": 169353,
+        "bId": 202899
+      },
+      {
+        "a": "princ",
+        "b": "Princeton",
+        "aId": 171429,
+        "bId": 172624
+      },
+      {
+        "a": "Winter Valley",
+        "b": "Winter Valley For Real Estate Investment",
+        "aId": 173332,
+        "bId": 173771
+      }
+    ],
+    "dateRange": {
+      "earliest": "2023-03-31T12:39:47Z",
+      "latest": "2026-04-16T10:50:18Z",
+      "withValue": 341
+    }
+  },
+  "projects": {
+    "total": 1183,
+    "withClient": 975,
+    "orphans": 208,
+    "withBudget": 890,
+    "withRateCard": 673,
+    "missingRateCard": 510,
+    "billable": 1161,
+    "byStage": {
+      "DONE": 766,
+      "HALTED": 50,
+      "OPPORTUNITY": 165,
+      "RUNNING": 184,
+      "PLANNING": 18
+    },
+    "byBudgetType": {
+      "TIME_AND_MATERIALS": 246,
+      "FIXED_PRICE_V2": 605,
+      "RETAINER": 310,
+      "NON_BILLABLE": 22
+    },
+    "byCurrency": {
+      "(null)": 1183
+    },
+    "createdRange": {
+      "earliest": "2023-04-11T09:04:39Z",
+      "latest": "2026-04-21T05:14:59Z",
+      "withValue": 1183
+    },
+    "endDateRange": {
+      "earliest": "2023-05-31",
+      "latest": "2027-04-01",
+      "withValue": 997
+    },
+    "startDateRange": {
+      "earliest": "2022-02-01",
+      "latest": "2026-05-01",
+      "withValue": 1001
+    }
+  },
+  "phasesAndTasks": {
+    "phases": {
+      "total": 4017,
+      "projectsWithPhases": 949,
+      "avgPerProject": 3.4
+    },
+    "tasks": {
+      "total": 53358,
+      "projectsWithTasks": 972,
+      "avgPerProject": 45.1,
+      "tasksNoAssignee": 6628,
+      "tasksNoEstimate": 11592,
+      "tasksNoDates": 358,
+      "bugs": 6,
+      "blocked": 17,
+      "highPriority": 60,
+      "approved": 53350,
+      "unbillable": 5369
+    }
+  },
+  "timeReg": {
+    "total": 164037,
+    "totalHours": 276302,
+    "billableHours": 204301,
+    "billablePercent": 73.9,
+    "byYear": {
+      "2023": 25897,
+      "2024": 52221,
+      "2025": 65117,
+      "2026": 20802
+    },
+    "byApproval": {
+      "APPROVED": 164037
+    },
+    "linkageBreakdown": {
+      "withTask": 154148,
+      "withProject": 11,
+      "withNonProjectTime": 9878,
+      "orphans": 0
+    },
+    "anomalies": {
+      "zeroMinutes": 6636,
+      "over24Hours": 51,
+      "systemUserEntries": 187,
+      "garbageEntriesSample": [
+        {
+          "id": 28565126,
+          "person": 594346,
+          "date": "2023-06-20",
+          "hours": 94
+        },
+        {
+          "id": 28565717,
+          "person": 594346,
+          "date": "2023-06-20",
+          "hours": 23
+        },
+        {
+          "id": 28565876,
+          "person": 594346,
+          "date": "2023-06-20",
+          "hours": 40
+        },
+        {
+          "id": 28909875,
+          "person": 594346,
+          "date": "2023-06-30",
+          "hours": 33
+        },
+        {
+          "id": 28969451,
+          "person": 594346,
+          "date": "2023-06-30",
+          "hours": 198
+        },
+        {
+          "id": 29085005,
+          "person": 594346,
+          "date": "2023-06-27",
+          "hours": 62
+        },
+        {
+          "id": 29112931,
+          "person": 594346,
+          "date": "2023-06-20",
+          "hours": 18
+        },
+        {
+          "id": 29163386,
+          "person": 594346,
+          "date": "2023-07-20",
+          "hours": 30
+        },
+        {
+          "id": 29165569,
+          "person": 594346,
+          "date": "2023-07-19",
+          "hours": 73
+        },
+        {
+          "id": 29187239,
+          "person": 594346,
+          "date": "2023-06-29",
+          "hours": 23
+        },
+        {
+          "id": 29251320,
+          "person": 594346,
+          "date": "2023-06-22",
+          "hours": 99
+        },
+        {
+          "id": 29272444,
+          "person": 594346,
+          "date": "2023-06-22",
+          "hours": 87
+        },
+        {
+          "id": 29272454,
+          "person": 594346,
+          "date": "2023-04-13",
+          "hours": 211
+        },
+        {
+          "id": 29272470,
+          "person": 594346,
+          "date": "2023-06-06",
+          "hours": 303
+        },
+        {
+          "id": 29272476,
+          "person": 594346,
+          "date": "2023-06-20",
+          "hours": 89
+        },
+        {
+          "id": 29272508,
+          "person": 594346,
+          "date": "2023-05-17",
+          "hours": 24
+        },
+        {
+          "id": 29272511,
+          "person": 594346,
+          "date": "2023-06-15",
+          "hours": 59
+        },
+        {
+          "id": 29272567,
+          "person": 594346,
+          "date": "2023-06-14",
+          "hours": 59
+        },
+        {
+          "id": 29272569,
+          "person": 594346,
+          "date": "2023-06-14",
+          "hours": 38
+        },
+        {
+          "id": 29272577,
+          "person": 594346,
+          "date": "2023-06-08",
+          "hours": 336
+        }
+      ],
+      "garbageCount": 51
+    },
+    "dateRange": {
+      "earliest": "2023-04-04",
+      "latest": "2026-11-30",
+      "withValue": 164037
+    }
+  },
+  "referenceData": {
+    "departments": 10,
+    "roles": 45,
+    "labels": 81,
+    "holidayCalendars": 20,
+    "nonProjectTime": 17,
+    "personCostPeriods": 170,
+    "rateCards": {
+      "totalCards": 24,
+      "totalVersions": 31,
+      "versionsPerCard": 1.3,
+      "cardsByCurrency": {
+        "AED": 19,
+        "USD": 1,
+        "GBP": 4
+      }
+    },
+    "deleted": 0
+  }
+}

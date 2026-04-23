@@ -1,0 +1,26 @@
+﻿# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+.next/
+.turbo/
+*.tsbuildinfo
+
+# Secrets / env
+.env
+.env.local
+.env.*.local
+.env.ports
+*service-account*.json
+nexttrack-*.json
+
+# Logs
+*.log
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

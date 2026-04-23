@@ -1,0 +1,273 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Dark theme (default) ─────────────────────────────────────────────────── */
+:root {
+  --bg-base:    #0A0B0F;
+  --bg-raised:  #111318;
+  --bg-surface: #161820;
+  --bg-overlay: #1C1F28;
+  --bg-hover:   rgba(255,255,255,0.035);
+
+  --border-subtle: rgba(255,255,255,0.07);
+  --border-muted:  rgba(255,255,255,0.12);
+  --border-strong: rgba(255,255,255,0.22);
+  --border-accent: rgba(109,74,174,0.40);
+
+  /* NEXA brand purple accent (Apr 23). Brand hex is #3E296B (deep purple) —
+     used verbatim in light mode. Dark mode needs a lighter lift to stay
+     readable against the near-black #0A0B0F surface; #6D4AAE keeps the
+     brand wavelength while reaching usable contrast. accent-dark steps back
+     toward the exact brand swatch for hover/pressed states. */
+  --accent:      #6D4AAE;
+  --accent-dim:  rgba(109,74,174,0.16);
+  --accent-glow: rgba(109,74,174,0.26);
+  --accent-dark: #3E296B;
+
+  --amber:      #F59E0B;
+  --amber-dim:  rgba(245,158,11,0.12);
+  --rose:       #F43F5E;
+  --rose-dim:   rgba(244,63,94,0.12);
+  --violet:     #8B5CF6;
+  --violet-dim: rgba(139,92,246,0.12);
+  --sky:        #38BDF8;
+  --sky-dim:    rgba(56,189,248,0.12);
+
+  /* Financial semantics — distinct from destructive rose. Used in
+     profit/loss cells, budget variance, margin colors. */
+  --profit:     #22C55E;
+  --profit-dim: rgba(34,197,94,0.12);
+  --loss:       #EF4444;
+  --loss-dim:   rgba(239,68,68,0.12);
+
+  --text-primary:   #E8EAF0;
+  --text-secondary: #8892A4;
+  --text-tertiary:  #4A5568;
+
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.4);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.55);
+
+  /* Momentum brand typography (Apr 23 — Shemoel):
+     - Poppins: body, UI, inputs, data cells. Wide weight range (300–700).
+     - Chakra Petch: headings ONLY (page titles, section labels, stat numbers).
+     Chakra is a geometric square sans; used sparingly keeps it punchy.
+     System fallbacks kept so the UI still renders when Google Fonts is blocked. */
+  --font-body:    'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-heading: 'Chakra Petch', 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono:    'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+  --sidebar-width: 200px;
+}
+
+/* ── Light theme ──────────────────────────────────────────────────────────── */
+[data-theme="light"] {
+  --bg-base:    #F1F5F9;
+  --bg-raised:  #FFFFFF;
+  --bg-surface: #F8FAFC;
+  --bg-overlay: #EEF2F7;
+  --bg-hover:   rgba(0,0,0,0.04);
+
+  --border-subtle: rgba(0,0,0,0.08);
+  --border-muted:  rgba(0,0,0,0.14);
+  --border-strong: rgba(0,0,0,0.24);
+  --border-accent: rgba(62,41,107,0.32);
+
+  /* NEXA brand purple — light mode uses the deep brand hex directly.
+     accent-dark pushes toward true black-purple for pressed/hover depth. */
+  --accent:      #3E296B;
+  --accent-dim:  rgba(62,41,107,0.10);
+  --accent-glow: rgba(62,41,107,0.16);
+  --accent-dark: #2D1D4E;
+
+  --amber:      #D97706;
+  --amber-dim:  rgba(217,119,6,0.10);
+  --rose:       #DC2626;
+  --rose-dim:   rgba(220,38,38,0.10);
+  --violet:     #7C3AED;
+  --violet-dim: rgba(124,58,237,0.10);
+  --sky:        #0284C7;
+  --sky-dim:    rgba(2,132,199,0.10);
+
+  --profit:     #16A34A;
+  --profit-dim: rgba(22,163,74,0.10);
+  --loss:       #DC2626;
+  --loss-dim:   rgba(220,38,38,0.10);
+
+  --text-primary:   #0F172A;
+  --text-secondary: #475569;
+  --text-tertiary:  #94A3B8;
+
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.07);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.10);
+}
+
+/* ── Scrollbar ─────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(128,128,128,0.2); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(128,128,128,0.35); }
+[data-theme="light"] ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.14); }
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.24); }
+
+/* ── Native <select> options only ────────────────────────────────────────── */
+/* Every <select> in the app is wrapped by the <Select> component in
+ * components/ui/Select.tsx, which owns its own Tailwind styling. We only
+ * need to theme the <option> elements here because browsers render the
+ * dropdown list outside of our DOM (native popup), so Tailwind can't reach
+ * them. Everything else (trigger bg/border/chevron) is the component's job.
+ */
+select option {
+  background-color: var(--bg-overlay);
+  color: var(--text-primary);
+  padding: 6px 10px;
+}
+
+/* ── Custom Input / Textarea focus ring ───────────────────────────────────── */
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 3px var(--accent-dim);
+}
+
+/* ── Styled Checkbox ──────────────────────────────────────────────────────── */
+input[type="checkbox"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 15px;
+  height: 15px;
+  border: 1.5px solid var(--border-muted);
+  border-radius: 4px;
+  background: var(--bg-surface);
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+  transition: background 0.15s, border-color 0.15s;
+}
+input[type="checkbox"]:checked {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+input[type="checkbox"]:checked::after {
+  content: '';
+  position: absolute;
+  top: 1px;
+  left: 4px;
+  width: 4px;
+  height: 7px;
+  border: 1.5px solid #fff;
+  border-top: none;
+  border-left: none;
+  transform: rotate(45deg);
+}
+input[type="checkbox"]:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--accent-dim);
+}
+
+/* ── Primary button text: white on blue accent ──────────────────────── */
+button[style*='color: rgb(7, 8, 13)'],
+a[style*='color: rgb(7, 8, 13)'] {
+  color: #fff !important;
+}
+
+/* ── Base ──────────────────────────────────────────────────────────────────── */
+html, body { height: 100%; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+}
+
+/* Headings — Chakra Petch per brand guidelines. Semantic h1–h6 and the
+   PageHeader title class both inherit. Tailwind's `font-heading` utility
+   also maps here via the var. */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  letter-spacing: 0;
+}
+
+/* Smooth theme transitions — only on color properties, not transforms */
+*, *::before, *::after {
+  transition-property: background-color, border-color, color, fill, stroke, box-shadow;
+  transition-duration: 0.15s;
+  transition-timing-function: ease;
+}
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+::selection    { background: var(--accent-dim); }
+
+input, select, textarea, button { font-family: var(--font-body); font-size: 13px; }
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+/* Light mode: proper input color scheme */
+[data-theme="light"] input,
+[data-theme="light"] select,
+[data-theme="light"] textarea { color-scheme: light; }
+
+/* Recharts lines respect theme */
+[data-theme="light"] .recharts-cartesian-grid-horizontal line,
+[data-theme="light"] .recharts-cartesian-grid-vertical line {
+  stroke: rgba(0,0,0,0.06);
+}
+
+/* ── Responsive helpers ────────────────────────────────────────────────────── */
+@media (max-width: 1023px) {
+  /* Pages need top padding for the mobile hamburger button */
+  main { padding-top: 48px; }
+}
+
+/* Prevent horizontal overflow on mobile */
+@media (max-width: 767px) {
+  body { overflow-x: hidden; }
+  /* Allow horizontal scroll for data grids */
+  .overflow-x-auto { -webkit-overflow-scrolling: touch; }
+}
+
+/* ── Numeric alignment ─────────────────────────────────────────────────────
+   Data-dense pages rely on columns of numbers aligning vertically. Without
+   tabular-nums the default proportional glyphs cause values to jitter by a
+   few pixels as the data changes. Apply globally to any semantic number
+   containers (th/td in tables, <output>, <time>, elements with .num /
+   .numeric, and common Tailwind font-mono surfaces). Component-level
+   `tabular-nums` classes still win where applied explicitly.
+── */
+@layer base {
+  td, th, output, time, .tabular, .numeric {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* ── Data table sizing ─────────────────────────────────────────────────────
+   36px is the industry-standard row height for data-dense dashboards: small
+   enough to fit ~20 rows per viewport, large enough that 12-14px text
+   breathes and 44px touch targets are still reachable with a hover zone.
+   Use `.data-row` on the row container of any faux-table (grid + border-b
+   pattern) to lock the height. Header rows use 32px (`.data-row-head`).
+── */
+:root {
+  --row-height-default: 36px;
+  --row-height-head:    32px;
+}
+
+.data-row      { min-height: var(--row-height-default); }
+.data-row-head { min-height: var(--row-height-head); }
+
+/* ── Reduced motion ───────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
