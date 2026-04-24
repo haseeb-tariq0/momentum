@@ -63,7 +63,7 @@ export const authApi = {
   refresh:        ()                                => api.post('/auth/refresh'),
   logout:         ()                                => api.post('/auth/logout'),
   changePassword: (currentPassword: string, newPassword: string) =>
-    api.post('/account/change-password', { currentPassword, newPassword }),
+    api.post('/auth/change-password', { currentPassword, newPassword }),
   invite:  (data: any) => api.post('/auth/invite', {
     email: data.email, name: data.name, job_title: data.jobTitle,
     seat_type: data.seatType, permission_profile: data.permissionProfile,
@@ -309,12 +309,15 @@ export const searchApi = {
   query: (q: string) => api.get('/search', { q }),
 }
 
+// Slack endpoints moved to /users/slack/* in the consolidated backend —
+// userRoutes lives at /api/v1/users and its /slack/* handlers sit beneath
+// that. OAuth bootstrap (/auth/slack*) stays on the auth plugin.
 export const slackApi = {
   getAuthUrl:   () => api.get('/auth/slack'),
   configured:   () => api.get('/auth/slack/configured'),
-  status:       () => api.get('/slack/status'),
-  channels:     () => api.get('/slack/channels'),
-  setChannel:   (channelId: string, channelName: string) => api.patch('/slack/channel', { channelId, channelName }),
-  sendTest:     () => api.post('/slack/test', {}),
-  disconnect:   () => api.delete('/slack/disconnect'),
+  status:       () => api.get('/users/slack/status'),
+  channels:     () => api.get('/users/slack/channels'),
+  setChannel:   (channelId: string, channelName: string) => api.patch('/users/slack/channel', { channelId, channelName }),
+  sendTest:     () => api.post('/users/slack/test', {}),
+  disconnect:   () => api.delete('/users/slack/disconnect'),
 }

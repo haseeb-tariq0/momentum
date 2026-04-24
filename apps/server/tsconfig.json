@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist"
+  },
+  "include": [
+    "src",
+    "../auth-service/src/routes",
+    "../project-service/src",
+    "../time-service/src/routes",
+    "../user-service/src/lib",
+    "../user-service/src/routes"
+  ]
+}

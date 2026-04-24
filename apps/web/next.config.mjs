@@ -1,6 +1,14 @@
 /** @type {import('next').NextConfig} */
 const isProd = process.env.NODE_ENV === 'production'
 
+// API upstream. In dev the consolidated server runs on localhost:4000.
+// In prod (Render) we point at the backend service URL Render injects via
+// NEXT_PUBLIC_API_URL — that's the bare host (momentum-server.onrender.com),
+// so prefix https:// if it's missing. Falls back to localhost so running
+// `pnpm --filter @forecast/web start` locally still proxies correctly.
+const rawApiUrl  = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+const apiUpstream = /^https?:\/\//.test(rawApiUrl) ? rawApiUrl : `https://${rawApiUrl}`
+
 // Content Security Policy.
 // `unsafe-inline` on script-src is required by Next.js for the inline runtime
 // chunk; `unsafe-eval` is needed in dev for React Refresh. We tighten in prod.
@@ -18,7 +26,10 @@ const csp = [
   "img-src 'self' data: https: blob:",
   "font-src 'self' data:",
   "frame-src 'self' https://accounts.google.com",
-  "connect-src 'self' http://localhost:4000 https://api.forecast.it https://accounts.google.com",
+  // connect-src must include our API upstream so fetch() to /api/v1/* isn't
+  // blocked in prod. localhost:4000 stays for dev; apiUpstream is whatever
+  // Render's NEXT_PUBLIC_API_URL resolves to at build time.
+  `connect-src 'self' http://localhost:4000 ${apiUpstream} https://api.forecast.it https://accounts.google.com`,
   "object-src 'none'",
 ].join('; ')
 
@@ -35,12 +46,15 @@ const securityHeaders = [
 const nextConfig = {
   reactStrictMode: true,
 
-  // Proxy all /api/v1/* calls through Next.js server → eliminates CORS entirely
+  // Proxy all /api/v1/* calls through Next.js server → eliminates CORS
+  // entirely. Destination comes from NEXT_PUBLIC_API_URL in prod (Render
+  // injects it from the server service's URL), falls back to localhost:4000
+  // for local dev.
   async rewrites() {
     return [
       {
         source: '/api/v1/:path*',
-        destination: 'http://localhost:4000/api/v1/:path*',
+        destination: `${apiUpstream}/api/v1/:path*`,
       },
     ]
   },

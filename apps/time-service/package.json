@@ -2,6 +2,7 @@
   "name": "@forecast/time-service",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev":       "tsx watch src/index.ts",
     "build":     "tsc",
@@ -17,7 +18,8 @@
     "@fastify/cors": "^9.0.0",
     "ioredis": "^5.3.2",
     "zod": "^3.23.0",
-    "pg": "^8.11.0"
+    "pg": "^8.11.0",
+    "date-fns": "^3.6.0"
   },
   "devDependencies": {
     "@types/pg": "^8.11.0",

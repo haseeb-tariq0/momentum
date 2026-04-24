@@ -1,0 +1,120 @@
+# Render deploy blueprint for Momentum.
+#
+# Two services:
+#   1. momentum-server — consolidated Node/Fastify backend (apps/server)
+#   2. momentum-web    — Next.js frontend (apps/web)
+#
+# Usage: In Render, "New" → "Blueprint" → point at the repo. Render reads
+# this file, creates both services, and prompts for the `sync: false` env
+# vars (secrets). The `fromService` wiring connects the web app to the
+# server's public URL automatically.
+#
+# Regions: using Singapore here because Supabase NEXA AI Projects DB is
+# in ap-south-1 (Mumbai) and Singapore is the nearest Render region.
+# Change to `ohio` / `oregon` / `frankfurt` if your DB moves.
+
+services:
+  # ─── Backend ───────────────────────────────────────────────────────────
+  - type: web
+    name: momentum-server
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: .
+    # Corepack-enabled pnpm so the lockfile is respected. --filter deploys
+    # only the server's dep tree; keeps the install light.
+    buildCommand: corepack enable && pnpm install --frozen-lockfile
+    startCommand: pnpm --filter @forecast/server start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # Port: Render injects PORT automatically; server/index.ts reads it.
+      # No PORT declaration needed here — Render binds the service to it.
+
+      # Secrets — you'll paste values into the Render dashboard the first
+      # time you deploy this blueprint.
+      - key: JWT_SECRET
+        sync: false
+      - key: COOKIE_SECRET
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+
+      # Google OAuth (optional — only needed if you sign in with Google)
+      - key: GOOGLE_OAUTH_CLIENT_ID
+        sync: false
+
+      # Forecast.it import/sync (optional — leave empty to start disabled)
+      - key: FORECAST_API_KEY
+        sync: false
+      # Flip to "1" to suppress the 5-min scheduler even when a key is set.
+      - key: FORECAST_SYNC_DISABLED
+        value: "0"
+
+      # CORS — web app must be listed here. Comma-separated origins.
+      # Prefilled with the web service URL Render assigns below; add your
+      # custom domain later once configured.
+      - key: ALLOWED_ORIGINS
+        fromService:
+          name: momentum-web
+          type: web
+          property: host
+          # Note: Render exposes `host` without scheme; server-side we
+          # prefix https:// at startup if needed. See server/index.ts
+          # CORS config — it accepts bare hosts via the regex fallback.
+
+      # Seed password for imported users (bcrypt hash). Optional — only
+      # used by the legacy snapshot importer.
+      - key: IMPORT_DEFAULT_PASSWORD_HASH
+        sync: false
+
+      # SendGrid — optional, leave empty to run email-free
+      - key: SENDGRID_API_KEY
+        sync: false
+      - key: SENDGRID_FROM_EMAIL
+        sync: false
+
+      # Slack OAuth — optional
+      - key: SLACK_CLIENT_ID
+        sync: false
+      - key: SLACK_CLIENT_SECRET
+        sync: false
+      - key: SLACK_REDIRECT_URI
+        sync: false
+
+  # ─── Frontend ──────────────────────────────────────────────────────────
+  - type: web
+    name: momentum-web
+    runtime: node
+    region: singapore
+    plan: starter
+    rootDir: .
+    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm --filter @forecast/web build
+    startCommand: pnpm --filter @forecast/web start
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # PORT injected by Render; Next.js reads it automatically.
+
+      # Public env — embedded at build time into the client bundle.
+      # NEXT_PUBLIC_API_URL points at the server so the frontend knows
+      # where /api/v1/* lives. Render rewrites `fromService.host` into the
+      # deployed service URL at build time.
+      - key: NEXT_PUBLIC_API_URL
+        fromService:
+          name: momentum-server
+          type: web
+          property: host
+
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        sync: false
+      - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
+        sync: false
+
+      # Google OAuth client ID for the sign-in button
+      - key: NEXT_PUBLIC_GOOGLE_CLIENT_ID
+        sync: false
