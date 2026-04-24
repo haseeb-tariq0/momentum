@@ -199,8 +199,21 @@ export async function projectRoutes(app: FastifyInstance) {
     const all: any[] = []
     let memberOf: string[] | null = null
     if (user.profile === 'collaborator') {
-      const { data: m } = await supabase.from('project_members').select('project_id').eq('user_id', user.id)
-      memberOf = (m || []).map((r: any) => r.project_id)
+      // A collaborator "belongs" to a project two ways:
+      //   1. They're in project_members (explicit project-level add).
+      //   2. They're assigned to any task inside the project (task_assignees).
+      // Task assignment alone doesn't create a project_members row, so
+      // checking only (1) hid projects from collaborators who were given
+      // work at the task level. Union both sets.
+      const [{ data: m }, { data: ta }] = await Promise.all([
+        supabase.from('project_members').select('project_id').eq('user_id', user.id),
+        supabase.from('task_assignees')
+          .select('tasks!inner(phases!inner(project_id))')
+          .eq('user_id', user.id),
+      ])
+      const fromMembership = (m || []).map((r: any) => r.project_id)
+      const fromTasks      = (ta || []).map((r: any) => r.tasks?.phases?.project_id).filter(Boolean)
+      memberOf = [...new Set([...fromMembership, ...fromTasks])]
       if (memberOf.length === 0) return reply.status(200).send({ data: [] })
     }
 
