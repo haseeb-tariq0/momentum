@@ -98,6 +98,10 @@ services:
         sync: false
       - key: GOOGLE_FINANCE_SHEET_ID
         sync: false
+      # Shared-drive folder where exported report spreadsheets get created.
+      # Optional — leave empty and report-export stays disabled.
+      - key: GOOGLE_EXPORTS_FOLDER_ID
+        sync: false
 
   # ─── Frontend ──────────────────────────────────────────────────────────
   - type: web
@@ -135,4 +139,11 @@ services:
       # @react-oauth/google throws "Missing required parameter client_id" on
       # every page that uses useGoogleLogin (e.g. /login) and crashes the app.
       - key: NEXT_PUBLIC_GOOGLE_OAUTH_CLIENT_ID
+        sync: false
+
+      # Absolute URL of this web service — used by the notification service
+      # to build links inside outgoing emails (e.g. "View timesheet" buttons).
+      # Optional; falls back to http://localhost:3000 which is fine if no
+      # emails are sent (SendGrid disabled).
+      - key: NEXT_PUBLIC_APP_URL
         sync: false
