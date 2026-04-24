@@ -45,9 +45,16 @@ async function main() {
   const isProd = process.env.NODE_ENV === 'production'
   const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:3000')
     .split(',').map(s => s.trim()).filter(Boolean)
-  const allowedHosts = new Set(
-    allowedOrigins.map(o => o.replace(/^https?:\/\//, '').replace(/\/$/, ''))
-  )
+  // Normalize each allowlist entry to both full host ("foo.onrender.com") and
+  // bare subdomain ("foo"). Render's `fromService.host` sometimes delivers the
+  // short form, so without this we'd reject the incoming Origin that the
+  // browser always sends as the fully-qualified hostname.
+  const allowedHosts = new Set<string>()
+  for (const entry of allowedOrigins) {
+    const bare = entry.replace(/^https?:\/\//, '').replace(/\/$/, '')
+    allowedHosts.add(bare)
+    if (!bare.includes('.')) allowedHosts.add(`${bare}.onrender.com`)
+  }
   await app.register(cors, {
     origin: (origin, cb) => {
       // No Origin header = not a browser (curl, health checks, server-to-server).
