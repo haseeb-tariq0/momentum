@@ -37,18 +37,25 @@ async function main() {
 
   await app.register(cookie, { secret: process.env.COOKIE_SECRET })
 
-  // CORS allowlist (anti-CSRF). ALLOWED_ORIGINS is a comma-separated list
-  // of origins that are trusted to make credentialed requests.
+  // CORS allowlist (anti-CSRF). ALLOWED_ORIGINS is a comma-separated list.
+  // Accepts entries with OR without scheme — Render's fromService.host
+  // returns bare hostnames ("momentum-web-xxx.onrender.com"), but browsers
+  // always send a scheme in the Origin header. We normalize both sides to
+  // compare hosts so the allowlist works either way.
   const isProd = process.env.NODE_ENV === 'production'
   const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:3000')
     .split(',').map(s => s.trim()).filter(Boolean)
+  const allowedHosts = new Set(
+    allowedOrigins.map(o => o.replace(/^https?:\/\//, '').replace(/\/$/, ''))
+  )
   await app.register(cors, {
     origin: (origin, cb) => {
       if (!origin) {
         if (isProd) return cb(new Error('CORS: origin required'), false)
         return cb(null, true)
       }
-      if (allowedOrigins.includes(origin)) return cb(null, true)
+      const host = origin.replace(/^https?:\/\//, '').replace(/\/$/, '')
+      if (allowedOrigins.includes(origin) || allowedHosts.has(host)) return cb(null, true)
       if (!isProd && /\.ngrok(-free)?\.(app|io)$|^https?:\/\/(localhost|127\.0\.0\.1|192\.168\.|10\.|172\.)/i.test(origin)) {
         return cb(null, true)
       }
