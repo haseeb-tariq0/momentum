@@ -27,7 +27,7 @@ services:
     # read-only filesystem and corepack fails trying to symlink pnpx there.
     # The globally-installed pnpm uses /opt/render/.../node_modules/.bin
     # which is writable.
-    buildCommand: npm i -g pnpm@8.15.0 && pnpm install --frozen-lockfile
+    buildCommand: npm i -g pnpm@8.15.0 && pnpm install --frozen-lockfile --prod=false
     startCommand: pnpm --filter @forecast/server start
     healthCheckPath: /health
     envVars:
@@ -96,7 +96,7 @@ services:
     region: singapore
     plan: starter
     rootDir: .
-    buildCommand: npm i -g pnpm@8.15.0 && pnpm install --frozen-lockfile && pnpm --filter @forecast/web build
+    buildCommand: npm i -g pnpm@8.15.0 && pnpm install --frozen-lockfile --prod=false && pnpm --filter @forecast/web build
     startCommand: pnpm --filter @forecast/web start
     healthCheckPath: /
     envVars:
