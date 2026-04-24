@@ -23,7 +23,11 @@ services:
     rootDir: .
     # Corepack-enabled pnpm so the lockfile is respected. --filter deploys
     # only the server's dep tree; keeps the install light.
-    buildCommand: corepack enable && pnpm install --frozen-lockfile
+    # `npm i -g pnpm` instead of `corepack enable` — Render's /usr/bin is a
+    # read-only filesystem and corepack fails trying to symlink pnpx there.
+    # The globally-installed pnpm uses /opt/render/.../node_modules/.bin
+    # which is writable.
+    buildCommand: npm i -g pnpm@8.15.0 && pnpm install --frozen-lockfile
     startCommand: pnpm --filter @forecast/server start
     healthCheckPath: /health
     envVars:
@@ -92,7 +96,7 @@ services:
     region: singapore
     plan: starter
     rootDir: .
-    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm --filter @forecast/web build
+    buildCommand: npm i -g pnpm@8.15.0 && pnpm install --frozen-lockfile && pnpm --filter @forecast/web build
     startCommand: pnpm --filter @forecast/web start
     healthCheckPath: /
     envVars:
