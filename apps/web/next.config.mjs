@@ -21,10 +21,13 @@ const csp = [
   isProd
     ? "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://accounts.google.com"
     : "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://accounts.google.com",
-  // Tailwind / inline style attrs need 'unsafe-inline'
-  "style-src 'self' 'unsafe-inline'",
+  // Tailwind / inline style attrs need 'unsafe-inline'.
+  // Google Fonts stylesheet comes from fonts.googleapis.com; if that host is
+  // not allowed, the browser blocks Poppins + Chakra Petch at load time.
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "img-src 'self' data: https: blob:",
-  "font-src 'self' data:",
+  // Font files themselves are served from fonts.gstatic.com.
+  "font-src 'self' data: https://fonts.gstatic.com",
   "frame-src 'self' https://accounts.google.com",
   // connect-src must include our API upstream so fetch() to /api/v1/* isn't
   // blocked in prod. localhost:4000 stays for dev; apiUpstream is whatever

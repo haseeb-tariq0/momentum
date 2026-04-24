@@ -119,6 +119,10 @@ services:
       - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
         sync: false
 
-      # Google OAuth client ID for the sign-in button
-      - key: NEXT_PUBLIC_GOOGLE_CLIENT_ID
+      # Google OAuth client ID for the sign-in button.
+      # Name matches apps/web/src/app/providers.tsx (NEXT_PUBLIC_GOOGLE_OAUTH_CLIENT_ID).
+      # Paste the client ID in the Render dashboard — if empty at build time,
+      # @react-oauth/google throws "Missing required parameter client_id" on
+      # every page that uses useGoogleLogin (e.g. /login) and crashes the app.
+      - key: NEXT_PUBLIC_GOOGLE_OAUTH_CLIENT_ID
         sync: false
