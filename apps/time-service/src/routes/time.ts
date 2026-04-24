@@ -95,12 +95,16 @@ export async function timeRoutes(app: FastifyInstance) {
       rows[rowKey].totalHrs += Number(e.hours)
     }
     const { data: assignments } = await supabase.from('task_assignees')
-      .select(`task_id, tasks(id,title,phase_id,status,billable,phases(id,name,projects(id,name,color,status,end_date,clients(name))))`)
+      .select(`task_id, tasks(id,title,phase_id,status,billable,phases(id,name,projects(id,name,color,status,end_date,deleted_at,clients(name))))`)
       .eq('user_id', targetUserId)
     const todayStr = format(new Date(), 'yyyy-MM-dd')
     for (const a of assignments || []) {
       const task = (a as any).tasks
       if (!task || task.status === 'done' || task.phases?.projects?.status === 'done') continue
+      // Hide tasks from soft-deleted projects. task_assignees rows aren't
+      // cleaned up when a project is deleted, so without this filter
+      // deleted projects keep haunting the assignee's timesheet forever.
+      if (task.phases?.projects?.deleted_at) continue
       // Hide tasks from expired projects
       if (task.phases?.projects?.end_date && task.phases.projects.end_date < todayStr) continue
       const rowKey = `task-${task.id}`
@@ -154,13 +158,13 @@ export async function timeRoutes(app: FastifyInstance) {
     }))
     const { data: entries, error } = await supabase.from('time_entries')
       .select(`id, user_id, date, hours, billable, type, note,
-        tasks(id,title,phase_id,estimated_hrs,billable,phases(id,name,projects(id,name,color,status,clients(name)))),
+        tasks(id,title,phase_id,estimated_hrs,billable,phases(id,name,projects(id,name,color,status,deleted_at,clients(name)))),
         users(id,name,job_title,avatar_url,department_id)`)
       .eq('type', 'project').gte('date', weekStartStr).lte('date', weekEndStr).order('date')
     if (error) return reply.status(500).send({ errors: [{ message: error.message }] })
     const { data: allAssignments } = await supabase.from('task_assignees')
       .select(`user_id, task_id, users(id,name,job_title,department_id),
-        tasks(id,title,phase_id,status,estimated_hrs,billable,phases(id,name,projects(id,name,color,status,clients(name))))`)
+        tasks(id,title,phase_id,status,estimated_hrs,billable,phases(id,name,projects(id,name,color,status,deleted_at,clients(name))))`)
     const projects: Record<string, any> = {}
     function ensureProject(proj: any) {
       if (!proj?.id) return null
@@ -181,7 +185,7 @@ export async function timeRoutes(app: FastifyInstance) {
       const task = (e as any).tasks; const eu = (e as any).users
       if (!task?.phases?.projects) continue
       const proj = task.phases.projects
-      if (proj.status === 'done') continue
+      if (proj.status === 'done' || proj.deleted_at) continue
       const pe = ensureProject(proj); const te = ensureTask(pe, task, task.phases)
       const ue = ensureUser(te, e.user_id, eu?.name||'Unknown', eu?.job_title||'', eu?.department_id)
       if (!ue) continue
@@ -195,7 +199,7 @@ export async function timeRoutes(app: FastifyInstance) {
       const task = (a as any).tasks; const au = (a as any).users
       if (!task?.phases?.projects) continue
       const proj = task.phases.projects
-      if (proj.status==='done' || task.status==='done') continue
+      if (proj.status==='done' || proj.deleted_at || task.status==='done') continue
       const pe = ensureProject(proj); const te = ensureTask(pe, task, task.phases)
       if (!te.users[a.user_id]) { ensureUser(te, a.user_id, au?.name||'Unknown', au?.job_title||'', au?.department_id); te.users[a.user_id].autoAdded = true }
     }
