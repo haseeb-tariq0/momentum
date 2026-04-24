@@ -50,10 +50,11 @@ async function main() {
   )
   await app.register(cors, {
     origin: (origin, cb) => {
-      if (!origin) {
-        if (isProd) return cb(new Error('CORS: origin required'), false)
-        return cb(null, true)
-      }
+      // No Origin header = not a browser (curl, health checks, server-to-server).
+      // CORS is a browser-side defense, so no Origin means no CORS concern —
+      // auth middleware handles these requests. Render's internal health probes
+      // hit /health with no Origin; rejecting them breaks the deploy.
+      if (!origin) return cb(null, true)
       const host = origin.replace(/^https?:\/\//, '').replace(/\/$/, '')
       if (allowedOrigins.includes(origin) || allowedHosts.has(host)) return cb(null, true)
       if (!isProd && /\.ngrok(-free)?\.(app|io)$|^https?:\/\/(localhost|127\.0\.0\.1|192\.168\.|10\.|172\.)/i.test(origin)) {
