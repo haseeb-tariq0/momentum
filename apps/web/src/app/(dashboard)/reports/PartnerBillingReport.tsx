@@ -360,10 +360,10 @@ function PartnerBillingRow({
               {row.clientName}
             </span>
             {!row.clientId && (
-              <Badge variant="warning" size="sm">unmapped</Badge>
+              <Badge variant="warning" className="text-[10px] px-1.5 py-0">unmapped</Badge>
             )}
             {hasChildren && (
-              <Badge variant="default" size="sm">{row.children.length} sub-client{row.children.length === 1 ? '' : 's'}</Badge>
+              <Badge variant="default" className="text-[10px] px-1.5 py-0">{row.children.length} sub-client{row.children.length === 1 ? '' : 's'}</Badge>
             )}
           </div>
         </td>
