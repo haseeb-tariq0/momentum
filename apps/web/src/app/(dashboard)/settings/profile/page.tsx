@@ -56,70 +56,83 @@ export default function ProfileSettingsPage() {
 
   return (
     <div className="flex flex-col gap-5">
-      {/* Section title */}
-      <div>
-        <h2 className="text-lg font-semibold text-primary">Profile</h2>
-        <p className="text-sm text-muted">Update your name and job title. Email and role can only be changed by an admin.</p>
-      </div>
-
-      {/* Identity preview */}
-      <Card className="flex items-center gap-4 px-5 py-4">
-        <Avatar name={form.name || '?'} size="lg" className="w-16 h-16 text-xl" />
-        <div className="flex-1 min-w-0">
-          <div className="text-xl font-semibold text-primary mb-0.5 truncate">
+      {/* Identity preview — doubles as a hero so the page opens with context
+          about *who* is being edited rather than a bare form. Avatar upshift
+          + badge row make the identity feel owned, not generic. */}
+      <Card className="flex items-center gap-5 px-6 py-5 relative overflow-hidden">
+        {/* Soft accent wash in the corner — decorative, low-contrast. */}
+        <div
+          aria-hidden
+          className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-accent/10 pointer-events-none"
+        />
+        <Avatar name={form.name || '?'} size="lg" className="w-20 h-20 text-2xl relative z-10 ring-2 ring-surface-raised" />
+        <div className="flex-1 min-w-0 relative z-10">
+          <div className="text-2xl font-semibold text-primary mb-0.5 truncate font-heading">
             {form.name || 'Your Name'}
           </div>
-          <div className="text-base text-secondary mb-1.5 truncate">
+          <div className="text-base text-secondary mb-2 truncate">
             {form.job_title || 'Job title'}
           </div>
           <div className="flex items-center gap-2 flex-wrap">
             <Badge variant={role.variant}>{role.label}</Badge>
+            {user?.departmentName && (
+              <span className="text-xs text-muted">{user.departmentName}</span>
+            )}
+            <span className="text-xs text-muted">·</span>
             <span className="text-xs text-muted truncate">{user?.email}</span>
           </div>
         </div>
       </Card>
 
       {/* Editable fields */}
-      <Card className="p-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <Label htmlFor="profile-name">Full Name</Label>
-            <Input
-              id="profile-name"
-              value={form.name}
-              onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-              placeholder="Your full name"
-            />
-          </div>
-          <div>
-            <Label htmlFor="profile-title">Job Title</Label>
-            <Input
-              id="profile-title"
-              value={form.job_title}
-              onChange={e => setForm(f => ({ ...f, job_title: e.target.value }))}
-              placeholder="e.g. Senior Account Manager"
-            />
+      <Card className="overflow-hidden p-0">
+        <div className="px-6 py-4 border-b border-line-subtle">
+          <div className="text-sm font-semibold text-primary">Your details</div>
+          <div className="text-xs text-muted mt-0.5">Name and job title — the rest is managed by an admin.</div>
+        </div>
+
+        <div className="px-6 py-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="profile-name">Full Name</Label>
+              <Input
+                id="profile-name"
+                value={form.name}
+                onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                placeholder="Your full name"
+              />
+            </div>
+            <div>
+              <Label htmlFor="profile-title">Job Title</Label>
+              <Input
+                id="profile-title"
+                value={form.job_title}
+                onChange={e => setForm(f => ({ ...f, job_title: e.target.value }))}
+                placeholder="e.g. Senior Account Manager"
+              />
+            </div>
           </div>
         </div>
 
-        <div className="mt-6 pt-5 border-t border-line-subtle">
+        <div className="px-6 py-5 border-t border-line-subtle bg-surface-overlay/40">
           <div className="text-xs font-bold uppercase tracking-wider text-muted mb-3">Admin-managed</div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {readOnlyFields.map(f => (
               <div key={f.label}>
                 <div className="text-[11px] text-muted mb-1">{f.label}</div>
-                <div className="px-3 py-2 bg-surface border border-line-subtle rounded-md text-sm text-secondary truncate" title={f.value}>
+                <div className="px-3 py-2 bg-surface-raised border border-line-subtle rounded-md text-sm text-secondary truncate" title={f.value}>
                   {f.value}
                 </div>
               </div>
             ))}
           </div>
-          <p className="text-[11px] text-muted mt-2">
+          <p className="text-[11px] text-muted mt-3 flex items-center gap-1">
+            <Lock size={10} className="inline" />
             Need a change? Ping your workspace admin — these fields are locked to prevent accidental edits.
           </p>
         </div>
 
-        <div className="mt-6 pt-5 border-t border-line-subtle flex items-center gap-3">
+        <div className="px-6 py-4 border-t border-line-subtle flex items-center gap-3 bg-surface-raised">
           <Button
             variant="primary"
             size="md"
@@ -144,20 +157,17 @@ export default function ProfileSettingsPage() {
       </Card>
 
       {/* Security shortcut */}
-      <Card className="overflow-hidden p-0">
-        <div className="px-4 py-2.5 border-b border-line-subtle text-[10px] font-bold uppercase tracking-wider text-muted">
-          Security
-        </div>
+      <Card interactive className="overflow-hidden p-0">
         <Link
           href="/settings/password"
-          className="flex items-center justify-between px-4 py-3.5 transition-colors duration-150 hover:bg-surface-hover no-underline cursor-pointer"
+          className="flex items-center justify-between px-5 py-4 no-underline"
         >
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-md bg-accent/10 text-accent flex items-center justify-center flex-shrink-0">
-              <Lock size={16} />
+          <div className="flex items-center gap-3.5">
+            <div className="w-10 h-10 rounded-md bg-accent/10 text-accent flex items-center justify-center flex-shrink-0">
+              <Lock size={18} />
             </div>
             <div>
-              <div className="text-sm font-medium text-primary mb-0.5">Change Password</div>
+              <div className="text-sm font-semibold text-primary mb-0.5">Change Password</div>
               <div className="text-xs text-muted">
                 Update your password — especially if you were given a temporary one
               </div>

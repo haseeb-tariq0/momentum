@@ -1,34 +1,17 @@
 /**
- * Role-based report visibility — updated Apr 22 after the over-extended
- * Apr 21 lockdown was reviewed against the Apr 17 meeting transcript.
+ * Report visibility — per-user editable as of Apr 24.
  *
- * Per Apr 17 meeting with Murtaza (verbatim 3-tier spec):
- *   "By default we will create it so that the Account Manager should see
- *    these specific reports [Active Projects + Client Profitability, plus
- *    the baseline two], the Super Admin should see all reports, and a
- *    normal user should only see his Utilization and Time Registered."
+ * History: was hard-coded 3-tier per Apr 17 meeting. Replaced with a
+ * permission-driven system so super admin can grant/revoke individual
+ * reports on a per-user basis from /admin → Permissions without having
+ * to edit code or promote a collaborator to an admin role.
  *
- * So:
- *   - Super Admin / Admin    → all reports
- *   - Account Manager        → baseline + Active Projects + Client Profitability
- *   - Collaborator           → baseline only (Time Registered + Utilization)
- *
- * Report status after Apr 22 review:
- *   • Time Registered      — ships Phase 1, full implementation (all roles)
- *   • Utilization          — ships Phase 1, full implementation (all roles)
- *   • Active Projects      — ships Phase 1, full implementation (AM + admin)
- *   • Client Profitability — ships Phase 1, full implementation (AM + admin)
- *   • Compliance           — ships Phase 1, full implementation (admin only)
- *   • Partner Report       — STUB restored, template-based per Murtaza's Apr 17 vision (admin only)
- *   • Partner Billing      — STUB restored, finance-sheet + sub-client logic (admin only)
- *   • Task Report          — STUB restored (admin only)
- *   • Project Progress     — STUB restored, scoping in Phase 2 (admin only)
- *   • Client Timesheet     — STUB restored, scope TBD with Murtaza (admin only)
- *   • P&L                  — Phase 2 placeholder (SUPER_ADMIN ONLY)
- *
- * Only Cost of Effort was deleted outright — Murtaza explicitly approved
- * that on Apr 17 because its data was already shown inside Client
- * Profitability.
+ * Defaults per profile (set in apps/web/src/app/(dashboard)/admin/page.tsx
+ * ROLE_DEFAULTS) preserve the prior 3-tier behavior:
+ *   super_admin    → all 11 reports
+ *   admin          → all except P&L
+ *   account_manager→ time + utilization + active_projects + client_profitability
+ *   collaborator   → time + utilization
  */
 
 export type PermissionProfile =
@@ -50,8 +33,7 @@ export type ReportSlug =
   | 'client-timesheet'
   | 'pnl'
 
-// Ordered list — tabs + template gallery render in this order. Phase-1 core
-// reports come first, then the Phase-2 / stub reports, then P&L at the end.
+// Ordered list — tabs + template gallery render in this order.
 export const ALL_REPORT_SLUGS: readonly ReportSlug[] = [
   'time',
   'utilization',
@@ -66,37 +48,50 @@ export const ALL_REPORT_SLUGS: readonly ReportSlug[] = [
   'pnl',
 ] as const
 
-// Phase-1 core reports that Murtaza called out by name on Apr 17. These
-// govern the 3-tier visibility rule below — the additional restored
-// reports default to admin-only (see canSeeReport).
-const COLLABORATOR_ACCESS: ReportSlug[] = ['time', 'utilization']
+// Slug → permission key mapping. Dashes become underscores and we prefix
+// with `view_report_`. Must stay in lockstep with REPORT_PERMISSIONS in
+// apps/web/src/lib/queries.ts.
+export function reportPermissionKey(slug: ReportSlug): string {
+  return `view_report_${slug.replace(/-/g, '_')}`
+}
 
-const ACCOUNT_MANAGER_ACCESS: ReportSlug[] = [
-  ...COLLABORATOR_ACCESS,
-  'active-projects',
-  'client-profitability',
-]
+export type PermissionMap = Record<string, boolean> | null | undefined
 
-// Compliance + restored stubs are admin-tier. P&L is super_admin only.
-const SUPER_ADMIN_ONLY: ReportSlug[] = ['pnl']
-
-/** True iff the given permission profile is allowed to see this report. */
+/**
+ * True iff the user is allowed to see this report.
+ *
+ * Two overloads for backward compat:
+ *   • (slug, permissions)  — NEW, preferred. Reads the resolved permission
+ *     map returned from the server (role defaults + per-user overrides).
+ *   • (slug, profile)      — LEGACY. Falls back to the Apr 17 3-tier rule
+ *     when a permission map isn't available yet (e.g. before /auth/me
+ *     caches are warmed). Kept so we don't have to update every call site
+ *     in one pass.
+ */
 export function canSeeReport(
   slug: ReportSlug,
-  profile: PermissionProfile | null | undefined,
+  permissionsOrProfile: PermissionMap | PermissionProfile | null | undefined,
 ): boolean {
-  if (!profile) return false
-  if (SUPER_ADMIN_ONLY.includes(slug)) return profile === 'super_admin'
+  if (!permissionsOrProfile) return false
+  // Permission-map overload.
+  if (typeof permissionsOrProfile === 'object') {
+    return permissionsOrProfile[reportPermissionKey(slug)] === true
+  }
+  // Legacy profile overload — preserves the original 3-tier rule exactly.
+  const profile = permissionsOrProfile
+  const COLLABORATOR_ACCESS: ReportSlug[] = ['time', 'utilization']
+  const ACCOUNT_MANAGER_ACCESS: ReportSlug[] = [...COLLABORATOR_ACCESS, 'active-projects', 'client-profitability']
+  if (slug === 'pnl') return profile === 'super_admin'
   if (profile === 'super_admin' || profile === 'admin') return true
   if (profile === 'account_manager') return ACCOUNT_MANAGER_ACCESS.includes(slug)
   if (profile === 'collaborator')    return COLLABORATOR_ACCESS.includes(slug)
   return false
 }
 
-/** Slugs the given profile may see, in the canonical display order. */
+/** Slugs the given profile (or permission map) may see, in display order. */
 export function visibleReports(
-  profile: PermissionProfile | null | undefined,
+  permissionsOrProfile: PermissionMap | PermissionProfile | null | undefined,
 ): ReportSlug[] {
-  if (!profile) return []
-  return ALL_REPORT_SLUGS.filter(s => canSeeReport(s, profile))
+  if (!permissionsOrProfile) return []
+  return ALL_REPORT_SLUGS.filter(s => canSeeReport(s, permissionsOrProfile))
 }

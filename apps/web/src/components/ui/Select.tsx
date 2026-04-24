@@ -134,7 +134,15 @@ function Dropdown<T extends string | number>({
   const panelRef   = useRef<HTMLDivElement>(null)
   const [open, setOpen] = useState(false)
   const [highlight, setHighlight] = useState<number>(-1)
-  const [panelPos, setPanelPos] = useState<{ top: number; left: number; minWidth: number }>({ top: 0, left: 0, minWidth: 0 })
+  // Panel can be anchored either from the top (menu opens downward) or from
+  // the bottom (menu flips up because it'd overflow the viewport). Bottom-
+  // anchoring is how we avoid the old "short menu appears far above trigger"
+  // bug — if we anchor by `top: rect.top - panelMaxH`, a 3-option menu sits
+  // ~170px above the trigger instead of ~6px. Anchoring by `bottom` hugs the
+  // trigger regardless of the menu's actual height.
+  const [panelPos, setPanelPos] = useState<{
+    top?: number; bottom?: number; left: number; minWidth: number
+  }>({ top: 0, left: 0, minWidth: 0 })
 
   const selectedIndex = useMemo(
     () => options.findIndex(o => o.value === value),
@@ -160,11 +168,11 @@ function Dropdown<T extends string | number>({
       const edgeGap = 12
       const panelMinW = rect.width
       const maxLeft = Math.max(edgeGap, window.innerWidth - panelMinW - edgeGap)
-      setPanelPos({
-        top:  fitsBelow ? rect.bottom + gap : rect.top - gap - Math.min(panelMaxH, rect.top - gap - 8),
-        left: Math.min(rect.left, maxLeft),
-        minWidth: panelMinW,
-      })
+      setPanelPos(
+        fitsBelow
+          ? { top: rect.bottom + gap, left: Math.min(rect.left, maxLeft), minWidth: panelMinW }
+          : { bottom: window.innerHeight - rect.top + gap, left: Math.min(rect.left, maxLeft), minWidth: panelMinW },
+      )
     }
     setOpen(true)
     // Start highlight on the current selection, or the first enabled option.
@@ -398,7 +406,11 @@ function Dropdown<T extends string | number>({
           // handler and the native handler) and incorrectly closes the popup.
           onMouseDown={e => e.nativeEvent.stopPropagation()}
           className={cn(panelBase, menuClassName)}
-          style={{ top: panelPos.top, left: panelPos.left, minWidth: panelPos.minWidth }}
+          style={{
+            ...(panelPos.top != null ? { top: panelPos.top } : { bottom: panelPos.bottom }),
+            left: panelPos.left,
+            minWidth: panelPos.minWidth,
+          }}
         >
           {options.length === 0 && (
             <div className="px-3 py-2.5 text-sm text-muted">No options</div>

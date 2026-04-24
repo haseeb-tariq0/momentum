@@ -5,7 +5,7 @@ import { format, startOfWeek, addWeeks, subWeeks, addDays, isSameDay } from 'dat
 import { api } from '@/lib/api'
 import { useAuthStore } from '@/lib/store'
 import { showConfirm } from '@/components/ConfirmDialog'
-import { X, Check, ChevronRight, ChevronDown, Users, User } from 'lucide-react'
+import { X, Check, ChevronRight, ChevronDown, Users, User, Search } from 'lucide-react'
 import { showToast } from '@/components/Toast'
 import {
   PageHeader, StatCard, Card, Button, Input, Label, Select,
@@ -709,6 +709,10 @@ export default function ResourcingPage() {
   const [detailPopup, setDetailPopup] = useState<{ alloc: any; anchorRect: DOMRect; clickedDay: string } | null>(null)
   const [deptFilter,  setDeptFilter]  = useState<string>('all')
   const [groupByDept, setGroupByDept] = useState(true)
+  // Name/job-title filter — applies on top of the dept filter. With 55+ active
+  // team members, scrolling the grid is painful; typing a few chars narrows
+  // the rendered rows and keeps both the Departments and People views usable.
+  const [userSearch,  setUserSearch]  = useState('')
   const [expandedDepts, setExpandedDepts] = useState<Set<string>>(new Set())
 
   // ── Drag-to-extend state ───────────────────────────────────────────────────
@@ -839,7 +843,15 @@ export default function ResourcingPage() {
   })
 
   const allTeam       = raw || []
-  const team          = deptFilter === 'all' ? allTeam : allTeam.filter((m: any) => m.department === deptFilter || m.departmentId === deptFilter)
+  const teamByDept    = deptFilter === 'all' ? allTeam : allTeam.filter((m: any) => m.department === deptFilter || m.departmentId === deptFilter)
+  const searchQ       = userSearch.trim().toLowerCase()
+  const team          = searchQ
+    ? teamByDept.filter((m: any) =>
+        (m.name || '').toLowerCase().includes(searchQ) ||
+        (m.jobTitle || '').toLowerCase().includes(searchQ) ||
+        (m.department || '').toLowerCase().includes(searchQ),
+      )
+    : teamByDept
   const totalCapacity = team.reduce((s: number, u: any) => s + u.capacityHrs, 0)
   const totalAlloc    = team.reduce((s: number, u: any) => s + u.allocatedHrs, 0)
   const teamUtil      = totalCapacity > 0 ? Math.round((totalAlloc / totalCapacity) * 100) : 0
@@ -1083,6 +1095,16 @@ export default function ResourcingPage() {
               >
                 <User size={13} /> People
               </button>
+            </div>
+            <div className="relative">
+              <Search size={12} className="absolute left-2 top-1/2 -translate-y-1/2 text-muted pointer-events-none" />
+              <Input
+                value={userSearch}
+                onChange={e => setUserSearch(e.target.value)}
+                placeholder="Search people…"
+                aria-label="Search people"
+                className="pl-7 py-1.5 text-sm w-[170px]"
+              />
             </div>
             <Select
               size="sm"

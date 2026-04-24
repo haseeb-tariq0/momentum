@@ -19,16 +19,20 @@ function PageHeader({ title, subtitle, actions, className }: PageHeaderProps) {
   return (
     <div
       className={cn(
-        'flex items-end justify-between flex-wrap gap-3 mb-5',
+        'flex items-end justify-between flex-wrap gap-3 mb-6',
         className,
       )}
     >
       <div className="min-w-0">
-        <h1 className="text-3xl font-semibold text-primary tracking-[-0.01em] mb-1">
+        {/* Display-tier title — heavier weight + tighter tracking than before
+            so page titles feel like Linear / Height / Vercel rather than
+            a generic CMS section header. font-heading picks up the brand
+            heading font (var --font-heading in globals.css). */}
+        <h1 className="font-heading text-[28px] sm:text-[30px] font-bold text-primary tracking-[-0.02em] leading-none mb-1.5">
           {title}
         </h1>
         {subtitle && (
-          <div className="text-sm text-muted">{subtitle}</div>
+          <div className="text-sm text-muted leading-snug">{subtitle}</div>
         )}
       </div>
       {actions && (

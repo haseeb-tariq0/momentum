@@ -288,10 +288,14 @@ async function fetchAllExisting(table: 'phases' | 'tasks', _workspaceId: string)
   // For tasks, we also pull `status` so syncTasks can short-circuit updates
   // where the computed status already matches — 53k UPDATEs at 30-50ms each
   // is a 30-40 min round-trip total, most of them no-ops.
+  //
+  // `locally_edited_at` is pulled so syncTasks can skip rows the user has
+  // touched in-app more recently than Forecast last changed them — stops
+  // autosync from clobbering status/title/billable edits made in Momentum.
   for (let from = 0; ; from += 1000) {
     const q = table === 'phases'
       ? supabase.from('phases').select('id, forecast_id, project_id').range(from, from + 999)
-      : supabase.from('tasks').select('id, forecast_id, phase_id, status').range(from, from + 999)
+      : supabase.from('tasks').select('id, forecast_id, phase_id, status, locally_edited_at').range(from, from + 999)
     const { data } = await q
     const page = data || []
     out.push(...page)
@@ -440,10 +444,12 @@ async function syncTasks(
   const existing = await fetchAllExisting('tasks', workspaceId)
   const byFid:       Record<number, string> = {}
   const statusByFid: Record<number, string> = {}
+  const localEditedByFid: Record<number, string | null> = {}
   for (const t of existing) {
     if ((t as any).forecast_id) {
-      byFid[(t as any).forecast_id]       = (t as any).id
-      statusByFid[(t as any).forecast_id] = (t as any).status
+      byFid[(t as any).forecast_id]              = (t as any).id
+      statusByFid[(t as any).forecast_id]        = (t as any).status
+      localEditedByFid[(t as any).forecast_id]   = (t as any).locally_edited_at || null
     }
   }
 
@@ -459,6 +465,18 @@ async function syncTasks(
     // statuses that were imported wrong from the snapshot (which used a
     // `approved`/`remaining` heuristic instead of workflow_column.category).
     if (!fullResync && existingId && (!t.updated_at || new Date(t.updated_at) <= cutoff)) continue
+
+    // Local-wins gate: if this task was edited inside Momentum more recently
+    // than Forecast last changed it, skip the overwrite. Without this, a user
+    // clicking the status dropdown gets their choice clobbered on the next
+    // 15-min sync tick (the autosync re-derives status from Forecast's
+    // workflow_column.category, which hasn't moved). fullResync deliberately
+    // ignores this gate — it's meant to reconcile stale local state against
+    // Forecast truth, e.g. after a bad import.
+    if (!fullResync && existingId) {
+      const localAt = localEditedByFid[t.id]
+      if (localAt && t.updated_at && new Date(localAt) > new Date(t.updated_at)) continue
+    }
 
     // Resolve phase_id. Forecast uses `milestone` for phase reference.
     // When a task has no milestone (~20% of tasks), bucket it under a

@@ -70,6 +70,10 @@ type UserRow = {
   id: string; email: string; name: string; job_title: string | null;
   avatar_url: string | null; seat_type: string; permission_profile: string;
   capacity_hrs: any; workspace_id: string; department_id: string | null;
+  // Per-user overrides layered on top of the profile defaults. The client
+  // resolves the effective permission map (defaults + overrides) at render
+  // time — see ROLE_DEFAULTS / resolvePermissions in admin/page.tsx.
+  custom_permissions?: Record<string, boolean> | null;
 }
 
 async function issueSessionAndRespond(user: UserRow, reply: FastifyReply) {
@@ -121,6 +125,7 @@ async function issueSessionAndRespond(user: UserRow, reply: FastifyReply) {
         departmentId:      user.department_id,
         departmentName:    (department as any)?.name ?? null,
         avatarUrl:         user.avatar_url,
+        customPermissions: user.custom_permissions ?? {},
       },
     },
   })
@@ -143,7 +148,7 @@ export async function authRoutes(app: FastifyInstance) {
 
     const { data: user, error: userErr } = await supabase
       .from('users')
-      .select('id, email, name, job_title, avatar_url, seat_type, permission_profile, capacity_hrs, workspace_id, department_id, active, password_hash')
+      .select('id, email, name, job_title, avatar_url, seat_type, permission_profile, capacity_hrs, workspace_id, department_id, active, password_hash, custom_permissions')
       .eq('email', email)
       .eq('active', true)
       .single()
@@ -197,7 +202,7 @@ export async function authRoutes(app: FastifyInstance) {
     // Look up the user — must already exist (invite-first policy)
     const { data: user } = await supabase
       .from('users')
-      .select('id, email, name, job_title, avatar_url, seat_type, permission_profile, capacity_hrs, workspace_id, department_id, active')
+      .select('id, email, name, job_title, avatar_url, seat_type, permission_profile, capacity_hrs, workspace_id, department_id, active, custom_permissions')
       .eq('email', googleEmail)
       .eq('active', true)
       .single()

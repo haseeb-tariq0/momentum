@@ -2,8 +2,8 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Card } from '@/components/ui'
-import { useAuthStore } from '@/lib/store'
+import { Card, EmptyState, SkeletonCard } from '@/components/ui'
+import { useEffectivePermissions } from '@/lib/store'
 import { canSeeReport, type ReportSlug } from '@/lib/reportVisibility'
 import { reportsApi } from '@/lib/queries'
 import { showToast } from '@/components/Toast'
@@ -64,8 +64,10 @@ type ServerFavorite = {
 export default function ReportsHome() {
   const router = useRouter()
   const queryClient = useQueryClient()
-  const { user } = useAuthStore()
-  const profile = user?.permissionProfile ?? null
+  // Effective permission map (role defaults + per-user overrides from the
+  // Permissions panel). canSeeReport reads the per-report key directly,
+  // e.g. view_report_partner_billing. No more hardcoded profile tiers.
+  const permissions = useEffectivePermissions()
 
   const { data: favoritesResp, isLoading: favLoading } = useQuery({
     queryKey: ['report-configs'],
@@ -86,11 +88,11 @@ export default function ReportsHome() {
   })
 
   // Templates the current user is allowed to see.
-  const visibleTemplates = TEMPLATES.filter(t => canSeeReport(t.key, profile))
+  const visibleTemplates = TEMPLATES.filter(t => canSeeReport(t.key, permissions))
 
-  // Favorites list filtered so a user can't bypass the role gate by clicking
-  // a favorite saved earlier under a higher permission profile.
-  const visibleFavorites = favorites.filter(f => canSeeReport(f.report_type as ReportSlug, profile))
+  // Favorites list filtered so a user can't bypass the gate by clicking
+  // a favorite saved earlier when they had broader access.
+  const visibleFavorites = favorites.filter(f => canSeeReport(f.report_type as ReportSlug, permissions))
 
   function openReport(slug: string, from?: string, to?: string, filters?: Record<string, unknown>) {
     const params = new URLSearchParams({ r: slug })
@@ -122,21 +124,18 @@ export default function ReportsHome() {
         </div>
 
         {favLoading ? (
-          <Card className="p-6">
-            <div className="flex items-center gap-3 text-muted">
-              <Loader2 size={18} className="animate-spin" />
-              <div className="text-sm">Loading your saved reports…</div>
-            </div>
-          </Card>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <SkeletonCard />
+            <SkeletonCard />
+            <SkeletonCard />
+          </div>
         ) : visibleFavorites.length === 0 ? (
-          <Card className="p-6">
-            <div className="flex items-center gap-3 text-muted">
-              <Star size={18} />
-              <div>
-                <div className="text-sm text-primary">No saved reports yet.</div>
-                <div className="text-xs">Open any report below, set your filters, and save it as a favorite to see it here.</div>
-              </div>
-            </div>
+          <Card>
+            <EmptyState
+              variant="reports"
+              title="No saved reports yet"
+              description="Open any report below, set your filters, and save it as a favorite to pin it here for quick access."
+            />
           </Card>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -148,7 +147,8 @@ export default function ReportsHome() {
               return (
                 <Card
                   key={f.id}
-                  className="p-4 group cursor-pointer hover:border-accent transition-colors"
+                  interactive
+                  className="p-4 group hover:border-accent"
                   onClick={() => openReport(f.report_type, from, to, f.config?.filters as Record<string, unknown> | undefined)}
                 >
                   <div className="flex items-start justify-between gap-2">
@@ -209,7 +209,8 @@ function TemplateCard({ template, onClick }: { template: Template; onClick: () =
   return (
     <Card
       onClick={onClick}
-      className="p-4 cursor-pointer transition-all hover:border-accent border-line-muted"
+      interactive
+      className="p-4 hover:border-accent border-line-muted"
     >
       <div className="flex items-start gap-3">
         <div className="bg-accent/10 text-accent w-10 h-10 rounded-md flex items-center justify-center flex-shrink-0">

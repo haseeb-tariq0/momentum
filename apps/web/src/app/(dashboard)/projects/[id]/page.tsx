@@ -8,7 +8,7 @@ import { api } from '@/lib/api'
 import { showConfirm } from '@/components/ConfirmDialog'
 import { showToast } from '@/components/Toast'
 import {
-  PageHeader, Card, Avatar, Badge, Input, Textarea, Label, Button, EmptyState, Select, Dropdown,
+  PageHeader, Breadcrumbs, Card, Avatar, Badge, Input, Textarea, Label, Button, EmptyState, Select, Dropdown,
   DatePicker, Skeleton, SkeletonRow,
   type BadgeProps,
 } from '@/components/ui'
@@ -694,14 +694,15 @@ export default function ProjectDetailPage() {
         <AssigneePicker taskId={pickerState.taskId} projectId={id} currentAssignees={pickerTask.task_assignees || []} anchorPos={{ top: pickerState.top, left: pickerState.left }} onClose={() => setPickerState(null)} />
       )}
 
-      {/* Breadcrumb */}
-      <nav className="flex items-center gap-1.5 mb-3.5 text-base text-muted" aria-label="Breadcrumb">
-        <button onClick={() => router.push('/projects')} className="bg-transparent border-none text-muted cursor-pointer p-0 text-base hover:text-primary">
-          Projects
-        </button>
-        <span>/</span>
-        <span className="text-primary">{project.name}</span>
-      </nav>
+      {/* Breadcrumb — uses the shared component so spacing + typography
+          stay consistent with other nested routes. */}
+      <Breadcrumbs
+        items={[
+          { label: 'Projects', href: '/projects' },
+          ...(project.clients?.name ? [{ label: project.clients.name }] : []),
+          { label: project.name },
+        ]}
+      />
 
       <PageHeader
         title={project.name}

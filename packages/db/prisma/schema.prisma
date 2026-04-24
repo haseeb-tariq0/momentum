@@ -404,12 +404,16 @@ model Task {
   sortOrder    Int        @default(0) @map("sort_order")
   createdAt    DateTime   @default(now()) @map("created_at")
   updatedAt    DateTime   @updatedAt      @map("updated_at")
+  // Set by the task PATCH handler; the Forecast.it sync uses this to avoid
+  // overwriting a user's in-app edit with stale data from Forecast.
+  localEditedAt DateTime? @map("locally_edited_at") @db.Timestamptz
 
   phase       Phase          @relation(fields: [phaseId], references: [id], onDelete: Cascade)
   assignees   TaskAssignee[]
   timeEntries TimeEntry[]
 
   @@index([phaseId])
+  @@index([localEditedAt])
   @@map("tasks")
 }
 

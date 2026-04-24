@@ -38,6 +38,9 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           'inline-flex items-center justify-center gap-2 font-medium cursor-pointer transition-all duration-150',
           'focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2',
           'disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none',
+          // Tactile press feedback — scales down imperceptibly on click, gives
+          // buttons a physical "push" feel instead of the flat state change.
+          'active:scale-[0.97]',
           variantStyles[variant],
           sizeStyles[size],
           className,

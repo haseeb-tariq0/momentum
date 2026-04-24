@@ -1,12 +1,25 @@
 import { forwardRef, type HTMLAttributes } from 'react'
 import { cn } from '@/lib/cn'
 
-const Card = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }, ref) => (
+interface CardProps extends HTMLAttributes<HTMLDivElement> {
+  /** Enable hover-lift micro-interaction — shadow grows, card rises 1px on hover,
+   *  settles on active. Use for clickable/navigable cards; leave off for static
+   *  containers. */
+  interactive?: boolean
+}
+
+const Card = forwardRef<HTMLDivElement, CardProps>(
+  ({ className, interactive, ...props }, ref) => (
     <div
       ref={ref}
       className={cn(
         'bg-surface-raised border border-line-subtle rounded-lg shadow-sm',
+        interactive && [
+          'transition-all duration-150',
+          'hover:shadow-md hover:-translate-y-px hover:border-line-muted',
+          'active:translate-y-0 active:shadow-sm',
+          'cursor-pointer',
+        ],
         className,
       )}
       {...props}

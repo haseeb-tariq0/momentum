@@ -1,26 +1,61 @@
-﻿# Dependencies
-node_modules/
-
-# Build outputs
-dist/
-build/
-.next/
-.turbo/
-*.tsbuildinfo
-
-# Secrets / env
+node_modules
+dist
 .env
 .env.local
 .env.*.local
 .env.ports
-*service-account*.json
-nexttrack-*.json
-
-# Logs
+apps/**/.env
+apps/**/.env.local
+packages/**/.env
+packages/**/.env.local
 *.log
+.turbo
+.next
+coverage
 
-# OS / editor
-.DS_Store
-Thumbs.db
-.vscode/
-.idea/
+# Loose patch / scratch files at repo root — never ship
+_*.txt
+_*.ts
+_*.sql
+_*.mjs
+_*.tsv
+_*.csv
+temp_*.txt
+web-log.txt
+
+# Forecast audit script output (contains full production data dump — never commit)
+scripts/forecast-audit-out/
+
+# ── Credentials — never commit ──────────────────────────────────────────────
+# Google OAuth client secrets & service-account keys. Added Apr 24 after a
+# nexttrack service-account JSON nearly ended up staged.
+client_secret_*.json
+nexttrack-*.json
+*.service-account.json
+*-service-account.json
+
+# ── Business / meeting artifacts at repo root ───────────────────────────────
+# Dated folders contain meeting recordings (.mp4), Gemini transcripts,
+# finance sheets (.xlsx), and client CSVs. Internal only.
+/13 april/
+/15 april/
+/17 april/
+/22 april/
+/23 april/
+/6 april update/
+/9 april/
+/todat meeting with murtaza/
+
+# Loose data exports / scratch reports at repo root
+FEATURE_GAP_REPORT.html
+forecast-migration-verification.postman_collection.json
+push-momentum.ps1
+
+# IDE / local tool caches
+.claude/
+**/tsconfig.tsbuildinfo
+
+# Media files — recordings belong in the meeting folders above, but guard
+# anything loose too.
+*.mp4
+*.xlsx

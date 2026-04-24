@@ -152,6 +152,10 @@ module.exports = {
           '0%': { backgroundPosition: '200% 0' },
           '100%': { backgroundPosition: '-200% 0' },
         },
+        'bar-rise': {
+          from: { transform: 'scaleY(0)' },
+          to:   { transform: 'scaleY(1)' },
+        },
         'dot-pulse': {
           '0%, 80%, 100%': { opacity: '0.2' },
           '40%': { opacity: '1' },
@@ -169,6 +173,7 @@ module.exports = {
         'overlay-in':   'overlay-in 0.15s ease',
         'panel-in':     'panel-in 0.2s cubic-bezier(0.16,1,0.3,1)',
         'skeleton':     'skeleton 1.8s ease-in-out infinite',
+        'bar-rise':     'bar-rise 0.5s cubic-bezier(0.16,1,0.3,1) both',
         'dot-pulse':    'dot-pulse 1.4s ease-in-out infinite',
       },
     },

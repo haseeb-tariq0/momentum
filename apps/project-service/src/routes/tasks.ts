@@ -181,6 +181,11 @@ export async function taskRoutes(app: FastifyInstance) {
 
     const { assignee_ids, ...taskData } = body.data
 
+    // Stamp every in-app edit so the Forecast.it sync can tell local edits
+    // apart from unsynced rows and not overwrite them. See syncTasks in
+    // apps/user-service/src/lib/forecastSync.ts for the gate.
+    const nowIso = new Date().toISOString()
+
     if (user.profile === 'collaborator') {
       // Status change: only allowed if this collaborator is assigned to the task
       if (taskData.status !== undefined) {
@@ -196,7 +201,7 @@ export async function taskRoutes(app: FastifyInstance) {
             errors: [{ code: 'FORBIDDEN', message: 'You can only change the status of tasks assigned to you.' }]
           })
         }
-        await supabase.from('tasks').update({ status: taskData.status }).eq('id', taskId)
+        await supabase.from('tasks').update({ status: taskData.status, locally_edited_at: nowIso }).eq('id', taskId)
       }
 
       // Collaborators can only add/remove themselves as assignee
@@ -208,7 +213,7 @@ export async function taskRoutes(app: FastifyInstance) {
       }
     } else {
       // Admin: full update
-      const { error } = await supabase.from('tasks').update(taskData).eq('id', taskId)
+      const { error } = await supabase.from('tasks').update({ ...taskData, locally_edited_at: nowIso }).eq('id', taskId)
       if (error) return reply.status(500).send({ errors: [{ message: error.message }] })
 
       if (assignee_ids !== undefined) {

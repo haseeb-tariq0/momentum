@@ -608,32 +608,21 @@ function MyTimesheetView({ weekRef, setWeekRef }: any) {
           </div>
         )}
         {!isLoading && allRows.length === 0 && (
-          // Richer empty state — fills card vertical space, offers direct
-          // actions instead of only describing the UI. Avoids the old "tiny
-          // message on a huge empty card" look that made the page feel sparse.
-          <div className="flex flex-col items-center justify-center text-center px-6 py-16">
-            <div className="w-14 h-14 rounded-full bg-accent/10 text-accent flex items-center justify-center mb-4">
-              <Check size={22} />
-            </div>
-            <div className="text-lg font-semibold text-primary mb-1">
-              No entries yet for this week
-            </div>
-            <div className="text-sm text-muted mb-5 max-w-md">
-              Tasks you're assigned to will appear here automatically. If a task is missing, ask your account manager to assign you to the project.
-            </div>
-            <div className="flex flex-wrap gap-2 justify-center">
-              {!isLocked && prevRowCount > 0 && (
-                <Button
-                  variant="secondary"
-                  size="md"
-                  onClick={copyPreviousWeek}
-                  disabled={copying}
-                >
-                  {copying ? 'Copying…' : `↺ Copy last week (${prevRowCount} rows)`}
-                </Button>
-              )}
-            </div>
-          </div>
+          <EmptyState
+            variant="timesheet"
+            title="No entries yet for this week"
+            description="Tasks you're assigned to will appear here automatically. If a task is missing, ask your account manager to assign you to the project."
+            action={!isLocked && prevRowCount > 0 ? (
+              <Button
+                variant="secondary"
+                size="md"
+                onClick={copyPreviousWeek}
+                disabled={copying}
+              >
+                {copying ? 'Copying…' : `↺ Copy last week (${prevRowCount} rows)`}
+              </Button>
+            ) : undefined}
+          />
         )}
 
         {groups.map((group, gi) => {

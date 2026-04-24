@@ -8,7 +8,7 @@ import { cn } from '@/lib/cn'
 import { todayLocalISO, dateLocalISO } from '@/lib/utils'
 import { Play, Pause, CheckCircle2, Users, ChevronDown, Plus, Lightbulb, ClipboardList } from 'lucide-react'
 import {
-  Button, Badge, Card, Skeleton, SkeletonCard,
+  Button, Badge, Card, Skeleton, SkeletonCard, SkeletonTable,
   PageHeader, StatCard, EmptyState, Input, Label, Select,
   Combobox, DatePicker,
   type BadgeProps,
@@ -182,7 +182,8 @@ function ProjectTasks({ projectId, currency }: { projectId: string; currency: st
               <div
                 key={task.id}
                 className={cn(
-                  'grid items-center px-4 py-2 pl-10 hover:bg-surface-hover transition-colors',
+                  'grid items-center px-4 py-2 pl-10 transition-all duration-150',
+                  'hover:bg-surface-hover hover:shadow-[inset_2px_0_0_0_var(--accent)]',
                   !isLastTask && 'border-b border-line-subtle',
                 )}
                 style={{ gridTemplateColumns: '24px minmax(120px,1fr) 90px 60px 56px 56px 70px' }}
@@ -271,7 +272,10 @@ function ProjectRow({ p, isLast, expanded, onToggle }: { p: any; isLast: boolean
         onClick={onToggle}
         onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onToggle() } }}
         className={cn(
-          'grid items-center px-3.5 py-2 cursor-pointer transition-colors hover:bg-surface-hover',
+          'grid items-center px-3.5 py-2 cursor-pointer transition-all duration-150',
+          // Left-edge accent on hover — subtle "you're on a row" signal
+          // without the density-hostile look of a full zebra stripe.
+          'hover:bg-surface-hover hover:shadow-[inset_2px_0_0_0_var(--accent)]',
           expanded ? 'bg-surface' : 'bg-surface-raised',
         )}
         style={{ gridTemplateColumns: ROW_GRID_COLS, columnGap: 14 }}
@@ -997,17 +1001,20 @@ export default function ProjectsPage() {
 
       {/* Project sections grouped by status */}
       {isLoading && (
-        <div className="space-y-4">
-          <SkeletonCard />
-          <SkeletonCard />
-          <SkeletonCard />
-        </div>
+        <Card className="overflow-hidden">
+          <SkeletonTable rows={8} />
+        </Card>
       )}
 
       {!isLoading && filtered.length === 0 && (
         <Card>
           <EmptyState
+            variant={search ? 'search' : 'projects'}
             title={search ? 'No projects match your search' : 'No projects yet'}
+            description={search
+              ? 'Try a different keyword, or clear the search to see everything.'
+              : 'Projects will show up here once you create one or sync from Forecast.it.'
+            }
             action={
               isAdmin() && !search ? (
                 <Button variant="primary" size="sm" onClick={() => setShowCreate(true)}>

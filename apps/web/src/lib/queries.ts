@@ -1,11 +1,30 @@
 import { api } from './api'
 
+// Reports are permissioned individually so super admin can grant a single
+// report to a specific user without promoting them. Keys match the
+// ReportSlug values in lib/reportVisibility.ts (underscored, with a
+// `view_report_` prefix). Order mirrors the Reports page template gallery.
+export const REPORT_PERMISSIONS = [
+  'view_report_time',
+  'view_report_utilization',
+  'view_report_active_projects',
+  'view_report_client_profitability',
+  'view_report_compliance',
+  'view_report_partner_report',
+  'view_report_partner_billing',
+  'view_report_task_report',
+  'view_report_project_progress',
+  'view_report_client_timesheet',
+  'view_report_pnl',
+] as const
+
 export const ALL_PERMISSIONS = [
   'view_projects', 'manage_projects', 'delete_projects',
   'view_financials', 'manage_financials',
   'view_team', 'manage_team', 'invite_members',
   'view_timesheets', 'manage_timesheets',
-  'view_reports', 'manage_admin', 'manage_rate_cards', 'manage_clients',
+  ...REPORT_PERMISSIONS,
+  'manage_admin', 'manage_rate_cards', 'manage_clients',
 ] as const
 
 export type Permission = typeof ALL_PERMISSIONS[number]
@@ -15,7 +34,18 @@ export const PERMISSION_LABELS: Record<Permission, string> = {
   view_financials: 'View Financials & Budgets', manage_financials: 'Edit Financial Settings',
   view_team: 'View Team Members', manage_team: 'Edit Team Members', invite_members: 'Invite New Members',
   view_timesheets: 'View Timesheets', manage_timesheets: 'Manage All Timesheets',
-  view_reports: 'View Reports', manage_admin: 'Access Admin Panel',
+  view_report_time:                 'Time Registered',
+  view_report_utilization:          'Utilization',
+  view_report_active_projects:      'Active Projects',
+  view_report_client_profitability: 'Client Profitability',
+  view_report_compliance:           'Compliance',
+  view_report_partner_report:       'Partner Report',
+  view_report_partner_billing:      'Partner Billing',
+  view_report_task_report:          'Task Report',
+  view_report_project_progress:     'Project Progress',
+  view_report_client_timesheet:     'Client Timesheet',
+  view_report_pnl:                  'P&L',
+  manage_admin: 'Access Admin Panel',
   manage_rate_cards: 'Manage Rate Cards', manage_clients: 'Manage Clients',
 }
 
@@ -24,7 +54,7 @@ export const PERMISSION_GROUPS = [
   { label: 'Financials', keys: ['view_financials', 'manage_financials'] },
   { label: 'Team',       keys: ['view_team', 'manage_team', 'invite_members'] },
   { label: 'Timesheets', keys: ['view_timesheets', 'manage_timesheets'] },
-  { label: 'Reports',    keys: ['view_reports'] },
+  { label: 'Reports',    keys: [...REPORT_PERMISSIONS] },
   { label: 'Admin',      keys: ['manage_admin', 'manage_rate_cards', 'manage_clients'] },
 ] as { label: string; keys: Permission[] }[]
 
@@ -217,8 +247,11 @@ export const usersApi = {
   deleteCustomRole: (id: string)                 => api.delete(`/users/custom-roles/${id}`),
 
   // Forecast.it live sync — see apps/user-service/src/routes/sync.ts
-  syncStatus:  () => api.get('/users/sync/status'),
-  syncRunNow:  () => api.post('/users/sync/run-now'),
+  syncStatus:      () => api.get('/users/sync/status'),
+  syncRunNow:      () => api.post('/users/sync/run-now'),
+  syncPause:       () => api.post('/users/sync/pause'),
+  syncResume:      () => api.post('/users/sync/resume'),
+  syncDisconnect:  () => api.post('/users/sync/disconnect'),
 }
 
 // NOTE on paths: the gateway proxies /api/v1/reports/* → user-service /reports/*

@@ -3,12 +3,12 @@ import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { useState, useRef, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { useAuthStore } from '@/lib/store'
+import { useAuthStore, useEffectivePermissions } from '@/lib/store'
 import { authApi } from '@/lib/queries'
 import { useTheme } from '@/lib/theme'
 import { api } from '@/lib/api'
 import { cn } from '@/lib/cn'
-import { Avatar } from '@/components/ui'
+import { Avatar, Tooltip } from '@/components/ui'
 import {
   LayoutDashboard, FolderKanban, CalendarRange, Clock, Users,
   BarChart3, Shield, Settings, Bell, Sun, Moon,
@@ -21,20 +21,20 @@ const SIDEBAR_MAX = 320
 const SIDEBAR_DEFAULT = 180
 const SIDEBAR_STORAGE_KEY = 'sidebar-width'
 
-type NavItem = { href: string; label: string; icon: any; adminOnly?: boolean }
+// `perm` gates the nav item on an effective permission key (resolved from
+// role defaults + per-user overrides via useEffectivePermissions). `adminOnly`
+// stays as a coarser fallback for items not yet mapped to a specific perm.
+type NavItem = { href: string; label: string; icon: any; adminOnly?: boolean; perm?: string }
 type NavSection = { label: string | null; items: NavItem[] }
 
 // Grouped sidebar nav — each section is rendered with a subtle label separator.
-// The null-label first section is the primary daily-use nav, rendered flush
-// without a header. Subsequent sections get small uppercase headers to break
-// up the vertical whitespace into purposeful structure.
 const NAV_SECTIONS: NavSection[] = [
   {
     label: null,
     items: [
       { href: '/dashboard',        label: 'Overview',        icon: LayoutDashboard },
-      { href: '/projects',         label: 'Projects',        icon: FolderKanban },
-      { href: '/timesheets',       label: 'Timesheets',      icon: Clock },
+      { href: '/projects',         label: 'Projects',        icon: FolderKanban,   perm: 'view_projects' },
+      { href: '/timesheets',       label: 'Timesheets',      icon: Clock,          perm: 'view_timesheets' },
       { href: '/resourcing',       label: 'Resourcing',      icon: CalendarRange,  adminOnly: true },
     ],
   },
@@ -42,12 +42,17 @@ const NAV_SECTIONS: NavSection[] = [
     label: 'Insights',
     items: [
       { href: '/reports',          label: 'Reports',         icon: BarChart3 },
-      { href: '/team',             label: 'Team',            icon: Users },
+      // Team page now gated on view_team — collaborators default to `false`
+      // so the link disappears for them unless a super admin grants it.
+      { href: '/team',             label: 'Team',            icon: Users,          perm: 'view_team' },
     ],
   },
   {
     label: 'Manage',
     items: [
+      // /admin page covers many admin concerns (People, Permissions, Rate
+      // Cards, etc.) — admins and account managers need it. Kept on the
+      // coarse isAdmin() gate rather than the narrower `manage_admin` perm.
       { href: '/admin',            label: 'Admin',           icon: Shield,         adminOnly: true },
       { href: '/settings/profile', label: 'Settings',        icon: Settings },
     ],
@@ -58,6 +63,7 @@ const NAV_SECTIONS: NavSection[] = [
 export default function Sidebar({ onSearchClick }: { onSearchClick?: () => void }) {
   const pathname = usePathname()
   const { user, clearAuth, isAdmin } = useAuthStore()
+  const permissions = useEffectivePermissions()
   const { theme, toggle } = useTheme()
   const isDark = theme === 'dark'
   const [showNotifs, setShowNotifs] = useState(false)
@@ -133,8 +139,18 @@ export default function Sidebar({ onSearchClick }: { onSearchClick?: () => void 
     window.location.href = '/login'
   }
 
+  // Hide nav items whose gate doesn't pass. `adminOnly` = roles admin/AM/super.
+  // `perm` = specific permission key (view_team, view_projects, etc.) — this
+  // is what lets super admin hide/show Team per user from /admin Permissions.
   const visibleSections = NAV_SECTIONS
-    .map(s => ({ ...s, items: s.items.filter(n => !n.adminOnly || isAdmin()) }))
+    .map(s => ({
+      ...s,
+      items: s.items.filter(n => {
+        if (n.adminOnly && !isAdmin()) return false
+        if (n.perm && permissions[n.perm] !== true) return false
+        return true
+      }),
+    }))
     .filter(s => s.items.length > 0)
 
   return (
@@ -165,35 +181,41 @@ export default function Sidebar({ onSearchClick }: { onSearchClick?: () => void 
           mobileOpen ? 'max-lg:translate-x-0' : 'max-lg:-translate-x-full',
         )}
       >
-        {/* Logo row — brand + notification bell + theme toggle */}
-        <div className="px-4 pt-4 pb-3 border-b border-line-subtle flex items-center justify-between gap-2">
-          <div className="min-w-0">
-            <div className="text-xl font-bold text-primary tracking-tight truncate font-heading">Momentum</div>
-            <div className="text-xs text-muted mt-0.5 truncate">Digital Nexa</div>
-          </div>
+        {/* Single-row header — compact icon buttons (w-6 h-6, 10px glyph)
+            at the right end so "Momentum" keeps its full weight without
+            forcing a second row. flex-shrink-0 on the icon cluster + min-w-0
+            on the brand keeps proportions sensible if the user drags the
+            sidebar narrower than default. */}
+        <div className="px-4 pt-4 pb-3 border-b border-line-subtle">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0 flex-1 overflow-hidden">
+              <div className="text-xl font-bold text-primary tracking-tight font-heading whitespace-nowrap">Momentum</div>
+              <div className="text-xs text-muted mt-0.5 truncate">{user?.workspaceName || 'Digital Nexa'}</div>
+            </div>
 
-          <div className="flex items-center gap-1.5 flex-shrink-0">
+            <div className="flex items-center gap-1 flex-shrink-0 pt-0.5">
             {/* Notification bell — dropdown uses fixed positioning so it escapes the narrow sidebar */}
             <div ref={notifRef} className="relative">
-              <button
-                ref={bellRef}
-                onClick={toggleNotifs}
-                title={`${unread} notification${unread !== 1 ? 's' : ''}`}
-                className={cn(
-                  'w-7 h-7 rounded-md flex items-center justify-center cursor-pointer border transition-colors relative',
-                  showNotifs
-                    ? 'bg-accent-dim border-line-accent text-accent'
-                    : 'bg-surface-overlay border-line-subtle text-secondary hover:bg-surface-hover hover:border-line-muted hover:text-primary',
-                )}
-                aria-label="Notifications"
-              >
-                <Bell size={14} />
-                {unread > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-status-rose border-2 border-surface-raised flex items-center justify-center text-[8px] font-bold text-white leading-none">
-                    {unread > 9 ? '9+' : unread}
-                  </span>
-                )}
-              </button>
+              <Tooltip content={`${unread} notification${unread !== 1 ? 's' : ''}`} side="bottom">
+                <button
+                  ref={bellRef}
+                  onClick={toggleNotifs}
+                  className={cn(
+                    'w-6 h-6 rounded-md flex items-center justify-center cursor-pointer border transition-colors relative',
+                    showNotifs
+                      ? 'bg-accent-dim border-line-accent text-accent'
+                      : 'bg-surface-overlay border-line-subtle text-secondary hover:bg-surface-hover hover:border-line-muted hover:text-primary',
+                  )}
+                  aria-label="Notifications"
+                >
+                  <Bell size={12} />
+                  {unread > 0 && (
+                    <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-status-rose border-2 border-surface-raised flex items-center justify-center text-[8px] font-bold text-white leading-none">
+                      {unread > 9 ? '9+' : unread}
+                    </span>
+                  )}
+                </button>
+              </Tooltip>
 
               {showNotifs && dropPos && (
                 <div
@@ -262,23 +284,25 @@ export default function Sidebar({ onSearchClick }: { onSearchClick?: () => void 
             </div>
 
             {/* Theme toggle */}
-            <button
-              onClick={toggle}
-              title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-              className="w-7 h-7 rounded-md bg-surface-overlay border border-line-subtle cursor-pointer flex items-center justify-center text-secondary hover:bg-surface-hover hover:border-line-muted hover:text-primary transition-colors"
-              aria-label="Toggle theme"
-            >
-              {isDark ? <Sun size={14} /> : <Moon size={14} />}
-            </button>
+            <Tooltip content={isDark ? 'Switch to light mode' : 'Switch to dark mode'} side="bottom">
+              <button
+                onClick={toggle}
+                className="w-6 h-6 rounded-md bg-surface-overlay border border-line-subtle cursor-pointer flex items-center justify-center text-secondary hover:bg-surface-hover hover:border-line-muted hover:text-primary transition-colors"
+                aria-label="Toggle theme"
+              >
+                {isDark ? <Sun size={12} /> : <Moon size={12} />}
+              </button>
+            </Tooltip>
 
             {/* Mobile-only close (hidden on desktop) */}
             <button
               onClick={() => setMobileOpen(false)}
-              className="lg:hidden w-7 h-7 rounded-md bg-surface-overlay border border-line-subtle cursor-pointer flex items-center justify-center text-secondary hover:bg-surface-hover"
+              className="lg:hidden w-6 h-6 rounded-md bg-surface-overlay border border-line-subtle cursor-pointer flex items-center justify-center text-secondary hover:bg-surface-hover"
               aria-label="Close menu"
             >
-              <X size={14} />
+              <X size={12} />
             </button>
+          </div>
           </div>
         </div>
 
@@ -304,13 +328,22 @@ export default function Sidebar({ onSearchClick }: { onSearchClick?: () => void 
                     key={item.href}
                     href={item.href}
                     className={cn(
-                      'flex items-center gap-2.5 no-underline transition-colors mx-1.5 rounded-md cursor-pointer px-3 py-2 text-[15px]',
+                      'relative flex items-center gap-2.5 no-underline transition-all duration-150',
+                      'mx-1.5 rounded-md cursor-pointer px-3 py-2 text-[15px]',
                       active
-                        ? 'bg-accent-dim text-accent font-semibold'
+                        ? 'bg-accent-dim text-accent font-semibold shadow-[inset_0_0_0_1px_var(--accent-dim)]'
                         : 'text-secondary hover:bg-surface-hover hover:text-primary',
                     )}
                     onClick={() => setMobileOpen(false)}
                   >
+                    {/* Left-edge accent bar — visible only when active. Gives the
+                        nav a clear "selected" signal beyond the bg tint alone. */}
+                    {active && (
+                      <span
+                        aria-hidden
+                        className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-r-sm bg-accent"
+                      />
+                    )}
                     <Icon size={17} className="flex-shrink-0" />
                     {item.label}
                   </Link>
@@ -329,14 +362,15 @@ export default function Sidebar({ onSearchClick }: { onSearchClick?: () => void 
               <div className="text-[10px] text-muted capitalize truncate">{user?.permissionProfile?.replace(/_/g, ' ') || 'Member'}</div>
             </div>
 
-            <button
-              onClick={handleLogout}
-              title="Sign out"
-              className="bg-transparent border-none cursor-pointer text-muted p-1 rounded hover:text-status-rose transition-colors"
-              aria-label="Sign out"
-            >
-              <LogOut size={14} />
-            </button>
+            <Tooltip content="Sign out" side="top">
+              <button
+                onClick={handleLogout}
+                className="bg-transparent border-none cursor-pointer text-muted p-1 rounded hover:text-status-rose transition-colors"
+                aria-label="Sign out"
+              >
+                <LogOut size={14} />
+              </button>
+            </Tooltip>
           </div>
         </div>
 

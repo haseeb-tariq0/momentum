@@ -7,8 +7,8 @@ import { usersApi, timeApi } from '@/lib/queries'
 import { useAuthStore } from '@/lib/store'
 import { downloadCSV } from '@/lib/export'
 import Link from 'next/link'
-import { Lock } from 'lucide-react'
-import { Select } from '@/components/ui'
+import { Lock, Search } from 'lucide-react'
+import { Select, Input } from '@/components/ui'
 
 // ── Editable hour cell — click to edit, blur/enter to save ─────────────────
 function EditableCell({
@@ -121,6 +121,9 @@ export default function AllTimesheetsPage() {
   const [weekRef,      setWeekRef]      = useState(startOfWeek(new Date(), { weekStartsOn: 1 }))
   const [selectedUser, setSelectedUser] = useState<string | null>(null)
   const [deptFilter,   setDeptFilter]   = useState<string>('all')
+  // Name/job-title filter — lets admins jump straight to one person without
+  // scrolling the full 145-row table. Applied on top of the dept filter.
+  const [userSearch,   setUserSearch]   = useState('')
 
   const weekStart     = format(weekRef, 'yyyy-MM-dd')
   const days          = Array.from({ length: 7 }, (_, i) => addDays(weekRef, i))
@@ -191,8 +194,18 @@ export default function AllTimesheetsPage() {
     }
   })
 
-  // Filter by department
-  const merged = deptFilter === 'all' ? allMerged : allMerged.filter(u => u.department === deptFilter || u.departmentId === deptFilter)
+  // Filter by department then by the search query. Search covers name +
+  // job title + department so "finance" narrows the list even if the
+  // dept filter is "all".
+  const byDept = deptFilter === 'all' ? allMerged : allMerged.filter(u => u.department === deptFilter || u.departmentId === deptFilter)
+  const q = userSearch.trim().toLowerCase()
+  const merged = q
+    ? byDept.filter(u =>
+        (u.name || '').toLowerCase().includes(q) ||
+        (u.jobTitle || '').toLowerCase().includes(q) ||
+        (u.department || '').toLowerCase().includes(q),
+      )
+    : byDept
   const users = deptFilter === 'all' ? allUsers : allUsers.filter((u: any) => (u.departments?.name || '') === deptFilter || u.department_id === deptFilter)
 
   const totalLogged    = merged.reduce((s, u) => s + u.totalHrs, 0)
@@ -243,6 +256,16 @@ export default function AllTimesheetsPage() {
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <div className="relative">
+            <Search size={12} className="absolute left-2 top-1/2 -translate-y-1/2 text-muted pointer-events-none" />
+            <Input
+              value={userSearch}
+              onChange={e => { setUserSearch(e.target.value); setSelectedUser(null) }}
+              placeholder="Search people…"
+              aria-label="Search people"
+              className="pl-7 py-1.5 text-sm w-[180px]"
+            />
+          </div>
           <Select
             size="sm"
             aria-label="Filter by department"

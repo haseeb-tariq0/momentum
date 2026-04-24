@@ -5,12 +5,12 @@ import { useAuthStore } from '@/lib/store'
 import { timeApi, projectsApi, tasksApi, usersApi } from '@/lib/queries'
 import { api } from '@/lib/api'
 import Link from 'next/link'
-import { CheckCircle2, AlertTriangle } from 'lucide-react'
+import { CheckCircle2, AlertTriangle, ChevronDown } from 'lucide-react'
 import {
   format, startOfMonth, endOfMonth, addMonths, subMonths,
   eachDayOfInterval, startOfWeek, endOfWeek, addDays,
 } from 'date-fns'
-import { PageHeader, Card, Avatar, Badge, EmptyState, Dropdown, Combobox } from '@/components/ui'
+import { PageHeader, Card, Avatar, Badge, EmptyState, Dropdown, Combobox, SkeletonTable } from '@/components/ui'
 import { cn } from '@/lib/cn'
 import { todayLocalISO } from '@/lib/utils'
 
@@ -342,8 +342,18 @@ function TaskRow({ task, project, onStatusChange, isLast }: { task: any; project
         {task.due_date ? <DueChip due={task.due_date} status={task.status} /> : <span className="text-xs text-muted">—</span>}
       </div>
 
-      {/* Status */}
-      <div className="flex-shrink-0 w-[104px]" onClick={e => e.stopPropagation()}>
+      {/* Status — colored pill trigger; picker surfaces via Dropdown menu.
+          Replaces the old plain-secondary-button look. The pill is keyed to
+          STATUS[task.status] so it visually matches the per-status color
+          used elsewhere (sidebar summary, progress bars, subtask highlight).
+          The [&>div] / [&>div>button] selectors force the Dropdown's inner
+          wrapper + button (both inline-* by default) to fill this fixed
+          width — otherwise each pill sizes to its own label and the column
+          looks jagged. */}
+      <div
+        className="flex-shrink-0 w-[116px] [&>div]:block [&>div]:w-full [&>div>button]:w-full"
+        onClick={e => e.stopPropagation()}
+      >
         <Dropdown
           aria-label="Task status"
           size="sm"
@@ -352,7 +362,6 @@ function TaskRow({ task, project, onStatusChange, isLast }: { task: any; project
           options={Object.entries(STATUS).map(([val, cfg]) => ({
             value: val,
             label: cfg.label,
-            // Colored dot that matches the legacy per-status fill color.
             icon: (
               <span
                 className="inline-block w-2 h-2 rounded-full"
@@ -361,9 +370,49 @@ function TaskRow({ task, project, onStatusChange, isLast }: { task: any; project
               />
             ),
           }))}
+          trigger={({ selected, open }) => {
+            const cfg = STATUS[(selected?.value as string) ?? task.status] || STATUS.todo
+            return <StatusPill color={cfg.color} bg={cfg.bg} label={cfg.label} open={open} />
+          }}
         />
       </div>
     </div>
+  )
+}
+
+// Visual trigger for the task-status Dropdown. A colored pill with a dot,
+// label, and a subtle chevron that animates when the menu opens. Designed
+// to feel interactive (hovers, rotates) without stealing attention — which
+// is why the border is the same color family as the fill, not a hard line.
+function StatusPill({ color, bg, label, open }: { color: string; bg: string; label: string; open: boolean }) {
+  return (
+    <span
+      className={cn(
+        'inline-flex items-center gap-1.5 w-full justify-between px-2 py-1 rounded-md text-xs font-semibold',
+        'border transition-all duration-150',
+        'cursor-pointer select-none',
+        open ? 'shadow-sm' : 'hover:shadow-sm',
+      )}
+      style={{
+        background: bg,
+        color,
+        borderColor: color + '33', // ~20% alpha hex
+      }}
+    >
+      <span className="inline-flex items-center gap-1.5 min-w-0">
+        <span
+          className="inline-block w-1.5 h-1.5 rounded-full flex-shrink-0"
+          style={{ background: color }}
+          aria-hidden
+        />
+        <span className="truncate">{label}</span>
+      </span>
+      <ChevronDown
+        size={12}
+        className={cn('flex-shrink-0 opacity-70 transition-transform duration-150', open && 'rotate-180')}
+        aria-hidden
+      />
+    </span>
   )
 }
 
@@ -521,7 +570,17 @@ function CandleBarChart({ data, viewType, chartType, maxValue, dailyCap }: {
               {d.hrs > 0 && (
                 <rect x={x} y={Math.max(PT, y)} width={barW} height={Math.min(bh, CH)}
                   rx={radius} ry={radius} fill={fill}
-                  style={{ transition: 'fill 0.1s' }}
+                  style={{
+                    transition: 'fill 0.1s',
+                    // Bars grow up from the baseline on mount, staggered across
+                    // the chart so the page feels alive. transformBox=fill-box
+                    // + origin=bottom anchors scaleY to the x-axis, not the
+                    // SVG root. Capped delay so a 30-day view doesn't cascade
+                    // for 600ms.
+                    transformBox: 'fill-box',
+                    transformOrigin: 'center bottom',
+                    animation: `bar-rise 0.5s cubic-bezier(0.16,1,0.3,1) ${Math.min(i * 18, 360)}ms both`,
+                  }}
                 />
               )}
               {d.hrs === 0 && viewType !== 'utilization' && (
@@ -799,6 +858,7 @@ export default function OverviewPage() {
   const [weekOffset, setWeekOffset]         = useState(0)
   const [adminDept,   setAdminDept]         = useState<string>('all')
   const [selectedPerson, setSelectedPerson] = useState<string>('all')
+  const [completedExpanded, setCompletedExpanded] = useState(false)
 
   // When switching depts, reset person filter
   function handleDeptChange(dept: string) {
@@ -1593,12 +1653,16 @@ export default function OverviewPage() {
       <div className="grid gap-4 items-start" style={{ gridTemplateColumns: 'minmax(0,1fr) 236px' }}>
         <div>
           {tLoad ? (
-            <div className="p-8 text-center text-base text-muted">Loading tasks…</div>
+            <Card className="overflow-hidden">
+              <SkeletonTable rows={5} />
+            </Card>
           ) : openTasks.length === 0 ? (
-            <Card className="px-6 py-9 text-center">
-              <div className="mb-2.5 flex justify-center"><CheckCircle2 size={30} className="text-accent" /></div>
-              <div className="text-lg font-semibold text-secondary">All caught up!</div>
-              <div className="text-sm text-muted mt-1">No open tasks assigned to you.</div>
+            <Card>
+              <EmptyState
+                variant="tasks"
+                title="All caught up"
+                description="No open tasks assigned to you right now. New work will appear here as it's created or assigned."
+              />
             </Card>
           ) : (
             <>
@@ -1625,16 +1689,54 @@ export default function OverviewPage() {
               {renderSection(noDate,   'No Due Date')}
             </>
           )}
-          {doneTasks.length > 0 && (
-            <div className="border border-line-subtle rounded-md overflow-hidden mt-1">
-              <div className="flex items-center gap-2 px-4 py-2 bg-surface border-b border-line-subtle">
-                <span className="text-xs font-bold uppercase tracking-[0.06em] text-muted inline-flex items-center gap-1"><CheckCircle2 size={11} /> Completed</span>
-                <span className="text-xs font-semibold text-muted bg-surface-overlay px-1.5 rounded-md">{doneTasks.length}</span>
+          {doneTasks.length > 0 && (() => {
+            const visible = completedExpanded ? doneTasks : doneTasks.slice(0, 5)
+            const hasMore = doneTasks.length > 5
+            return (
+              <div className="border border-line-subtle rounded-md overflow-hidden mt-2 bg-surface-overlay/30">
+                {/* Header is a button so the whole bar is clickable when there's
+                    overflow — matches the affordance of the chevron alone. */}
+                <button
+                  type="button"
+                  onClick={() => hasMore && setCompletedExpanded(v => !v)}
+                  disabled={!hasMore}
+                  aria-expanded={completedExpanded}
+                  className={cn(
+                    'flex items-center justify-between w-full gap-2 px-4 py-2 bg-surface border-b border-line-subtle',
+                    'text-left transition-colors',
+                    hasMore ? 'cursor-pointer hover:bg-surface-hover' : 'cursor-default',
+                  )}
+                >
+                  <span className="inline-flex items-center gap-2">
+                    <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-[rgba(16,185,129,0.12)]">
+                      <CheckCircle2 size={10} className="text-[#10B981]" />
+                    </span>
+                    <span className="text-xs font-bold uppercase tracking-[0.06em] text-secondary">Completed</span>
+                    <span className="text-xs font-semibold text-muted tabular-nums">{doneTasks.length}</span>
+                  </span>
+                  {hasMore && (
+                    <span className="inline-flex items-center gap-1 text-xs font-medium text-muted">
+                      {completedExpanded ? 'Collapse' : `Show all ${doneTasks.length}`}
+                      <ChevronDown
+                        size={12}
+                        className={cn('transition-transform duration-150', completedExpanded && 'rotate-180')}
+                        aria-hidden
+                      />
+                    </span>
+                  )}
+                </button>
+                {visible.map((task: any, i: number) => (
+                  <TaskRow
+                    key={task.id}
+                    task={task}
+                    project={getProject(task)}
+                    onStatusChange={(s) => changeStatus(task, s)}
+                    isLast={i === visible.length - 1}
+                  />
+                ))}
               </div>
-              {doneTasks.slice(0, 5).map((task: any, i: number) => <TaskRow key={task.id} task={task} project={getProject(task)} onStatusChange={(s) => changeStatus(task, s)} isLast={i === Math.min(doneTasks.length, 5) - 1} />)}
-              {doneTasks.length > 5 && <div className="px-4 py-2 text-sm text-muted text-center">+{doneTasks.length - 5} more</div>}
-            </div>
-          )}
+            )
+          })()}
         </div>
 
         {/* Sidebar */}

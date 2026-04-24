@@ -21,6 +21,33 @@ async function getForecastKey(workspaceId: string): Promise<string | null> {
   return perWs || process.env.FORECAST_API_KEY || null
 }
 
+// Kill-switch gate. Admin can pause sync from the UI (subscription ended,
+// Forecast.it unreachable, data drift emergency) without editing env vars or
+// restarting the service. `enabled` defaults to true when the field is absent
+// so existing workspaces keep working after deploy.
+function isSyncEnabled(fa: any): boolean {
+  return fa?.enabled !== false
+}
+
+async function loadForecastApi(workspaceId: string): Promise<any> {
+  const { data } = await supabase
+    .from('workspaces')
+    .select('sync_state')
+    .eq('id', workspaceId)
+    .single()
+  return (data?.sync_state as any)?.forecast_api || {}
+}
+
+async function saveForecastApi(workspaceId: string, fa: any): Promise<void> {
+  const { data } = await supabase
+    .from('workspaces')
+    .select('sync_state')
+    .eq('id', workspaceId)
+    .single()
+  const nextState = { ...((data?.sync_state as any) || {}), forecast_api: fa }
+  await supabase.from('workspaces').update({ sync_state: nextState }).eq('id', workspaceId)
+}
+
 export async function syncRoutes(app: FastifyInstance) {
   // ── GET /sync/status ──────────────────────────────────────────────────────
   app.get('/status', async (req, reply) => {
@@ -34,10 +61,15 @@ export async function syncRoutes(app: FastifyInstance) {
       .single()
     const fa = ((data?.sync_state as any)?.forecast_api) || {}
     const hasKey = !!(fa.apiKey || process.env.FORECAST_API_KEY)
+    const paused = fa.enabled === false
     const inProgress = inFlight.has(user.workspaceId)
     return reply.status(200).send({
       data: {
-        enabled:    hasKey,
+        // `enabled` means "sync will actually run" — both a key AND not paused.
+        // UI gates the Sync Now button on this; Pause button gates on `paused`.
+        enabled:    hasKey && !paused,
+        hasKey,
+        paused,
         inProgress,
         intervalMs: 5 * 60 * 1000,
         entities:   {
@@ -56,6 +88,11 @@ export async function syncRoutes(app: FastifyInstance) {
   app.post('/run-now', async (req, reply) => {
     const user = (req as any).user
     if (!isAdmin(user.profile)) return reply.status(403).send({ errors: [{ code: 'FORBIDDEN' }] })
+
+    const fa = await loadForecastApi(user.workspaceId)
+    if (!isSyncEnabled(fa)) {
+      return reply.status(400).send({ errors: [{ code: 'SYNC_DISABLED', message: 'Forecast sync is paused. Resume it before running.' }] })
+    }
 
     const apiKey = await getForecastKey(user.workspaceId)
     if (!apiKey) return reply.status(400).send({ errors: [{ code: 'NO_API_KEY', message: 'FORECAST_API_KEY not configured' }] })
@@ -86,6 +123,11 @@ export async function syncRoutes(app: FastifyInstance) {
     const user = (req as any).user
     if (!isAdmin(user.profile)) return reply.status(403).send({ errors: [{ code: 'FORBIDDEN' }] })
 
+    const fa = await loadForecastApi(user.workspaceId)
+    if (!isSyncEnabled(fa)) {
+      return reply.status(400).send({ errors: [{ code: 'SYNC_DISABLED', message: 'Forecast sync is paused. Resume it before running.' }] })
+    }
+
     const apiKey = await getForecastKey(user.workspaceId)
     if (!apiKey) return reply.status(400).send({ errors: [{ code: 'NO_API_KEY', message: 'FORECAST_API_KEY not configured' }] })
 
@@ -102,6 +144,45 @@ export async function syncRoutes(app: FastifyInstance) {
     } finally {
       inFlight.delete(user.workspaceId)
     }
+  })
+
+  // ── POST /sync/pause ──────────────────────────────────────────────────────
+  // Reversible kill-switch — scheduler skips this workspace until /resume.
+  // Existing `entities` history is preserved so the UI still shows last run.
+  app.post('/pause', async (req, reply) => {
+    const user = (req as any).user
+    if (!isAdmin(user.profile)) return reply.status(403).send({ errors: [{ code: 'FORBIDDEN' }] })
+    const fa = await loadForecastApi(user.workspaceId)
+    await saveForecastApi(user.workspaceId, { ...fa, enabled: false, pausedAt: new Date().toISOString() })
+    return reply.status(200).send({ data: { paused: true } })
+  })
+
+  // ── POST /sync/resume ─────────────────────────────────────────────────────
+  app.post('/resume', async (req, reply) => {
+    const user = (req as any).user
+    if (!isAdmin(user.profile)) return reply.status(403).send({ errors: [{ code: 'FORBIDDEN' }] })
+    const fa = await loadForecastApi(user.workspaceId)
+    const next = { ...fa, enabled: true }
+    delete next.pausedAt
+    await saveForecastApi(user.workspaceId, next)
+    return reply.status(200).send({ data: { paused: false } })
+  })
+
+  // ── POST /sync/disconnect ─────────────────────────────────────────────────
+  // Hard disconnect — wipes the stored per-workspace API key AND the entire
+  // forecast_api block (cursor state, last-run history). Used when the
+  // Forecast.it subscription is cancelled for good. After this, /status
+  // reports `hasKey: false` and the scheduler will skip the workspace even if
+  // FORECAST_API_KEY is still set in the env (we write enabled:false to force
+  // the gate). Idempotent — safe to call twice.
+  app.post('/disconnect', async (req, reply) => {
+    const user = (req as any).user
+    if (!isAdmin(user.profile)) return reply.status(403).send({ errors: [{ code: 'FORBIDDEN' }] })
+    // Leave a tombstone so `hasKey` computation stays accurate even when the
+    // env var is still populated (single-tenant dev). Setting enabled:false
+    // is the belt; clearing apiKey is the braces.
+    await saveForecastApi(user.workspaceId, { enabled: false, disconnectedAt: new Date().toISOString() })
+    return reply.status(200).send({ data: { disconnected: true } })
   })
 }
 
@@ -129,6 +210,9 @@ export function startSyncScheduler() {
       const fa = ((ws as any).sync_state?.forecast_api) || {}
       const apiKey = fa.apiKey || process.env.FORECAST_API_KEY
       if (!apiKey) continue
+      // Admin kill-switch — explicit pause or post-disconnect tombstone.
+      // Checked even when an env-level FORECAST_API_KEY is still set.
+      if (!isSyncEnabled(fa)) { console.log(`[sync] skip ${wid}: paused`); continue }
       if (inFlight.has(wid)) { console.log(`[sync] skip ${wid}: already in flight`); continue }
 
       inFlight.add(wid)

@@ -9,12 +9,18 @@ import { api } from '@/lib/api'
 import { ALL_PERMISSIONS, PERMISSION_LABELS, PERMISSION_GROUPS } from '@/lib/queries'
 import { Search, Globe, Calendar, Pencil, XCircle, X, Ban, RotateCcw, Eye, EyeOff, Play, RefreshCw, Info, Upload, Camera, GitMerge, Plus } from 'lucide-react'
 import { uploadFile } from '@/lib/upload'
-import { PageHeader, Card, Button, Badge, Input, Label, EmptyState, Select, DatePicker } from '@/components/ui'
+import { PageHeader, Card, Button, Badge, Input, Label, EmptyState, Select, Combobox, DatePicker } from '@/components/ui'
 import { cn } from '@/lib/cn'
 import FinanceImport from './FinanceImport'
 import ForecastSync  from './ForecastSync'
 import { TemplatesPanel } from './templates/TemplatesPanel'
 
+// Report defaults per Apr 17 Murtaza spec (see reportVisibility.ts):
+//   super_admin → all | admin → all except P&L
+//   account_manager → time + utilization + active_projects + client_profitability
+//   collaborator    → time + utilization only
+// The admin panel toggles build on top of these so a super admin can grant
+// e.g. Partner Report to one specific collaborator without promoting them.
 const ROLE_DEFAULTS: Record<string, Record<string, boolean>> = {
   super_admin: Object.fromEntries(ALL_PERMISSIONS.map(p => [p, true])),
   admin: {
@@ -22,7 +28,14 @@ const ROLE_DEFAULTS: Record<string, Record<string, boolean>> = {
     view_financials: true, manage_financials: false,
     view_team: true, manage_team: true, invite_members: true,
     view_timesheets: true, manage_timesheets: false,
-    view_reports: true, manage_admin: false,
+    view_report_time: true, view_report_utilization: true,
+    view_report_active_projects: true, view_report_client_profitability: true,
+    view_report_compliance: true,
+    view_report_partner_report: true, view_report_partner_billing: true,
+    view_report_task_report: true, view_report_project_progress: true,
+    view_report_client_timesheet: true,
+    view_report_pnl: false,  // P&L is super_admin only per spec
+    manage_admin: false,
     manage_rate_cards: false, manage_clients: true,
   },
   account_manager: {
@@ -30,7 +43,13 @@ const ROLE_DEFAULTS: Record<string, Record<string, boolean>> = {
     view_financials: true, manage_financials: false,
     view_team: true, manage_team: false, invite_members: false,
     view_timesheets: true, manage_timesheets: false,
-    view_reports: true, manage_admin: false,
+    view_report_time: true, view_report_utilization: true,
+    view_report_active_projects: true, view_report_client_profitability: true,
+    view_report_compliance: false,
+    view_report_partner_report: false, view_report_partner_billing: false,
+    view_report_task_report: false, view_report_project_progress: false,
+    view_report_client_timesheet: false, view_report_pnl: false,
+    manage_admin: false,
     manage_rate_cards: false, manage_clients: true,
   },
   collaborator: {
@@ -38,7 +57,13 @@ const ROLE_DEFAULTS: Record<string, Record<string, boolean>> = {
     view_financials: false, manage_financials: false,
     view_team: false, manage_team: false, invite_members: false,
     view_timesheets: true, manage_timesheets: false,
-    view_reports: false, manage_admin: false,
+    view_report_time: true, view_report_utilization: true,
+    view_report_active_projects: false, view_report_client_profitability: false,
+    view_report_compliance: false,
+    view_report_partner_report: false, view_report_partner_billing: false,
+    view_report_task_report: false, view_report_project_progress: false,
+    view_report_client_timesheet: false, view_report_pnl: false,
+    manage_admin: false,
     manage_rate_cards: false, manage_clients: false,
   },
 }
@@ -861,6 +886,10 @@ export default function AdminPage() {
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null)
   const [pendingOverrides, setPendingOverrides] = useState<Record<string, boolean>>({})
   const [permMode, setPermMode] = useState<'role'|'department'|'user'>('role')
+  // Search input on the per-user permissions sidebar. 55+ active users make
+  // scrolling to one specific person painful; type-to-filter matches on name,
+  // email, and job title.
+  const [permUserSearch, setPermUserSearch] = useState('')
   const [selectedRole, setSelectedRole] = useState<string>('collaborator')
   const [rolePermEdits, setRolePermEdits] = useState<Record<string, Record<string, boolean>>>({})
   const [rolePermSaving, setRolePermSaving] = useState(false)
@@ -1686,15 +1715,43 @@ export default function AdminPage() {
             </div>
           ) : (
             /* ── PER-USER PERMISSIONS ── */
-            <div className={cn('grid gap-4 items-start', selectedUser ? 'grid-cols-[200px_minmax(0,1fr)]' : 'grid-cols-1')}>
+            <div className={cn('grid gap-4 items-start', selectedUser ? 'grid-cols-[240px_minmax(0,1fr)]' : 'grid-cols-1')}>
               <div className="sticky top-4">
-                <Card className="overflow-hidden p-0 max-h-[500px] overflow-y-auto">
+                <Card className="overflow-hidden p-0 flex flex-col max-h-[640px]">
                   {modeToggleRow}
-                  {(users || []).map((u: any, i: number) => {
+                  {/* Search — filters by name / email / job title. Sticky at the
+                      top of the card so it stays visible while scrolling a long
+                      user list (145+ rows on Digital Nexa). */}
+                  <div className="px-2.5 py-2 border-b border-line-subtle bg-surface-raised">
+                    <div className="relative">
+                      <Search size={12} className="absolute left-2 top-1/2 -translate-y-1/2 text-muted pointer-events-none" />
+                      <Input
+                        value={permUserSearch}
+                        onChange={e => setPermUserSearch(e.target.value)}
+                        placeholder="Search users…"
+                        className="pl-7 py-1.5 text-sm"
+                        aria-label="Search users"
+                      />
+                    </div>
+                  </div>
+                  <div className="overflow-y-auto flex-1">
+                  {(() => {
+                    const q = permUserSearch.trim().toLowerCase()
+                    const filtered = q
+                      ? (users || []).filter((u: any) =>
+                          (u.name || '').toLowerCase().includes(q) ||
+                          (u.email || '').toLowerCase().includes(q) ||
+                          (u.job_title || '').toLowerCase().includes(q),
+                        )
+                      : (users || [])
+                    if (filtered.length === 0) {
+                      return <div className="px-3.5 py-6 text-center text-sm text-muted">No matches</div>
+                    }
+                    return filtered.map((u: any, i: number) => {
                     const profile   = u.permission_profile || 'collaborator'
                     const hasCustom = Object.keys(u.custom_permissions || {}).length > 0
                     const isSelected = selectedUserId === u.id
-                    const isLast = i === (users?.length || 0) - 1
+                    const isLast = i === filtered.length - 1
                     return (
                       <div
                         key={u.id}
@@ -1717,7 +1774,9 @@ export default function AdminPage() {
                         {hasCustom && <div className="w-1.5 h-1.5 rounded-full bg-status-violet flex-shrink-0" />}
                       </div>
                     )
-                  })}
+                  })
+                  })()}
+                  </div>
                 </Card>
               </div>
               {selectedUser ? (
@@ -2266,13 +2325,16 @@ export default function AdminPage() {
                   client will be soft-deleted. This cannot be undone.
                 </div>
                 <Label className="text-xs uppercase tracking-wider">Merge into</Label>
-                <Select value={mergeTargetId} onChange={e => setMergeTargetId(e.target.value)} autoFocus>
-                  <option value="">Select target client...</option>
-                  {(clients || [])
+                <Combobox
+                  value={mergeTargetId}
+                  onChange={v => setMergeTargetId((v as string) || '')}
+                  placeholder="Select target client..."
+                  searchPlaceholder="Search clients…"
+                  options={(clients || [])
                     .filter((c: any) => c.id !== mergingClient.id && c.active !== false)
                     .sort((a: any, b: any) => String(a.name).localeCompare(String(b.name)))
-                    .map((c: any) => (<option key={c.id} value={c.id}>{c.name}</option>))}
-                </Select>
+                    .map((c: any) => ({ value: c.id as string, label: c.name }))}
+                />
                 <div className="flex gap-2 mt-3 justify-end">
                   <Button variant="secondary" onClick={() => setMergingClient(null)} disabled={mergeSubmitting}>
                     Cancel
@@ -2321,17 +2383,18 @@ export default function AdminPage() {
                         the backend. Use — None — for top-level clients like Nexa
                         Cognition itself. */}
                     <Label className="text-xs uppercase tracking-wider">Parent Client (optional)</Label>
-                    <Select
+                    <Combobox
                       aria-label="Parent client"
                       value={clientForm.parent_client_id}
-                      onChange={e => setClientForm(f => ({ ...f, parent_client_id: e.target.value }))}
-                    >
-                      <option value="">— None (top-level client) —</option>
-                      {(clients || [])
+                      onChange={v => setClientForm(f => ({ ...f, parent_client_id: (v as string) || '' }))}
+                      placeholder="— None (top-level client) —"
+                      searchPlaceholder="Search clients…"
+                      clearable
+                      options={(clients || [])
                         .filter((c: any) => c.active !== false && !c.parent_client_id)
                         .sort((a: any, b: any) => String(a.name).localeCompare(String(b.name)))
-                        .map((c: any) => (<option key={c.id} value={c.id}>{c.name}</option>))}
-                    </Select>
+                        .map((c: any) => ({ value: c.id as string, label: c.name }))}
+                    />
                   </div>
                   <div>
                     <Label className="text-xs uppercase tracking-wider">Country</Label>
@@ -2380,18 +2443,19 @@ export default function AdminPage() {
                       const hasChildren = Array.isArray(editingClient.children) && editingClient.children.length > 0
                       return (
                         <>
-                          <Select
+                          <Combobox
                             aria-label="Parent client"
                             disabled={hasChildren}
                             value={editingClient.parent_client_id || ''}
-                            onChange={e => setEditingClient((c: any) => ({ ...c, parent_client_id: e.target.value }))}
-                          >
-                            <option value="">— None (top-level client) —</option>
-                            {(clients || [])
+                            onChange={v => setEditingClient((c: any) => ({ ...c, parent_client_id: (v as string) || '' }))}
+                            placeholder="— None (top-level client) —"
+                            searchPlaceholder="Search clients…"
+                            clearable
+                            options={(clients || [])
                               .filter((c: any) => c.active !== false && c.id !== editingClient.id && !c.parent_client_id)
                               .sort((a: any, b: any) => String(a.name).localeCompare(String(b.name)))
-                              .map((c: any) => (<option key={c.id} value={c.id}>{c.name}</option>))}
-                          </Select>
+                              .map((c: any) => ({ value: c.id as string, label: c.name }))}
+                          />
                           {hasChildren && (
                             <div className="text-[11px] text-muted mt-1">
                               This client has {editingClient.children.length} sub-client{editingClient.children.length === 1 ? '' : 's'}. Re-parent or remove them before nesting this client under another.

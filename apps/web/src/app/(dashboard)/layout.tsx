@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { useAuthStore } from '@/lib/store'
 import { usersApi } from '@/lib/queries'
 import Sidebar from '@/components/layout/Sidebar'
@@ -12,6 +12,7 @@ export const dynamic = 'force-dynamic'
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter()
+  const pathname = usePathname()
   const { user, hydrated, hydrate, setAuth } = useAuthStore()
   const [searchOpen, setSearchOpen] = useState(false)
 
@@ -63,7 +64,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     <div className="flex h-screen w-screen overflow-hidden">
       <Sidebar onSearchClick={() => setSearchOpen(true)} />
       <main className="flex-1 overflow-y-auto overflow-x-hidden h-screen bg-surface-base lg:pl-0 pl-0 pt-12 lg:pt-0">
-        {children}
+        {/* key=pathname forces remount per route change so the fade animation
+            fires. Uses animate-fade-in (150ms) from tailwind.config.js. */}
+        <div key={pathname} className="animate-fade-in">
+          {children}
+        </div>
       </main>
       <GlobalSearch open={searchOpen} onClose={closeSearch} />
       <ConfirmDialog />

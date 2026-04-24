@@ -508,7 +508,25 @@ export async function timeRoutes(app: FastifyInstance) {
       const { data: phases } = await supabase.from('phases').select('id').in('project_id', memberProjectIds)
       memberPhaseIds = (phases || []).map((p: any) => p.id)
     }
-    let query = supabase.from('tasks').select('*, phases(id,name,projects(id,name,color,status,clients(name)))').neq('status', 'done').limit(100)
+    // Two fixes vs. the old query:
+    //   1. `!inner` + `.is('phases.projects.deleted_at', null)` drops tasks whose
+    //      parent project has been soft-deleted. Without this, a task from a
+    //      deleted project shows up on Overview, the collaborator clicks its
+    //      status dropdown, and the PATCH 404s (assertProjectInWorkspace rejects
+    //      deleted rows). See apps/project-service/src/lib/scope.ts.
+    //   2. Dropping `.neq('status','done')` so the Completed section on the
+    //      Overview page actually renders after a refetch. Previously the
+    //      server withheld all done tasks → marking a task done made it vanish
+    //      with no way to un-done from this screen.
+    // Ordering by updated_at keeps recently-touched work at the top, so the
+    // 100-row cap doesn't starve the open list just because the user has a
+    // big backlog of old done tasks.
+    let query = supabase
+      .from('tasks')
+      .select('*, phases!inner(id,name,projects!inner(id,name,color,status,deleted_at,clients(name)))')
+      .is('phases.projects.deleted_at', null)
+      .order('updated_at', { ascending: false })
+      .limit(100)
     if (search) query = query.ilike('title', `%${search}%`)
     const hasAssigned = assignedTaskIds.length > 0; const hasPhases = memberPhaseIds.length > 0
     if (hasAssigned && hasPhases) query = query.or(`id.in.(${assignedTaskIds.join(',')}),phase_id.in.(${memberPhaseIds.join(',')})`)
