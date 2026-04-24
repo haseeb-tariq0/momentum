@@ -89,6 +89,16 @@ services:
       - key: SLACK_REDIRECT_URI
         sync: false
 
+      # Google Sheets — finance sync + report export. Service account is
+      # pasted base64-encoded to sidestep shell-quoting issues with the
+      # raw JSON. Finance sheet ID points at the NEXA Finance spreadsheet.
+      # Without these, Admin → Finance Sheet Sync shows "Not configured"
+      # and the Client_Revenue live sync stays off.
+      - key: GOOGLE_SHEETS_SERVICE_ACCOUNT_B64
+        sync: false
+      - key: GOOGLE_FINANCE_SHEET_ID
+        sync: false
+
   # ─── Frontend ──────────────────────────────────────────────────────────
   - type: web
     name: momentum-web
