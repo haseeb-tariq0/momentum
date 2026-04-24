@@ -3,11 +3,20 @@ const isProd = process.env.NODE_ENV === 'production'
 
 // API upstream. In dev the consolidated server runs on localhost:4000.
 // In prod (Render) we point at the backend service URL Render injects via
-// NEXT_PUBLIC_API_URL — that's the bare host (momentum-server.onrender.com),
-// so prefix https:// if it's missing. Falls back to localhost so running
-// `pnpm --filter @forecast/web start` locally still proxies correctly.
+// NEXT_PUBLIC_API_URL. That value can arrive in three forms depending on
+// how it was set:
+//   • full URL   — https://momentum-server-068y.onrender.com
+//   • bare host  — momentum-server-068y.onrender.com
+//   • subdomain  — momentum-server-068y  (Render fromService.host quirk)
+// Normalize all three to a fully-qualified https URL. Without the subdomain
+// branch the rewrite target becomes https://momentum-server-068y, which
+// doesn't resolve DNS and turns every /api/v1/* call into a Next.js 500.
 const rawApiUrl  = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
-const apiUpstream = /^https?:\/\//.test(rawApiUrl) ? rawApiUrl : `https://${rawApiUrl}`
+const bareHost   = rawApiUrl.replace(/^https?:\/\//, '').replace(/\/$/, '')
+const fqdnHost   = bareHost.includes('.') ? bareHost : `${bareHost}.onrender.com`
+const apiUpstream = /^https?:\/\//.test(rawApiUrl)
+  ? rawApiUrl
+  : `https://${fqdnHost}`
 
 // Content Security Policy.
 // `unsafe-inline` on script-src is required by Next.js for the inline runtime
