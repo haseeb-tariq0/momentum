@@ -104,9 +104,9 @@ async function issueSessionAndRespond(user: UserRow, reply: FastifyReply) {
   reply.setCookie('refresh_token', refreshToken, {
     httpOnly: true,
     secure:   process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
+    sameSite: 'lax',
     maxAge:   60 * 60 * 24 * 30,
-    path:     '/auth/refresh',
+    path:     '/api/v1/auth/refresh',
   })
 
   return reply.status(200).send({
@@ -360,9 +360,9 @@ export async function authRoutes(app: FastifyInstance) {
       reply.setCookie('refresh_token', newRefreshToken, {
         httpOnly: true,
         secure:   process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        sameSite: 'lax',
         maxAge:   60 * 60 * 24 * 30,
-        path:     '/auth/refresh',
+        path:     '/api/v1/auth/refresh',
       })
 
       return reply.status(200).send({ data: { accessToken } })
@@ -375,7 +375,7 @@ export async function authRoutes(app: FastifyInstance) {
   app.post('/logout', async (req, reply) => {
     const rt = req.cookies?.refresh_token
     if (rt) await supabase.from('refresh_tokens').delete().eq('token', rt)
-    reply.clearCookie('refresh_token', { path: '/auth/refresh' })
+    reply.clearCookie('refresh_token', { path: '/api/v1/auth/refresh' })
     return reply.status(200).send({ data: { message: 'Logged out' } })
   })
 
