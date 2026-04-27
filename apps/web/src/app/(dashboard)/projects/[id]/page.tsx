@@ -15,7 +15,7 @@ import {
 import { cn } from '@/lib/cn'
 import { todayLocalISO } from '@/lib/utils'
 
-const TASK_GRID_COLS = '14px minmax(0,1fr) 170px 110px 72px 72px 72px 90px 40px'
+const TASK_GRID_COLS = '14px minmax(0,1fr) 170px 110px 72px 72px 72px 90px 110px'
 
 // Inline time log widget per task
 function InlineTimeLog({ taskId, projectId, onClose }: { taskId: string; projectId: string; onClose: () => void }) {
