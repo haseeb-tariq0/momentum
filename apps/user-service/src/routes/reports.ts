@@ -213,60 +213,19 @@ export async function reportRoutes(app: FastifyInstance) {
       if (page.length < PAGE) break
     }
 
-    const projectIds = projects.map((p: any) => p.id)
-
-    // Aggregate logged hours per project using a 3-step batched approach.
-    // The old single query used .in('phases.project_id', projectIds) which
-    // embeds 1,185 UUIDs (~42 KB) into a URL query string — far above
-    // PostgREST's limit — causing a silent empty return for ALL projects.
+    // Aggregate est + logged hours per project via a single DB-side function.
+    // Previous approaches (nested PostgREST embed, batched .in() loops) both
+    // failed: the embed blew past the URL length limit (~42 KB for 1,185 UUIDs)
+    // and the batched loops were silently truncated by Supabase's 1,000-row cap
+    // per request. Pushing the GROUP BY into Postgres eliminates both problems —
+    // one round-trip, no URL limits, no row caps.
     const loggedByProject: Record<string, number> = {}
     const estByProject:    Record<string, number> = {}
-
-    const CHUNK = 500  // safe batch size to stay well under URL limits
-
-    if (projectIds.length) {
-      // Step 1: phases — direct project_id FK, no URL-length risk
-      const phaseToProject: Record<string, string> = {}
-      for (let i = 0; i < projectIds.length; i += CHUNK) {
-        const { data: phasesData } = await supabase
-          .from('phases')
-          .select('id, project_id')
-          .in('project_id', projectIds.slice(i, i + CHUNK))
-        for (const ph of phasesData || []) {
-          if (ph.id && ph.project_id) phaseToProject[ph.id] = ph.project_id
-        }
-      }
-
-      // Step 2: tasks — keyed by phase_id (direct FK), batched
-      const taskToProject: Record<string, string> = {}
-      const phaseIds = Object.keys(phaseToProject)
-      for (let i = 0; i < phaseIds.length; i += CHUNK) {
-        const { data: tasksData } = await supabase
-          .from('tasks')
-          .select('id, estimated_hrs, phase_id')
-          .in('phase_id', phaseIds.slice(i, i + CHUNK))
-        for (const t of tasksData || []) {
-          const pid = phaseToProject[(t as any).phase_id]
-          const tid = (t as any).id
-          if (pid && tid) {
-            taskToProject[tid] = pid
-            estByProject[pid] = (estByProject[pid] || 0) + Number((t as any).estimated_hrs || 0)
-          }
-        }
-      }
-
-      // Step 3: time entries — keyed by task_id (direct FK), batched
-      const taskIds = Object.keys(taskToProject)
-      for (let i = 0; i < taskIds.length; i += CHUNK) {
-        const { data: timeData } = await supabase
-          .from('time_entries')
-          .select('hours, task_id')
-          .in('task_id', taskIds.slice(i, i + CHUNK))
-        for (const e of timeData || []) {
-          const pid = taskToProject[(e as any).task_id]
-          if (pid) loggedByProject[pid] = (loggedByProject[pid] || 0) + Number((e as any).hours || 0)
-        }
-      }
+    const { data: hoursData } = await supabase
+      .rpc('report_project_hours', { p_workspace_id: user.workspaceId })
+    for (const row of hoursData || []) {
+      estByProject[row.project_id]    = Number(row.estimated_hrs)
+      loggedByProject[row.project_id] = Number(row.logged_hrs)
     }
 
     const today = new Date().toISOString().slice(0, 10)
