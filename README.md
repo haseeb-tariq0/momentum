@@ -1,36 +1,54 @@
-# Forecast — Internal Project Tracker
-### Built for Digital Nexa · Replacing Forecast.app · Manager: Murtaza Talib
+# Momentum — Internal Project Tracker
+### Built for Digital Nexa · Replacing Forecast.it · Manager: Murtaza Talib
+
+> Product name was **Forecast** through early April 2026, rebranded to **Momentum** on 2026-04-23. Legacy "Forecast" references in code comments and variable names are intentional — we're not bulk-renaming historical strings.
 
 ---
 
-## 🚀 Quick Start
+## 🌐 Production
+
+| Surface | URL |
+|---|---|
+| **Web app** | https://momentum.digitalnexa.com |
+| Render fallback | https://momentum-web-pnlu.onrender.com |
+| Backend API | https://momentum-server-068y.onrender.com |
+| DB (Supabase) | https://rqltujdrcnotbxlxberl.supabase.co |
+
+Hosted on [Render](https://render.com) — blueprint at `render.yaml`, Singapore region (closest to Supabase `ap-south-1`). Auto-deploys on push to `main`.
+
+---
+
+## 🚀 Local Dev
 
 ```bash
 cd D:\forecast
-pnpm dev
+pnpm install
+pnpm dev                          # all services
+pnpm --filter @forecast/server start   # consolidated backend only
+pnpm --filter @forecast/web dev        # Next.js only
 ```
 
-| Service | URL | Port |
+| Service | Dev URL | Port |
 |---|---|---|
 | Frontend (Next.js) | http://localhost:3000 | 3000 |
-| API Gateway | http://localhost:4000 | 4000 |
-| Auth Service | — | 3001 |
-| Project Service | — | 3002 |
-| Time Service | — | 3003 |
-| User Service | — | 3004 |
-| Notification Service | — | 3006 |
+| **Consolidated backend** (apps/server) | http://localhost:4000 | 4000 |
 
-### Login Credentials (all use `password123`)
+Production runs a **single consolidated Node process** (`apps/server`) that imports route modules from the old per-service folders. The old per-service `index.ts` files still exist so you *can* run each microservice standalone in dev if you want — but the deployed artifact is one process. See *Architecture* below.
+
+### Login Credentials (dev only, `password123`)
 | Email | Role |
 |---|---|
 | murtaza@digitalnexa.com | Super Admin |
 | haseeb@digitalnexa.com | Super Admin |
 | bob@digitalnexa.com | Collaborator |
 
-### Supabase
-- Project ref + service-role key live in `.env.local` (gitignored).
-- **Never commit Supabase service-role keys or Forecast.it API keys to this repo.**
-- See `.env.local.example` for the required variable names.
+Production has Google Sign-in for `@digitalnexa.com` accounts (invite-first flow — users must exist in the DB before they can sign in).
+
+### Supabase / secrets
+- All secrets live in `.env.local` (gitignored).
+- Production secrets live in the Render dashboard per service (`sync: false` env vars in `render.yaml`).
+- **Never commit** Supabase service-role keys, Google service-account JSON, JWT/cookie secrets, or Forecast.it API keys.
+- See `.env.local.example` for required variable names.
 
 ---
 
@@ -452,32 +470,45 @@ Every native browser `confirm()` dialog in the codebase has been replaced with `
 ```
 D:\forecast\
 ├── apps\
+│   ├── server\                 # ★ Prod: consolidated Fastify — port 4000
 │   ├── web\                    # Next.js 14 — port 3000
-│   ├── api-gateway\            # Fastify — port 4000
-│   ├── auth-service\           # JWT login/refresh — port 3001
-│   ├── project-service\        # Projects, phases, tasks, assignees — port 3002
-│   ├── time-service\           # Time entries, timesheets — port 3003
-│   ├── user-service\           # Users, admin, reports — port 3004
-│   ├── notification-service\   # SendGrid email — port 3006
-│   └── jobs\                   # BullMQ background jobs
+│   ├── auth-service\           # Route module: /api/v1/auth/*
+│   ├── project-service\        # Route module: /api/v1/projects/*, /resourcing/*, /templates/*
+│   ├── time-service\           # Route module: /api/v1/time/*
+│   ├── user-service\           # Route module: /api/v1/users/*, /reports/*, /notifications/*
+│   ├── notification-service\   # SendGrid email (not currently consolidated)
+│   ├── api-gateway\            # Legacy — not used in prod, kept for reference
+│   └── jobs\                   # BullMQ background jobs (not deployed)
 ├── packages\
 │   ├── db\                     # Supabase client (shared)
 │   ├── types\                  # Shared TypeScript types
 │   └── validators\             # Shared Zod schemas
+├── render.yaml                 # Render Blueprint — two services (momentum-server + momentum-web)
 └── README.md
 ```
 
-### API Routing (via Gateway port 4000)
+### Backend topology (consolidated)
+`apps/server/src/index.ts` registers every route module at its final prefix under a single Fastify app — no internal HTTP hop, no `http-proxy` layer. The old per-service `index.ts` files still boot standalone in dev but are not used in production.
+
 ```
-/auth/*           → auth-service         (3001)
-/projects/*       → project-service      (3002)
-/resourcing/*     → project-service      (3002)
-/time/*           → time-service         (3003)
-/users/*          → user-service         (3004)
-/reports/*        → user-service         (3004)
-/notifications/*  → user-service         (3004)
-/notify/*         → notification-service (3006)
+/api/v1/auth/*           → authRoutes         (from apps/auth-service)
+/api/v1/projects/*       → projectRoutes + taskRoutes  (from apps/project-service)
+/api/v1/resourcing/*     → resourcingRoutes
+/api/v1/templates/*      → templateRoutes
+/api/v1/time/*           → timeRoutes         (from apps/time-service)
+/api/v1/users/*          → userRoutes + importRoutes
+/api/v1/users/sync/*     → syncRoutes         (Forecast.it live sync)
+/api/v1/reports/*        → reportRoutes
+/api/v1/notifications/*  → notificationRoutes
+/health                  → Render health check (no auth)
 ```
+
+### CORS & request flow in production
+1. Browser → `https://momentum.digitalnexa.com/api/v1/*` (same-origin)
+2. Next.js `rewrites()` in `apps/web/next.config.mjs` proxies to `https://momentum-server-068y.onrender.com/api/v1/*` server-to-server
+3. Fastify auth middleware in `apps/server/src/middleware/auth.ts` verifies the JWT bearer token and sets `req.user` + legacy `x-user-id` headers used by older handlers
+
+CORS allowlist on the server auto-expands bare subdomains — a value of `momentum-web-pnlu` in `ALLOWED_ORIGINS` resolves to both `momentum-web-pnlu` and `momentum-web-pnlu.onrender.com` (workaround for Render's `fromService.host` short-form quirk).
 
 ---
 
@@ -728,6 +759,106 @@ showConfirm(
 
 ---
 
-*Last updated: April 6, 2026*
+### April 23–24, 2026 — Rebrand + Production Deployment Sprint
+
+**Context:** Product renamed to **Momentum** (finalized Apr 23 with Shemoel). Two-day push to get the app live on a public URL for the first time — Render blueprint deploy, custom domain wiring, Google Sign-in on production, and a handful of visibility bugs that only surfaced once a real collaborator logged in.
+
+---
+
+#### Rebrand
+
+- Product name locked: **Momentum**
+- Per memory rule, we are **not** bulk-renaming legacy "Forecast" / "NextTrack" strings in code — they'll decay naturally
+- User-visible renames still pending (login page hero still reads "Forecast", 4 report export titles still say "NextTrack") — tracked as a cosmetic pass
+
+---
+
+#### Backend consolidation — 8 services → 1
+
+**Problem:** Eight Fastify microservices (auth, project, time, user, report, notification, api-gateway, jobs) talking to each other over HTTP for a 55-user internal tool was over-engineered. Each service carried its own process overhead and Render would have required 8 paid services.
+
+**What changed:**
+- New **`apps/server`** package — single Fastify app that imports route modules directly from sibling packages (`../../auth-service/src/routes/auth.js`, etc.) and mounts them at their final `/api/v1/*` prefix
+- Shared `authMiddleware` in `apps/server/src/middleware/auth.ts` verifies JWT, sets `req.user` and legacy `x-user-id` / `x-workspace-id` / `x-profile` / `x-seat-type` headers (so older handlers written against gateway-injected headers still work)
+- Global `onRequest` hook bypasses `/health` and `/api/v1/auth/*` (login/refresh/google/slack OAuth/logout don't need a token)
+- All service package.jsons got `"type": "module"` — consolidated server uses ESM, and missing this caused `@forecast/db` import failures at startup
+- `packages/db/package.json` also got `"type": "module"` for the same reason
+- `date-fns` added to `time-service/package.json` (was only transitively present)
+
+**Result:** One Node process, one Render service. Start command is `pnpm --filter @forecast/server start` which runs `tsx src/index.ts` — no build step.
+
+---
+
+#### Render deployment — `render.yaml` Blueprint
+
+- Two services declared: **momentum-server** (Node/Fastify) + **momentum-web** (Next.js 14)
+- Region: **Singapore** (closest to Supabase `ap-south-1` Mumbai)
+- Plan: **starter** (paid, no sleep) on both
+- Build command uses `npm i -g pnpm@8.15.0 && pnpm install --frozen-lockfile --prod=false` — corepack fails because Render's `/usr/bin` is read-only, and `--prod=false` is required because `NODE_ENV=production` makes pnpm skip devDeps (which include TypeScript + Next types needed for the build)
+- Health check path `/health` for the server
+- All secrets declared as `sync: false` — Render prompts for them in the dashboard on first blueprint apply
+
+---
+
+#### Deployment debugging — one long chain of issues
+
+| # | Symptom | Root cause | Fix |
+|---|---|---|---|
+| 1 | `EROFS: /usr/bin/pnpx` | corepack tried to symlink into Render's read-only `/usr/bin` | `npm i -g pnpm@8.15.0` instead of `corepack enable` |
+| 2 | `Module not found: @/lib/store` | Next.js tsconfig was missing `baseUrl` | Added `"baseUrl": "."` to `apps/web/tsconfig.json` |
+| 3 | `devDependencies: skipped because NODE_ENV is set to production` | pnpm default skipped TS / next-types | Added `--prod=false` to install command |
+| 4 | ES module import failure for `@forecast/db` | Packages imported with ESM syntax but declared as CommonJS | Added `"type": "module"` to every relevant service + `packages/db` |
+| 5 | CORS: 500 on `/health` health probes | CORS middleware rejected requests with no Origin header (Render's internal probes) | `if (!origin) return cb(null, true)` — same-origin / probes don't need CORS |
+| 6 | Web app crashes on `/login` with "Missing required parameter client_id" | `render.yaml` declared `NEXT_PUBLIC_GOOGLE_CLIENT_ID` but code reads `NEXT_PUBLIC_GOOGLE_OAUTH_CLIENT_ID` | Renamed the env var in `render.yaml` |
+| 7 | Google Fonts (Poppins, Chakra Petch) blocked by CSP | CSP `style-src` only included `'self' 'unsafe-inline'` | Added `https://fonts.googleapis.com` to `style-src` and `https://fonts.gstatic.com` to `font-src` in `apps/web/next.config.mjs` |
+| 8 | Login POST returns 500 with `Server: cloudflare` but no Fastify log | Next.js rewrite target was the bare subdomain `momentum-server-068y` (no TLD) — DNS failed, Next.js returned 500 without ever reaching the backend | Web-side: auto-append `.onrender.com` when env var has no dot. Server-side: same pattern on `ALLOWED_ORIGINS`. Both done as defensive code, plus manually set `ALLOWED_ORIGINS` to the full URL |
+
+The recurring theme: Render's `fromService.host` intermittently resolves to the bare subdomain instead of the full hostname. Both `apps/server/src/index.ts` (CORS allowlist) and `apps/web/next.config.mjs` (rewrite destination) now normalize both forms.
+
+---
+
+#### Custom domain — `momentum.digitalnexa.com`
+
+- CNAME added by Jatin at digitalnexa.com's DNS provider pointing at `momentum-web-pnlu.onrender.com`
+- Render issued Let's Encrypt SSL cert automatically after DNS propagation
+- `ALLOWED_ORIGINS` updated to include both the Render URL and the custom domain
+- `NEXT_PUBLIC_APP_URL` on the web service set to the custom domain (used by the notification-service for email links)
+
+---
+
+#### Google Sign-in — production
+
+- OAuth 2.0 Client ID: `664916670540-i07lo3ujg7oqu7qoaheqim2tkclr07sr.apps.googleusercontent.com`
+- Flow: **implicit** (per-user flow, no server-side redirect URI needed)
+- Added to Google Cloud Console → Authorized JavaScript origins:
+  - `http://localhost:3000` (dev)
+  - `https://momentum-web-pnlu.onrender.com` (fallback)
+  - `https://momentum.digitalnexa.com` (prod)
+- Invite-first: a user can only Google Sign-in if their email already exists in the `users` table with `active = true`
+
+---
+
+#### Visibility bug fixes (found during collaborator testing)
+
+1. **Deleted projects haunting timesheets** — `GET /time/week` and `/time/team-week` fetched `task_assignees` but never filtered by `projects.deleted_at`. Soft-deleting a project left its task-assignee rows intact, so the assignee kept seeing auto-added tasks from dead projects on their timesheet forever. Fixed in `apps/time-service/src/routes/time.ts` — select pulls `deleted_at`, loop skips anything with a truthy value.
+
+2. **Collaborator can't see project they're assigned to** — `GET /projects` filtered collaborators to only projects they're members of (`project_members` table). But task assignment (`task_assignees`) doesn't automatically add a project_members row. A collaborator who had work assigned at the task level had an empty Projects page. Fixed in `apps/project-service/src/routes/projects.ts` — union project_members ∪ task_assignees→tasks→phases→project_id.
+
+---
+
+#### Still open (post-deployment backlog)
+
+- [ ] Login page hero text: "Forecast" → "Momentum"
+- [ ] Onboarding flow text: "Welcome to Forecast" → "Welcome to Momentum"
+- [ ] 4 report-export titles: "NextTrack" → "Momentum"
+- [ ] Custom favicon (currently Next.js default)
+- [ ] Logo mark — exploring NEXA-aligned concepts in `logo-concepts.html`
+- [ ] Finance Sheet Sync env values pasted in Render dashboard (declared but empty)
+- [ ] Server-side enforcement of per-report permissions (currently client-side only)
+- [ ] Cleanup SQL for orphaned `task_assignees` rows from soft-deleted projects (one-shot migration)
+
+---
+
+*Last updated: April 24, 2026*
 *Built by: Haseeb Tariq — AI Developer, Digital Nexa*
 *Supabase project ref: see .env.local*
