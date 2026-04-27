@@ -580,8 +580,22 @@ async function syncTimeEntries(apiKey: string, workspaceId: string, since: Date 
     const { error } = existingId
       ? await supabase.from('time_entries').update(patch).eq('id', existingId)
       : await supabase.from('time_entries').insert(patch)
-    if (error) { result.errors++; console.warn(`[sync] time_entry ${e.id}: ${error.message}`) }
-    else result.upserted++
+    if (error) {
+      // Snapshot importer collapses Forecast entries sharing (user, task, date)
+      // into one Momentum row keyed by the lowest forecast_id (see
+      // import-from-snapshot.mjs:809-862). Higher-id siblings returned on later
+      // syncs trip the (user_id, task_id, date) unique constraint — expected,
+      // not a real error. Soft-skip so it doesn't pollute the cycle error count.
+      const isExpectedAggCollision =
+        (error as any).code === '23505' &&
+        (error.message || '').includes('time_entries_user_id_task_id_date_key')
+      if (!isExpectedAggCollision) {
+        result.errors++
+        console.warn(`[sync] time_entry ${e.id}: ${error.message}`)
+      }
+    } else {
+      result.upserted++
+    }
   }
   return result
 }
