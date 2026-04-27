@@ -1,14 +1,15 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { templatesApi } from '@/lib/queries'
+import { templatesApi, projectsApi } from '@/lib/queries'
 import { useAuthStore } from '@/lib/store'
-import { Plus, Trash2, Pencil, ChevronDown, ChevronRight, ChevronUp, X, Loader2 } from 'lucide-react'
+import { Plus, Trash2, Pencil, ChevronDown, ChevronRight, ChevronUp, X, Loader2, ExternalLink } from 'lucide-react'
 import {
   Card, Button, Input, Label, Textarea, EmptyState, Skeleton, Badge,
 } from '@/components/ui'
 import { showConfirm } from '@/components/ConfirmDialog'
 import { cn } from '@/lib/cn'
+import Link from 'next/link'
 
 // Stable client-side key. Used as React key so reordering/removing phases or
 // tasks doesn't bleed form state between sibling rows (array indices can't).
@@ -44,6 +45,16 @@ type TemplateDraft = {
   phases: PhaseDraft[]
 }
 
+// Unified item shown in the merged list.
+type TemplateItem = {
+  id: string
+  name: string
+  color: string
+  phase_count: number
+  task_count: number
+  kind: 'planning' | 'template'  // planning = project in planning stage, template = reusable blueprint
+}
+
 const COLORS = ['#0D9488','#7C3AED','#2563EB','#D97706','#DC2626','#059669','#0891B2','#BE185D']
 
 function emptyTemplate(): TemplateDraft {
@@ -54,21 +65,39 @@ function emptyTemplate(): TemplateDraft {
  * Reusable panel — rendered at /admin/templates and inside the Admin page
  * as the "Project Templates" tab. No PageHeader/container; each host wraps
  * it in its own layout.
+ *
+ * Shows two item kinds merged in one list:
+ *   • "Planning" — projects in planning stage (status=planning). Clicking opens the project.
+ *   • "Template" — standalone reusable templates (project_templates table). Editable here.
  */
 export function TemplatesPanel() {
   const qc = useQueryClient()
   const { isAdmin } = useAuthStore()
   const [editing, setEditing] = useState<TemplateDraft | null>(null)
   const [loadingEditId, setLoadingEditId] = useState<string | null>(null)
-  // Sequence counter — drops stale openEdit() responses if the user clicks a
-  // different template before the fetch resolves, or closes the drawer.
   const editReqRef = useRef(0)
 
-  const { data: raw, isLoading } = useQuery({
+  // Fetch planning-stage projects (the primary "template" source per Apr 23 spec)
+  const { data: planningRaw, isLoading: loadingPlanning } = useQuery({
+    queryKey: ['projects-templates'],
+    queryFn: () => projectsApi.templates().then((r: any) => r.data),
+    staleTime: 30_000,
+  })
+
+  // Fetch standalone reusable templates (project_templates table)
+  const { data: templatesRaw, isLoading: loadingTemplates } = useQuery({
     queryKey: ['templates'],
     queryFn: () => templatesApi.list().then((r: any) => r.data),
     staleTime: 30_000,
   })
+
+  const isLoading = loadingPlanning || loadingTemplates
+
+  // Merge into a single sorted list: planning projects first, then templates
+  const items: TemplateItem[] = [
+    ...(planningRaw  || []).map((p: any) => ({ ...p, kind: 'planning'  as const })),
+    ...(templatesRaw || []).map((t: any) => ({ ...t, kind: 'template' as const })),
+  ]
 
   const save = useMutation({
     mutationFn: async (t: TemplateDraft) => {
@@ -112,7 +141,6 @@ export function TemplatesPanel() {
     finally {
       if (myReq === editReqRef.current) setLoadingEditId(null)
     }
-    // Drop if a newer openEdit() started or the user closed the drawer.
     if (myReq !== editReqRef.current) return
     const t = res?.data
     if (!t) return
@@ -141,7 +169,7 @@ export function TemplatesPanel() {
   }
 
   function closeEditor() {
-    editReqRef.current++ // invalidate any in-flight openEdit()
+    editReqRef.current++
     setEditing(null)
     setLoadingEditId(null)
   }
@@ -152,12 +180,16 @@ export function TemplatesPanel() {
     )
   }
 
-  const templates: any[] = raw || []
-
   return (
     <div>
       <div className="flex items-center justify-between mb-3">
-        <div className="text-sm text-muted">{templates.length} template{templates.length === 1 ? '' : 's'}</div>
+        <div className="text-sm text-muted">
+          {items.length} item{items.length === 1 ? '' : 's'}
+          {' '}
+          <span className="text-muted/60">
+            ({(planningRaw || []).length} planning · {(templatesRaw || []).length} reusable)
+          </span>
+        </div>
         <Button
           variant="secondary"
           size="sm"
@@ -171,53 +203,73 @@ export function TemplatesPanel() {
         <div className="space-y-2">
           {[0,1,2].map(i => <Skeleton key={i} className="h-16 w-full" />)}
         </div>
-      ) : templates.length === 0 ? (
+      ) : items.length === 0 ? (
         <EmptyState
           title="No templates yet"
-          description="Create a template to predefine phases and tasks for reuse across projects."
+          description="Planning-stage projects and reusable templates will appear here."
         />
       ) : (
         <div className="space-y-2">
-          {templates.map(t => (
-            <Card key={t.id} className="p-4">
+          {items.map(item => (
+            <Card key={`${item.kind}-${item.id}`} className="p-4">
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3 min-w-0 flex-1">
                   <div
                     className="w-3 h-10 rounded-sm flex-shrink-0"
-                    style={{ background: t.color }}
+                    style={{ background: item.color || '#0D9488' }}
                   />
                   <div className="min-w-0 flex-1">
-                    <div className="font-semibold text-primary truncate">{t.name}</div>
-                    <div className="text-xs text-muted mt-0.5 truncate">
-                      {t.phase_count || 0} phase{t.phase_count === 1 ? '' : 's'} · {t.task_count || 0} task{t.task_count === 1 ? '' : 's'}
-                      {t.description ? <> · {t.description}</> : null}
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-semibold text-primary truncate">{item.name}</span>
+                      <Badge
+                        variant={item.kind === 'planning' ? 'warning' : 'default'}
+                        className="text-[10px] px-1.5 py-0.5 flex-shrink-0"
+                      >
+                        {item.kind === 'planning' ? 'Planning' : 'Template'}
+                      </Badge>
+                    </div>
+                    <div className="text-xs text-muted mt-0.5">
+                      {item.phase_count || 0} phase{item.phase_count === 1 ? '' : 's'} · {item.task_count || 0} task{item.task_count === 1 ? '' : 's'}
                     </div>
                   </div>
                 </div>
+
                 <div className="flex items-center gap-1 flex-shrink-0">
-                  <Button
-                    variant="ghost"
-                    onClick={() => openEdit(t.id)}
-                    disabled={loadingEditId === t.id}
-                    title="Edit"
-                  >
-                    {loadingEditId === t.id
-                      ? <Loader2 size={14} className="animate-spin" />
-                      : <Pencil size={14} />}
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    onClick={() =>
-                      showConfirm(
-                        `Delete template "${t.name}"?`,
-                        () => remove.mutate(t.id),
-                        { subtext: "Existing projects won't be affected.", confirmLabel: 'Delete' },
-                      )
-                    }
-                    title="Delete"
-                  >
-                    <Trash2 size={14} className="text-status-rose" />
-                  </Button>
+                  {item.kind === 'planning' ? (
+                    // Planning projects — open the actual project page
+                    <Link href={`/projects/${item.id}`}>
+                      <Button variant="ghost" title="Open project">
+                        <ExternalLink size={14} />
+                      </Button>
+                    </Link>
+                  ) : (
+                    // Reusable templates — edit / delete
+                    <>
+                      <Button
+                        variant="ghost"
+                        onClick={() => openEdit(item.id)}
+                        disabled={loadingEditId === item.id}
+                        title="Edit"
+                      >
+                        {loadingEditId === item.id
+                          ? <Loader2 size={14} className="animate-spin" />
+                          : <Pencil size={14} />}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        onClick={() =>
+                          showConfirm(
+                            `Delete template "${item.name}"?`,
+                            () => remove.mutate(item.id),
+                            { subtext: "Existing projects won't be affected.", confirmLabel: 'Delete' },
+                          )
+                        }
+                        title="Delete"
+                      >
+                        <Trash2 size={14} className="text-status-rose" />
+                      </Button>
+                    </>
+                  )}
                 </div>
               </div>
             </Card>
