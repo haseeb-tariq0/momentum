@@ -3177,7 +3177,7 @@ export default function AdminPage() {
 
       {/* ── IMPORT FINANCE SHEET ───────────────────────────────────────────── */}
       {tab === 'finance_import' && (
-        <div className="max-w-[1100px]">
+        <div className="w-full">
           <FinanceImport />
         </div>
       )}

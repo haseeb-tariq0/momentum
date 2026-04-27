@@ -287,7 +287,7 @@ export default function SmartReconcilePanel({ onApplied }: { onApplied: () => vo
           defaultOpen={showNoMatch}
           onToggle={() => setShowNoMatch(p => !p)}
         >
-          <div className="grid grid-cols-[1fr_60px_100px_200px] gap-2 px-3 py-1 bg-surface border-b border-line-subtle text-[10px] font-bold uppercase tracking-wider text-muted">
+          <div className="grid grid-cols-[2fr_60px_130px_260px] gap-2 px-3 py-1 bg-surface border-b border-line-subtle text-[10px] font-bold uppercase tracking-wider text-muted">
             <div>Name from sheet</div>
             <div className="text-right">Rows</div>
             <div className="text-right">Revenue</div>
@@ -358,7 +358,7 @@ function Section({
 
 function TableHeader() {
   return (
-    <div className="grid grid-cols-[1fr_60px_100px_1fr_180px] gap-2 px-3 py-1 bg-surface border-b border-line-subtle text-[10px] font-bold uppercase tracking-wider text-muted">
+    <div className="grid grid-cols-[2fr_60px_130px_2fr_220px] gap-2 px-3 py-1 bg-surface border-b border-line-subtle text-[10px] font-bold uppercase tracking-wider text-muted">
       <div>Name from sheet</div>
       <div className="text-right">Rows</div>
       <div className="text-right">Revenue</div>
@@ -390,7 +390,7 @@ function SuggestionRow({
   const rowBg = isMerge ? 'bg-accent/5' : isSkip ? 'bg-surface opacity-50' : ''
 
   return (
-    <div className={cn('grid grid-cols-[1fr_60px_100px_1fr_180px] gap-2 px-3 py-2 border-b border-line-subtle last:border-b-0 items-center', rowBg)}>
+    <div className={cn('grid grid-cols-[2fr_60px_130px_2fr_220px] gap-2 px-3 py-2 border-b border-line-subtle last:border-b-0 items-center', rowBg)}>
       {/* Raw name */}
       <div className="min-w-0">
         <div className="text-sm text-primary truncate font-mono text-xs" title={rawName}>{rawName}</div>
@@ -494,7 +494,7 @@ function NoMatchRow({
   const rowBg = isCreate ? 'bg-accent/5' : isMerge ? 'bg-accent/5' : isSkip ? 'bg-surface opacity-50' : ''
 
   return (
-    <div className={cn('grid grid-cols-[1fr_60px_100px_200px] gap-2 px-3 py-2 border-b border-line-subtle last:border-b-0 items-center', rowBg)}>
+    <div className={cn('grid grid-cols-[2fr_60px_130px_260px] gap-2 px-3 py-2 border-b border-line-subtle last:border-b-0 items-center', rowBg)}>
       {/* Name */}
       <div className="text-sm text-primary font-mono text-xs truncate" title={name}>{name}</div>
 
@@ -530,7 +530,7 @@ function NoMatchRow({
               </span>
             )}
             {isMerge && (
-              <span className="text-xs text-accent font-medium truncate max-w-[100px]" title={(decision as any).clientName}>
+              <span className="text-xs text-accent font-medium truncate max-w-[200px]" title={(decision as any).clientName}>
                 → {(decision as any).clientName}
               </span>
             )}
