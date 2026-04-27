@@ -13,7 +13,7 @@ import {
   LayoutDashboard, FolderKanban, CalendarRange, Clock, Users,
   BarChart3, Shield, Settings, Bell, Sun, Moon,
   LogOut, AlertTriangle, AlertCircle,
-  Menu, X,
+  Menu, X, LayoutTemplate,
 } from 'lucide-react'
 
 const SIDEBAR_MIN = 160
@@ -34,6 +34,7 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       { href: '/dashboard',        label: 'Overview',        icon: LayoutDashboard },
       { href: '/projects',         label: 'Projects',        icon: FolderKanban,   perm: 'view_projects' },
+      { href: '/admin/templates',  label: 'Templates',       icon: LayoutTemplate, adminOnly: true },
       { href: '/timesheets',       label: 'Timesheets',      icon: Clock,          perm: 'view_timesheets' },
       { href: '/resourcing',       label: 'Resourcing',      icon: CalendarRange,  adminOnly: true },
     ],
@@ -319,9 +320,10 @@ export default function Sidebar({ onSearchClick }: { onSearchClick?: () => void 
                 const Icon = item.icon
                 const active =
                   (item.href === '/dashboard' && pathname === '/dashboard') ||
-                  (item.href === '/admin' && pathname?.startsWith('/admin')) ||
+                  (item.href === '/admin' && pathname === '/admin') ||
+                  (item.href === '/admin/templates' && pathname?.startsWith('/admin/templates')) ||
                   (item.href === '/timesheets' && pathname?.startsWith('/timesheets')) ||
-                  (item.href !== '/dashboard' && item.href !== '/admin' && item.href !== '/timesheets' && pathname?.startsWith(item.href))
+                  (item.href !== '/dashboard' && item.href !== '/admin' && item.href !== '/admin/templates' && item.href !== '/timesheets' && pathname?.startsWith(item.href))
 
                 return (
                   <Link

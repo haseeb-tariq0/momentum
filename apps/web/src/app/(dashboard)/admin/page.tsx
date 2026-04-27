@@ -869,7 +869,7 @@ export default function AdminPage() {
   const qc = useQueryClient()
 
   // ── Core tab state ─────────────────────────────────────────────────────────
-  const [tab, setTab] = useState<'people' | 'permissions' | 'roles' | 'base_rates' | 'rate_cards' | 'departments' | 'clients' | 'labels' | 'time_categories' | 'holidays' | 'templates' | 'settings' | 'import' | 'finance_import' | 'forecast_sync'>('people')
+  const [tab, setTab] = useState<'people' | 'permissions' | 'roles' | 'base_rates' | 'rate_cards' | 'departments' | 'clients' | 'labels' | 'time_categories' | 'holidays' | 'templates' | 'settings' | 'finance_import' | 'forecast_sync'>('people')
 
   // ── People / permissions state ─────────────────────────────────────────────
   const [showInvite,  setShowInvite]  = useState(false)
@@ -1162,7 +1162,6 @@ export default function AdminPage() {
     { key: 'holidays',        label: 'Holidays' },
     { key: 'templates',       label: 'Project Templates' },
     ...(isSuperAdmin() ? [{ key: 'settings', label: 'Workspace Settings' }] : []),
-    { key: 'import',          label: '↓ Import Forecast' },
     { key: 'finance_import',  label: '⟳ Finance Sheet Sync' },
     { key: 'forecast_sync',   label: '↻ Live Forecast Sync' },
   ] as const
@@ -1216,7 +1215,6 @@ export default function AdminPage() {
       <div className="flex border-b border-line-subtle mb-3.5 overflow-x-auto">
         {ALL_TABS.map(t => {
           const isActive = tab === t.key
-          const isImportTab = t.key === 'import'
           return (
             <button
               key={t.key}
@@ -1225,8 +1223,8 @@ export default function AdminPage() {
                 'bg-none border-none cursor-pointer px-3.5 py-2 whitespace-nowrap text-base font-body transition-colors',
                 'border-b-2',
                 isActive
-                  ? cn('font-semibold', isImportTab ? 'text-accent border-accent' : 'text-primary border-accent')
-                  : cn('font-normal border-transparent', isImportTab ? 'text-accent/60' : 'text-muted hover:text-secondary'),
+                  ? 'font-semibold text-primary border-accent'
+                  : 'font-normal border-transparent text-muted hover:text-secondary',
               )}
             >
               {t.label}
@@ -2962,10 +2960,7 @@ export default function AdminPage() {
         </div>
       )}
 
-      {/* ────────────────────────────────────────────────────────────────────── */}
-      {/* ── IMPORT FROM FORECAST ──────────────────────────────────────────── */}
-      {/* ────────────────────────────────────────────────────────────────────── */}
-      {tab === 'import' && (
+      {false && (
         <div className="w-full">
 
           {/* ── Section 1: API Key ────────────────────────────────────────── */}
@@ -3184,7 +3179,7 @@ export default function AdminPage() {
 
       {/* ── LIVE FORECAST SYNC ─────────────────────────────────────────────── */}
       {tab === 'forecast_sync' && (
-        <div className="max-w-[1100px]">
+        <div className="w-full">
           <ForecastSync />
         </div>
       )}
