@@ -1,11 +1,12 @@
 'use client'
 import { useState, useRef } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { financeApi, usersApi } from '@/lib/queries'
+import { financeApi } from '@/lib/queries'
 import { showToast } from '@/components/Toast'
-import { Card, Button, Select, EmptyState, Input, Combobox } from '@/components/ui'
+import { Card, Button, Select, Input } from '@/components/ui'
 import { cn } from '@/lib/cn'
 import { Upload, CheckCircle, AlertCircle, Loader2, FileSpreadsheet, RefreshCw, ExternalLink, ChevronDown, ChevronRight, Pencil, Save, X } from 'lucide-react'
+import SmartReconcilePanel from './SmartReconcilePanel'
 
 type ImportResult = {
   totalRows: number
@@ -93,21 +94,13 @@ export default function FinanceImport() {
   const [urlInput, setUrlInput] = useState('')
   const [savingUrl, setSavingUrl] = useState(false)
 
-  // Load clients for unmatched-mapping dropdown
-  const { data: clientsData } = useQuery({
-    queryKey: ['clients'],
-    queryFn: () => usersApi.clients().then((r: any) => r.data),
-    staleTime: 60_000,
-  })
-  const clients: any[] = clientsData || []
-
-  // Already-unmatched (from previous imports)
+  // Unmatched count (just for the badge — actual UI is in SmartReconcilePanel)
   const { data: unmatchedData, refetch: refetchUnmatched } = useQuery({
     queryKey: ['finance-unmatched'],
     queryFn: () => financeApi.unmatched().then((r: any) => r.data),
     staleTime: 10_000,
   })
-  const persistedUnmatched: { name: string; count: number }[] = unmatchedData || []
+  const unmatchedCount: number = (unmatchedData || []).length
 
   async function handleSync() {
     setSyncing(true)
@@ -149,22 +142,6 @@ export default function FinanceImport() {
     setEditingUrl(true)
   }
 
-  async function mapUnmatched(rawName: string, clientId: string) {
-    if (!clientId) return
-    try {
-      const res: any = await financeApi.mapClient(rawName, clientId)
-      showToast.success(`Mapped ${res.updated} rows to client`)
-      refetchUnmatched()
-      if (result) {
-        setResult({ ...result, unmatched: result.unmatched.filter(u => u.name !== rawName) })
-      }
-    } catch (e: any) {
-      showToast.error('Map failed: ' + (e?.message || 'unknown'))
-    }
-  }
-
-  const [autoCreating, setAutoCreating] = useState(false)
-
   // ── Software Costs sync state ──
   const [swSyncing, setSwSyncing] = useState(false)
   const [swResult, setSwResult] = useState<{
@@ -186,29 +163,6 @@ export default function FinanceImport() {
       showToast.error('Sync failed: ' + (e?.message || 'unknown'))
     } finally {
       setSwSyncing(false)
-    }
-  }
-
-  async function handleAutoCreate() {
-    const totalUnmatched = result?.unmatched?.length ?? persistedUnmatched.length
-    if (!totalUnmatched) return
-    const confirmed = window.confirm(
-      `Create ${totalUnmatched} new clients from the unmatched names and link all their invoices?\n\n` +
-      `This is safe to undo — you can merge duplicates later from the Clients tab. Re-running is a no-op.`
-    )
-    if (!confirmed) return
-    setAutoCreating(true)
-    try {
-      const res: any = await financeApi.autoCreateClients()
-      showToast.success(`Created ${res.created} clients, linked ${res.invoicesLinked} invoices`)
-      refetchUnmatched()
-      qc.invalidateQueries({ queryKey: ['clients'] })
-      qc.invalidateQueries({ queryKey: ['client-profitability'] })
-      if (result) setResult({ ...result, unmatched: [] })
-    } catch (e: any) {
-      showToast.error('Auto-create failed: ' + (e?.message || 'unknown'))
-    } finally {
-      setAutoCreating(false)
     }
   }
 
@@ -355,7 +309,7 @@ export default function FinanceImport() {
             <Stat label="Total Rows" value={result.totalRows} />
             <Stat label="Inserted" value={result.inserted} tone="accent" />
             <Stat label="Already Existed" value={result.alreadyExisted} />
-            <Stat label="Unmatched Clients" value={result.unmatched.length} tone={result.unmatched.length > 0 ? 'warn' : undefined} />
+            <Stat label="Unmatched Clients" value={unmatchedCount} tone={unmatchedCount > 0 ? 'warn' : undefined} />
             <Stat label="Skipped" value={result.skippedNoAmount + result.skippedNoMonth + result.skippedNoClient} />
           </div>
           {(result.skippedNoAmount > 0 || result.skippedNoMonth > 0 || result.skippedNoClient > 0) && (
@@ -402,54 +356,25 @@ export default function FinanceImport() {
         </Card>
       )}
 
-      {/* ── Unmatched clients (from latest sync or persisted) ── */}
-      {((result?.unmatched?.length ?? 0) > 0 || persistedUnmatched.length > 0) && (
+      {/* ── Smart reconciliation panel ── */}
+      {configured && (
         <Card className="p-4 mb-3">
-          <div className="flex items-start justify-between gap-2 mb-3">
-            <div className="flex items-start gap-2 flex-1">
-              <AlertCircle size={16} className="text-status-amber flex-shrink-0 mt-0.5" />
-              <div>
-                <div className="font-semibold text-primary">Unmatched client names</div>
-                <div className="text-xs text-muted mt-0.5">
-                  These invoice rows were imported but not linked to a client. Map them one-by-one below, or click
-                  <b> Create all</b> to auto-create new clients for every unmatched name.
-                </div>
+          <div className="flex items-start gap-2 mb-3">
+            <AlertCircle size={16} className="text-status-amber flex-shrink-0 mt-0.5" />
+            <div>
+              <div className="font-semibold text-primary">Unmatched client names</div>
+              <div className="text-xs text-muted mt-0.5">
+                Invoice rows not yet linked to a client. The smart matcher below analyses each name,
+                strips service-type suffixes, and suggests the best existing client — or flags it for creation.
               </div>
             </div>
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={handleAutoCreate}
-              disabled={autoCreating}
-              className="flex-shrink-0"
-            >
-              {autoCreating
-                ? <><Loader2 size={14} className="animate-spin" /> Creating...</>
-                : <>✨ Create all {result?.unmatched?.length ?? persistedUnmatched.length} clients</>}
-            </Button>
           </div>
-          <div className="grid grid-cols-[1fr_60px_240px] gap-2 px-2 py-1 bg-surface border-b border-line-subtle text-[10px] font-bold uppercase tracking-wider text-muted">
-            <div>Raw Name (from sheet)</div>
-            <div className="text-right">Rows</div>
-            <div>Map to Client</div>
-          </div>
-          {(result?.unmatched || persistedUnmatched).map(u => (
-            <div key={u.name} className="grid grid-cols-[1fr_60px_240px] gap-2 px-2 py-1.5 items-center border-b border-line-subtle last:border-b-0">
-              <div className="text-sm text-primary truncate" title={u.name}>{u.name}</div>
-              <div className="text-sm text-secondary text-right tabular-nums">{u.count}</div>
-              <Combobox
-                size="sm"
-                value={null}
-                onChange={v => { if (v) mapUnmatched(u.name, v as string) }}
-                options={clients.map((c: any) => ({ value: c.id as string, label: c.name }))}
-                placeholder="Select client…"
-                searchPlaceholder="Search clients…"
-              />
-            </div>
-          ))}
-          {!result?.unmatched?.length && persistedUnmatched.length === 0 && (
-            <EmptyState title="All matched" description="Every imported invoice row is linked to a client." />
-          )}
+          <SmartReconcilePanel
+            onApplied={() => {
+              refetchUnmatched()
+              qc.invalidateQueries({ queryKey: ['client-profitability'] })
+            }}
+          />
         </Card>
       )}
 

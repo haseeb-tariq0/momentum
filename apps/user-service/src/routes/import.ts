@@ -778,9 +778,173 @@ export async function importRoutes(app: FastifyInstance) {
     return reply.status(200).send({ data: unmatched })
   })
 
+  // ── GET /users/import/finance-sheet/smart-suggestions ────────────────────
+  // Analyses all unmatched invoice names and returns three buckets:
+  //   highConfidence  — suffix-stripped or normalized-exact match (>= 0.85)
+  //   possible        — fuzzy trigram match (0.45 – 0.84), needs human review
+  //   noMatch         — no similarity found, safe to create as new client
+  //
+  // Each suggestion carries the best-matching existing client + confidence score
+  // + reason string so the UI can explain the recommendation.
+  app.get('/import/finance-sheet/smart-suggestions', async (req: any, reply: any) => {
+    const caller = req.user
+    if (!caller || !['super_admin','admin'].includes(caller.profile)) {
+      return reply.status(403).send({ errors: [{ code: 'FORBIDDEN' }] })
+    }
+
+    // Load all unmatched invoice rows
+    const { data: unmatchedRows } = await supabase
+      .from('client_invoices')
+      .select('client_name_raw, sales_amount')
+      .eq('workspace_id', caller.workspaceId)
+      .is('client_id', null)
+
+    // Aggregate by name: count + revenue
+    const nameMap = new Map<string, { count: number; revenue: number }>()
+    for (const r of unmatchedRows || []) {
+      const name = String((r as any).client_name_raw || '').trim()
+      if (!name) continue
+      const e = nameMap.get(name) || { count: 0, revenue: 0 }
+      nameMap.set(name, { count: e.count + 1, revenue: e.revenue + (Number((r as any).sales_amount) || 0) })
+    }
+
+    if (!nameMap.size) {
+      return reply.status(200).send({ data: { highConfidence: [], possible: [], noMatch: [] } })
+    }
+
+    // Load all existing clients for this workspace
+    const { data: allClients } = await supabase
+      .from('clients')
+      .select('id, name')
+      .eq('workspace_id', caller.workspaceId)
+      .is('deleted_at', null)
+
+    // ── Matching helpers ────────────────────────────────────────────────────
+    function norm(s: string) { return s.toLowerCase().replace(/[^a-z0-9]/g, '') }
+
+    // Strip " - service type" suffix: "Crayon - Social" → "Crayon"
+    function stripSuffix(s: string) { return s.replace(/\s*[-–—]\s*.+$/, '').trim() }
+
+    function trigrams(s: string): Set<string> {
+      const p = `  ${s.toLowerCase()} `.replace(/\s+/g, ' ')
+      const out = new Set<string>()
+      for (let i = 0; i < p.length - 2; i++) out.add(p.slice(i, i + 3))
+      return out
+    }
+    function sim(a: string, b: string): number {
+      const ta = trigrams(a), tb = trigrams(b)
+      if (!ta.size && !tb.size) return 0
+      let shared = 0
+      for (const t of ta) if (tb.has(t)) shared++
+      return shared / (ta.size + tb.size - shared)
+    }
+
+    const clients = (allClients || []) as { id: string; name: string }[]
+    // Pre-build normalized → client lookup for O(1) exact checks
+    const normMap = new Map<string, { id: string; name: string }>()
+    for (const c of clients) {
+      const key = norm(c.name)
+      if (key && !normMap.has(key)) normMap.set(key, c) // first writer wins on collision
+    }
+
+    type MatchInfo = { clientId: string; clientName: string; confidence: number; reason: string }
+    type Suggestion = { rawName: string; invoiceCount: number; totalRevenue: number; match: MatchInfo }
+
+    const highConfidence: Suggestion[] = []
+    const possible: Suggestion[] = []
+    const noMatch: { name: string; count: number; revenue: number }[] = []
+
+    for (const [rawName, stats] of nameMap.entries()) {
+      const stripped = stripSuffix(rawName)
+      const hasSuffix = stripped !== rawName
+      let match: MatchInfo | null = null
+
+      // Pass 1: exact normalized match on stripped name (e.g. "Crayon - Social" → "Crayon")
+      if (hasSuffix) {
+        const found = normMap.get(norm(stripped))
+        if (found) match = { clientId: found.id, clientName: found.name, confidence: 1.0, reason: 'suffix_stripped' }
+      }
+
+      // Pass 2: exact normalized match on full name (catches case/punct drift)
+      if (!match) {
+        const found = normMap.get(norm(rawName))
+        if (found) match = { clientId: found.id, clientName: found.name, confidence: 0.95, reason: 'normalized_exact' }
+      }
+
+      // Pass 3: fuzzy trigram on stripped name first, then full name
+      if (!match) {
+        let best: { client: { id: string; name: string }; score: number } | null = null
+        for (const c of clients) {
+          const score = Math.max(
+            hasSuffix ? sim(stripped, c.name) : 0,
+            sim(rawName, c.name),
+          )
+          if (score > 0.4 && (!best || score > best.score)) best = { client: c, score }
+        }
+        if (best) {
+          match = { clientId: best.client.id, clientName: best.client.name, confidence: best.score, reason: 'fuzzy' }
+        }
+      }
+
+      if (!match) {
+        noMatch.push({ name: rawName, count: stats.count, revenue: stats.revenue })
+      } else {
+        const s: Suggestion = { rawName, invoiceCount: stats.count, totalRevenue: stats.revenue, match }
+        if (match.confidence >= 0.85) highConfidence.push(s)
+        else possible.push(s)
+      }
+    }
+
+    const byCount = (a: { invoiceCount: number }, b: { invoiceCount: number }) => b.invoiceCount - a.invoiceCount
+    const byCountNM = (a: { count: number }, b: { count: number }) => b.count - a.count
+    highConfidence.sort(byCount)
+    possible.sort(byCount)
+    noMatch.sort(byCountNM)
+
+    return reply.status(200).send({ data: { highConfidence, possible, noMatch } })
+  })
+
+  // ── POST /users/import/finance-sheet/bulk-map ─────────────────────────────
+  // Apply multiple { raw_name → client_id } mappings in a single call.
+  // Used by the smart reconciliation panel to commit accepted suggestions.
+  app.post('/import/finance-sheet/bulk-map', async (req: any, reply: any) => {
+    const caller = req.user
+    if (!caller || !['super_admin','admin'].includes(caller.profile)) {
+      return reply.status(403).send({ errors: [{ code: 'FORBIDDEN' }] })
+    }
+    const { mappings } = (req.body as any) || {}
+    if (!Array.isArray(mappings) || !mappings.length) {
+      return reply.status(400).send({ errors: [{ code: 'MISSING_MAPPINGS' }] })
+    }
+
+    // Verify every client_id belongs to this workspace (security check)
+    const clientIds = [...new Set(mappings.map((m: any) => m.client_id).filter(Boolean))] as string[]
+    const { data: validClients } = await supabase
+      .from('clients').select('id').eq('workspace_id', caller.workspaceId).in('id', clientIds)
+    const validSet = new Set((validClients || []).map((c: any) => c.id))
+
+    let linked = 0
+    for (const m of mappings) {
+      if (!m.raw_name || !m.client_id || !validSet.has(m.client_id)) continue
+      const { data, error } = await supabase
+        .from('client_invoices')
+        .update({ client_id: m.client_id })
+        .eq('workspace_id', caller.workspaceId)
+        .is('client_id', null)
+        .eq('client_name_raw', m.raw_name)
+        .select('id')
+      if (error) return reply.status(500).send({ errors: [{ message: `Link failed for "${m.raw_name}": ${error.message}` }] })
+      linked += data?.length || 0
+    }
+    return reply.status(200).send({ ok: true, linked })
+  })
+
   // ── POST /users/import/finance-sheet/auto-create-clients ──────────────────
   // For every unique client_name_raw in unmatched invoices, create a new client
   // record and link the invoices to it. Safe to re-run (only acts on null client_id).
+  //
+  // Optional body field `names: string[]` — if provided, only processes those
+  // specific raw names (used by smart reconciliation panel "Create" action).
   //
   // Returns counts: how many clients created, how many invoices linked, and a
   // list of created clients for display.
@@ -789,6 +953,11 @@ export async function importRoutes(app: FastifyInstance) {
     if (!caller || !['super_admin','admin'].includes(caller.profile)) {
       return reply.status(403).send({ errors: [{ code: 'FORBIDDEN' }] })
     }
+
+    // Optional: only process specific names (from smart reconciliation panel)
+    const filterNames: string[] | null = Array.isArray((req.body as any)?.names) && (req.body as any).names.length
+      ? (req.body as any).names.map(String)
+      : null
 
     // 1) Get all unmatched raw names (invoices with client_id = null)
     const { data: unmatchedRows } = await supabase
@@ -801,6 +970,7 @@ export async function importRoutes(app: FastifyInstance) {
       (unmatchedRows || [])
         .map((r: any) => String(r.client_name_raw || '').trim())
         .filter(Boolean)
+        .filter(n => !filterNames || filterNames.includes(n))
     ))
 
     if (!uniqueNames.length) {

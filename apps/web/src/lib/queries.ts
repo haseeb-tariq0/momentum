@@ -297,10 +297,13 @@ export const financeApi = {
     api.post('/users/import/finance-sheet/config', { sheet_url: sheetUrlOrId }),
   // Shared between both sources
   unmatched:      () => api.get('/users/import/finance-sheet/unmatched'),
+  smartSuggestions: () => api.get('/users/import/finance-sheet/smart-suggestions'),
   mapClient:      (rawName: string, clientId: string) =>
     api.post('/users/import/finance-sheet/map-client', { raw_name: rawName, client_id: clientId }),
-  autoCreateClients: () =>
-    api.post('/users/import/finance-sheet/auto-create-clients', {}),
+  bulkMap:        (mappings: { raw_name: string; client_id: string }[]) =>
+    api.post('/users/import/finance-sheet/bulk-map', { mappings }),
+  autoCreateClients: (names?: string[]) =>
+    api.post('/users/import/finance-sheet/auto-create-clients', names ? { names } : {}),
   syncSoftwareCosts: () =>
     api.post('/users/import/software-costs/sync', {}),
 }
