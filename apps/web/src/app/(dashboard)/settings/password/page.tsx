@@ -43,7 +43,7 @@ export default function ChangePasswordPage() {
   const strength = strengthOf(form.next)
 
   return (
-    <div className="flex flex-col gap-5 max-w-[560px]">
+    <div className="flex flex-col gap-5 w-full">
       <div>
         <h2 className="text-lg font-semibold text-primary">Password</h2>
         <p className="text-sm text-muted">

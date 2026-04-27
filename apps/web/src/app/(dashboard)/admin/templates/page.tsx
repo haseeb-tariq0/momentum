@@ -6,7 +6,7 @@ import { TemplatesPanel } from './TemplatesPanel'
 // the main Admin page.
 export default function TemplatesPage() {
   return (
-    <div className="max-w-5xl mx-auto p-6">
+    <div className="w-full p-6">
       <PageHeader
         title="Project Templates"
         subtitle="Tasks are copied once when applied — edits don't propagate back."

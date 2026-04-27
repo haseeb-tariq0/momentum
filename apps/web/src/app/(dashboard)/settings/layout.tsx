@@ -96,7 +96,7 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
             The shell itself stays full width; only the inner readable
             content is bounded. */}
         <div className="min-w-0">
-          <div className="max-w-4xl">
+          <div className="w-full">
             {children}
           </div>
         </div>

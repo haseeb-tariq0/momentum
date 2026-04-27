@@ -111,7 +111,7 @@ export default function IntegrationsPage() {
   }
 
   return (
-    <div className="flex flex-col gap-5 max-w-[720px]">
+    <div className="flex flex-col gap-5 w-full">
       <h2 className="text-lg font-semibold text-primary">Integrations</h2>
 
       {/* Slack Card */}

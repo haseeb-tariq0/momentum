@@ -2966,7 +2966,7 @@ export default function AdminPage() {
       {/* ── IMPORT FROM FORECAST ──────────────────────────────────────────── */}
       {/* ────────────────────────────────────────────────────────────────────── */}
       {tab === 'import' && (
-        <div className="max-w-[820px]">
+        <div className="w-full">
 
           {/* ── Section 1: API Key ────────────────────────────────────────── */}
           <Card className="overflow-hidden p-0 mb-3.5">

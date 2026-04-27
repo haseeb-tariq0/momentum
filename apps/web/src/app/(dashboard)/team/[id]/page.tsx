@@ -218,7 +218,7 @@ export default function PersonProfilePage() {
   }
 
   if (isLoading || !editForm) return (
-    <div className="px-7 py-6 max-w-[960px] mx-auto">
+    <div className="px-7 py-6 w-full">
       <Skeleton className="h-8 w-40 mb-5" />
       <Card className="p-6 mb-4">
         <div className="flex items-start gap-6">
@@ -245,7 +245,7 @@ export default function PersonProfilePage() {
   const selectedCal = calendars.find((c:any) => c.id === editForm.holiday_calendar_id)
 
   return (
-    <div className="px-7 py-6 max-w-[960px] mx-auto">
+    <div className="px-7 py-6 w-full">
 
       {showCalPicker && (
         <CountryPickerModal
