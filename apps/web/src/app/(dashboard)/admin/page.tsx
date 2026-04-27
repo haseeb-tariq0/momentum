@@ -3004,7 +3004,7 @@ export default function AdminPage() {
               {testResult && (
                 <div className={cn(
                   'mt-2.5 px-3.5 py-2.5 border rounded',
-                  testResult.ok
+                  testResult?.ok
                     ? 'bg-accent-dim border-[rgba(0,212,180,0.2)]'
                     : 'bg-status-rose-dim border-[rgba(244,63,94,0.2)]',
                 )}>
