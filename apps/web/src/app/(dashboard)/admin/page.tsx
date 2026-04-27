@@ -74,8 +74,6 @@ function resolvePermissions(role: string, custom: Record<string, boolean> = {}):
 }
 
 type EditingUser = { id: string; field: string; value: string }
-type ImportStatus = 'idle' | 'testing' | 'running' | 'done' | 'error'
-type LogEntry = { type: string; msg: string; time: string }
 
 
 function Toggle({ on, onChange, disabled }: { on: boolean; onChange: (v: boolean) => void; disabled?: boolean }) {
@@ -910,21 +908,6 @@ export default function AdminPage() {
   const [showNewRc,   setShowNewRc]   = useState(false)
   const [newRcForm,   setNewRcForm]   = useState({ name: '', currency: 'AED' })
 
-  // ── Import state ───────────────────────────────────────────────────────────
-  // Forecast.it API key is paste-in only — never hardcoded into the build.
-  const [importApiKey, setImportApiKey] = useState('')
-  const [importOptions, setImportOptions] = useState({ departments: true, users: true, clients: true, projects: true, tasks: true })
-  const [importStatus,  setImportStatus]  = useState<ImportStatus>('idle')
-  const [importLogs,    setImportLogs]    = useState<LogEntry[]>([])
-  const [importCounts,  setImportCounts]  = useState<Record<string, number> | null>(null)
-  const [testResult,    setTestResult]    = useState<{ ok: boolean; user?: string; counts?: Record<string, number>; error?: string } | null>(null)
-  const [showApiKey,    setShowApiKey]    = useState(false)
-  const logRef = useRef<HTMLDivElement>(null)
-
-  // Auto-scroll log to bottom
-  useEffect(() => {
-    if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight
-  }, [importLogs])
 
   // ── Data queries ───────────────────────────────────────────────────────────
   const { data: users,       isLoading } = useQuery({ queryKey: ['users'],       queryFn: () => usersApi.list().then((r: any) => r.data) })
@@ -1017,82 +1000,6 @@ export default function AdminPage() {
     } catch { setEmailStatus(s => ({ ...s, [label]: 'error' })); setTimeout(() => setEmailStatus(s => ({ ...s, [label]: 'idle' })), 4000) }
   }
 
-  // ── Import: Test connection ────────────────────────────────────────────────
-  async function runTest() {
-    setTestResult(null)
-    setImportStatus('testing')
-    try {
-      const r = await api.post('/users/import/test', { apiKey: importApiKey })
-      setTestResult(r as any)
-    } catch(e: any) {
-      setTestResult({ ok: false, error: e.message })
-    } finally {
-      setImportStatus('idle')
-    }
-  }
-
-  // ── Import: Stream the full import ────────────────────────────────────────
-  async function runImport() {
-    if (!importApiKey.trim()) return
-    setImportStatus('running')
-    setImportLogs([])
-    setImportCounts(null)
-
-    const addLog = (type: string, msg: string) => {
-      const time = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
-      setImportLogs(prev => [...prev, { type, msg, time }])
-    }
-
-    try {
-      const token = useAuthStore.getState().token
-      const response = await fetch('http://localhost:4000/api/v1/users/import/stream', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          apiKey: importApiKey,
-          options: importOptions,
-          workspaceId: '00000000-0000-0000-0000-000000000001',
-        }),
-      })
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${await response.text()}`)
-      }
-
-      const reader  = response.body!.getReader()
-      const decoder = new TextDecoder()
-      let   buffer  = ''
-
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
-        buffer += decoder.decode(value, { stream: true })
-        const lines = buffer.split('\n')
-        buffer = lines.pop() || ''
-        for (const line of lines) {
-          const trimmed = line.trim()
-          if (!trimmed.startsWith('data:')) continue
-          try {
-            const data = JSON.parse(trimmed.slice(5).trim())
-            if (data.msg) addLog(data.type || 'log', data.msg)
-            if (data.type === 'done') {
-              setImportStatus('done')
-              if (data.counts) setImportCounts(data.counts)
-              qc.invalidateQueries()  // Refresh all queries after import
-            }
-            if (data.type === 'error') setImportStatus('error')
-          } catch { /* ignore malformed lines */ }
-        }
-      }
-    } catch(e: any) {
-      setImportStatus('error')
-      const time = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
-      setImportLogs(prev => [...prev, { type: 'error', msg: `Connection failed: ${e.message}`, time }])
-    }
-  }
 
   if (!isAdmin()) {
     return (
@@ -1205,7 +1112,6 @@ export default function AdminPage() {
     )
   }
 
-  const isImportRunning = importStatus === 'running' || importStatus === 'testing'
 
   return (
     <div className="px-7 py-6 overflow-auto h-full">
@@ -2960,217 +2866,6 @@ export default function AdminPage() {
         </div>
       )}
 
-      {false && (
-        <div className="w-full">
-
-          {/* ── Section 1: API Key ────────────────────────────────────────── */}
-          <Card className="overflow-hidden p-0 mb-3.5">
-            <div className="px-4 py-3 bg-surface border-b border-line-subtle flex justify-between items-center">
-              <span className="text-sm font-bold uppercase tracking-wider text-muted">API Configuration</span>
-              <span className="text-xs text-muted">Get keys at app.forecast.it/admin/api-keys</span>
-            </div>
-            <div className="p-4">
-              <div className="flex gap-2 items-end">
-                <div className="flex-1">
-                  <Label className="text-xs uppercase tracking-wider">Forecast API Key</Label>
-                  <div className="relative">
-                    <Input
-                      type={showApiKey ? 'text' : 'password'}
-                      value={importApiKey}
-                      onChange={e => setImportApiKey(e.target.value)}
-                      placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-                      className="font-mono pr-10"
-                    />
-                    <button
-                      onClick={() => setShowApiKey(s => !s)}
-                      className="absolute right-2.5 top-1/2 -translate-y-1/2 bg-none border-none cursor-pointer text-base text-muted p-0 flex items-center"
-                      aria-label={showApiKey ? 'Hide API key' : 'Show API key'}
-                    >
-                      {showApiKey ? <EyeOff size={16} /> : <Eye size={16} />}
-                    </button>
-                  </div>
-                </div>
-                <Button
-                  variant="secondary"
-                  size="lg"
-                  onClick={runTest}
-                  disabled={!importApiKey.trim() || isImportRunning}
-                >
-                  {importStatus === 'testing' ? 'Testing...' : 'Test Connection'}
-                </Button>
-              </div>
-
-              {/* Test result */}
-              {testResult && (
-                <div className={cn(
-                  'mt-2.5 px-3.5 py-2.5 border rounded',
-                  testResult?.ok
-                    ? 'bg-accent-dim border-[rgba(0,212,180,0.2)]'
-                    : 'bg-status-rose-dim border-[rgba(244,63,94,0.2)]',
-                )}>
-                  {testResult.ok ? (
-                    <div>
-                      <div className="text-base font-semibold text-accent mb-1.5">Connected as {testResult.user}</div>
-                      <div className="flex gap-5">
-                        {[
-                          { label: 'People',   value: testResult.counts?.persons  ?? '—' },
-                          { label: 'Clients',  value: testResult.counts?.clients  ?? '—' },
-                          { label: 'Projects', value: testResult.counts?.projects ?? '—' },
-                        ].map(s => (
-                          <div key={s.label} className="text-center">
-                            <div className="text-xl font-bold text-primary tabular-nums">{s.value}</div>
-                            <div className="text-xs text-muted">{s.label}</div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ) : (
-                    <div role="alert" className="text-base text-status-rose font-medium">Failed: {testResult.error || 'Connection failed'}</div>
-                  )}
-                </div>
-              )}
-            </div>
-          </Card>
-
-          {/* ── Section 2: Import Options ─────────────────────────────────── */}
-          <Card className="overflow-hidden p-0 mb-3.5">
-            <div className="px-4 py-3 bg-surface border-b border-line-subtle flex justify-between items-center">
-              <span className="text-sm font-bold uppercase tracking-wider text-muted">What to Import</span>
-              <div className="flex gap-2.5">
-                <button
-                  onClick={() => setImportOptions({ departments: true, users: true, clients: true, projects: true, tasks: true })}
-                  className="bg-none border-none text-xs text-accent cursor-pointer font-body p-0"
-                >Select all</button>
-                <span className="text-line-muted">·</span>
-                <button
-                  onClick={() => setImportOptions({ departments: false, users: false, clients: false, projects: false, tasks: false })}
-                  className="bg-none border-none text-xs text-muted cursor-pointer font-body p-0"
-                >Clear</button>
-              </div>
-            </div>
-            <div className="p-4 grid grid-cols-2 gap-2.5">
-              <ImportOption label="Departments" sub="Team structure and department names" checked={importOptions.departments} onChange={v => setImportOptions(o => ({ ...o, departments: v }))} disabled={isImportRunning} />
-              <ImportOption label="Team Members" sub="All people with roles and capacities" checked={importOptions.users} onChange={v => setImportOptions(o => ({ ...o, users: v }))} disabled={isImportRunning} />
-              <ImportOption label="Clients" sub="All client companies" checked={importOptions.clients} onChange={v => setImportOptions(o => ({ ...o, clients: v }))} disabled={isImportRunning} />
-              <ImportOption label="Projects" sub="All projects with status, budget, dates" checked={importOptions.projects} onChange={v => setImportOptions(o => ({ ...o, projects: v }))} disabled={isImportRunning} />
-              <div className="col-span-full">
-                <ImportOption label="Tasks & Phases" sub="All tasks with assignees, estimates and due dates (slowest step — 190 projects)" checked={importOptions.tasks} onChange={v => setImportOptions(o => ({ ...o, tasks: v }))} disabled={isImportRunning || !importOptions.projects} />
-              </div>
-            </div>
-            <div className="px-4 py-2.5 border-t border-line-subtle bg-surface text-xs text-muted flex items-center gap-1.5">
-              <Info size={12} />
-              <span>Safe to re-run at any time — existing records matched by name/email are skipped, not duplicated.</span>
-            </div>
-          </Card>
-
-          {/* ── Section 3: Start button ───────────────────────────────────── */}
-          <div className="flex gap-2.5 items-center mb-3.5">
-            {importStatus !== 'running' ? (
-              <Button
-                variant="primary"
-                size="lg"
-                onClick={runImport}
-                disabled={!importApiKey.trim() || Object.values(importOptions).every(v => !v)}
-              >
-                {importStatus === 'done'
-                  ? <><RefreshCw size={14} /> Run Again</>
-                  : importStatus === 'error'
-                  ? <><RefreshCw size={14} /> Retry</>
-                  : <><Play size={14} /> Start Import</>}
-              </Button>
-            ) : (
-              <Button variant="secondary" size="lg" disabled loading>
-                Importing…
-              </Button>
-            )}
-            {importStatus === 'done' && <span className="text-base font-semibold text-accent">Import complete</span>}
-            {importStatus === 'error' && <span role="alert" className="text-base font-semibold text-status-rose">Import failed — check logs below</span>}
-            {importStatus === 'running' && (
-              <span className="text-sm text-muted">
-                {importOptions.tasks ? 'This may take 3–8 minutes for 190 projects…' : 'Running…'}
-              </span>
-            )}
-          </div>
-
-          {/* ── Section 4: Live log ───────────────────────────────────────── */}
-          {importLogs.length > 0 && (
-            <Card className="overflow-hidden p-0 mb-3.5">
-              <div className="px-4 py-2.5 bg-surface border-b border-line-subtle flex justify-between items-center">
-                <span className="text-sm font-bold uppercase tracking-wider text-muted">
-                  Progress Log
-                  {importStatus === 'running' && <span className="ml-2 inline-block w-[7px] h-[7px] bg-accent rounded-full animate-pulse-opacity" />}
-                </span>
-                <button
-                  onClick={() => setImportLogs([])}
-                  className="bg-none border-none text-xs text-muted cursor-pointer font-body"
-                >Clear</button>
-              </div>
-              <div
-                ref={logRef}
-                className="h-[320px] overflow-y-auto py-2.5 font-mono text-sm"
-              >
-                {importLogs.map((entry, i) => (
-                  <div
-                    key={i}
-                    className={cn(
-                      'flex gap-2.5 px-4 py-0.5 border-l-2',
-                      entry.type === 'step'
-                        ? 'bg-surface border-l-accent'
-                        : entry.type === 'error'
-                        ? 'bg-status-rose-dim border-l-status-rose'
-                        : 'border-l-transparent',
-                    )}
-                  >
-                    <span className="text-muted flex-shrink-0 text-xs mt-px">{entry.time}</span>
-                    <span className={cn(
-                      'leading-[1.4]',
-                      entry.type === 'error'
-                        ? 'text-status-rose'
-                        : entry.type === 'step'
-                        ? 'text-primary font-semibold'
-                        : 'text-secondary',
-                    )}>{entry.msg}</span>
-                  </div>
-                ))}
-                {importStatus === 'running' && (
-                  <div className="px-4 py-1 text-muted text-xs">
-                    <span className="animate-pulse-opacity">█</span>
-                  </div>
-                )}
-              </div>
-            </Card>
-          )}
-
-          {/* ── Section 5: Final counts ───────────────────────────────────── */}
-          {importStatus === 'done' && importCounts && (
-            <Card className="px-5 py-4 border-[rgba(0,212,180,0.25)]">
-              <div className="text-base font-semibold text-accent mb-3.5">Import Summary</div>
-              <div className="grid grid-cols-5 gap-2.5">
-                {[
-                  { label: 'Depts',    key: 'departments' },
-                  { label: 'People',   key: 'users' },
-                  { label: 'Clients',  key: 'clients' },
-                  { label: 'Projects', key: 'projects' },
-                  { label: 'Tasks',    key: 'tasks' },
-                ].map(s => (
-                  <div
-                    key={s.key}
-                    className="bg-surface border border-line-subtle rounded p-3 text-center"
-                  >
-                    <div className="text-2xl font-bold text-primary tabular-nums leading-none">{(importCounts as any)[s.key] || 0}</div>
-                    <div className="text-xs text-muted mt-1">{s.label}</div>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-3.5 text-sm text-muted">
-                All imported users have been given the default password: <code className="bg-surface-overlay px-1.5 py-px rounded-sm font-mono">password123</code> — they can change it after logging in.
-              </div>
-            </Card>
-          )}
-        </div>
-      )}
-
-      {/* ── IMPORT FINANCE SHEET ───────────────────────────────────────────── */}
       {tab === 'finance_import' && (
         <div className="w-full">
           <FinanceImport />
