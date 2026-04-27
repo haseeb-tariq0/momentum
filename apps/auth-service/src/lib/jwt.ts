@@ -34,11 +34,13 @@ export async function signAccessToken(payload: AccessTokenPayload): Promise<stri
 }
 
 export async function signRefreshToken(userId: string): Promise<string> {
+  // No expiry — session lasts until the user explicitly logs out.
+  // The DB row (refresh_tokens.expires_at = year 2100) is the real gate;
+  // logout deletes the row, which immediately invalidates the token.
   return new SignJWT({ sub: userId, type: 'refresh' })
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setIssuer(issuer)
-    .setExpirationTime('30d')  // 30 days — stay logged in for a full month
     .sign(getSecret())
 }
 

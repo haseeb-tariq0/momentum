@@ -93,19 +93,19 @@ async function issueSessionAndRespond(user: UserRow, reply: FastifyReply) {
 
   const refreshToken = await signRefreshToken(user.id)
 
-  const expiresAt = new Date()
-  expiresAt.setDate(expiresAt.getDate() + 30)
+  // expires_at = year 2100 — effectively never. The row is deleted on logout,
+  // which is the only mechanism that ends a session.
   await supabase.from('refresh_tokens').insert({
     user_id:    user.id,
     token:      refreshToken,
-    expires_at: expiresAt.toISOString(),
+    expires_at: '2100-01-01T00:00:00.000Z',
   })
 
   reply.setCookie('refresh_token', refreshToken, {
     httpOnly: true,
     secure:   process.env.NODE_ENV === 'production',
     sameSite: 'lax',
-    maxAge:   60 * 60 * 24 * 30,
+    maxAge:   60 * 60 * 24 * 365 * 10,  // 10 years — stays until explicit logout
     path:     '/api/v1/auth/refresh',
   })
 
@@ -349,19 +349,17 @@ export async function authRoutes(app: FastifyInstance) {
         profile: user.permission_profile, seat: user.seat_type,
       })
       const newRefreshToken = await signRefreshToken(user.id)
-      const expiresAt = new Date()
-      expiresAt.setDate(expiresAt.getDate() + 30)
       await supabase.from('refresh_tokens').insert({
         user_id:    user.id,
         token:      newRefreshToken,
-        expires_at: expiresAt.toISOString(),
+        expires_at: '2100-01-01T00:00:00.000Z',
       })
 
       reply.setCookie('refresh_token', newRefreshToken, {
         httpOnly: true,
         secure:   process.env.NODE_ENV === 'production',
         sameSite: 'lax',
-        maxAge:   60 * 60 * 24 * 30,
+        maxAge:   60 * 60 * 24 * 365 * 10,  // 10 years
         path:     '/api/v1/auth/refresh',
       })
 
