@@ -910,7 +910,13 @@ export default function AdminPage() {
 
 
   // ── Data queries ───────────────────────────────────────────────────────────
-  const { data: users,       isLoading } = useQuery({ queryKey: ['users'],       queryFn: () => usersApi.list().then((r: any) => r.data) })
+  // The Admin People tab still surfaces deactivated users (rendered at 40%
+  // opacity, line ~1233) so a super-admin can see and audit them. Pass
+  // include_deactivated=true so the new active-only default on GET /users
+  // doesn't hide them. Note: this tab will be removed in the People-page
+  // merge — the /team page then handles deactivated visibility via its
+  // status filter.
+  const { data: users,       isLoading } = useQuery({ queryKey: ['users', 'with-deactivated'], queryFn: () => usersApi.list({ include_deactivated: 'true' }).then((r: any) => r.data) })
   const { data: depts }                  = useQuery({ queryKey: ['departments'], queryFn: () => usersApi.departments().then((r: any) => r.data) })
   const { data: clients }                = useQuery({ queryKey: ['clients'],     queryFn: () => usersApi.clients().then((r: any) => r.data) })
   const { data: labels }                 = useQuery({ queryKey: ['labels'],      queryFn: () => usersApi.labels().then((r: any) => r.data) })

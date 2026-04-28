@@ -34,9 +34,13 @@ export default function TeamPage() {
 
   const prevWeekStart = format(subWeeks(startOfWeek(new Date(), { weekStartsOn: 1 }), 1), 'yyyy-MM-dd')
 
+  // Backend defaults to active-only; opt in to all users when the filter
+  // includes deactivated rows. Separate cache key so toggling the filter
+  // doesn't reuse the active-only payload.
+  const includeDeactivated = filterStatus !== 'active'
   const { data: usersData, isLoading } = useQuery({
-    queryKey: ['users'],
-    queryFn:  () => usersApi.list().then((r: any) => r.data),
+    queryKey: ['users', includeDeactivated],
+    queryFn:  () => usersApi.list(includeDeactivated ? { include_deactivated: 'true' } : undefined).then((r: any) => r.data),
     enabled:  isAdmin(),
     staleTime: 60_000,
   })

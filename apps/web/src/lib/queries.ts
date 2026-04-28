@@ -184,6 +184,10 @@ export const timeApi = {
 
 export const usersApi = {
   me:     () => api.get('/users/me'),
+  // Defaults to active users only. Pass `{ include_deactivated: 'true' }` to
+  // include deactivated rows — used by the People page's "Show deactivated"
+  // toggle. Reports, project pickers, etc. should leave params undefined so
+  // they inherit the active-only default and don't surface ex-employees.
   list:   (params?: any) => api.get('/users', params),
   get:    (id: string)   => api.get(`/users/${id}`),
   update: (id: string, data: any) => api.patch(`/users/${id}`, {

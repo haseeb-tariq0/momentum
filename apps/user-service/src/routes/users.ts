@@ -1000,10 +1000,22 @@ export async function userRoutes(app: FastifyInstance) {
   })
 
   // Users CRUD
+  // Defaults to active users only — pass ?include_deactivated=true to include
+  // deactivated rows (used by the People page's "Show deactivated" toggle).
+  // Reports, project pickers, and other "innocent" consumers inherit the
+  // active-only default so ex-employees don't bleed into utilization
+  // tables and assignee dropdowns.
   app.get('/', async (req, reply) => {
     const user = (req as any).user
     if (!isAdmin(user.profile)) return reply.status(403).send({ errors: [{ code: 'FORBIDDEN' }] })
-    const { data, error } = await supabase.from('users').select('*, departments(id, name), holiday_calendars(id, name), custom_roles(id, name, base_role)').eq('workspace_id', user.workspaceId).is('deleted_at', null).order('name')
+    const includeDeactivated = (req.query as any)?.include_deactivated === 'true'
+    let q = supabase
+      .from('users')
+      .select('*, departments(id, name), holiday_calendars(id, name), custom_roles(id, name, base_role)')
+      .eq('workspace_id', user.workspaceId)
+      .is('deleted_at', null)
+    if (!includeDeactivated) q = q.eq('active', true)
+    const { data, error } = await q.order('name')
     if (error) return reply.status(500).send({ errors: [{ message: error.message }] })
     const enriched = (data || []).map((u: any) => ({ ...u, resolved_permissions: resolvePermissions(u.permission_profile, u.custom_permissions || {}) }))
     return reply.status(200).send({ data: enriched })
