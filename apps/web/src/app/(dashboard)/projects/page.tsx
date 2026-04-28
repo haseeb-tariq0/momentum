@@ -278,27 +278,27 @@ function ProjectRow({ p, expanded, onToggle }: { p: any; expanded: boolean; onTo
   const hb        = healthBadge(pct, p.status)
   const barColor  = pct >= 100 ? 'bg-status-rose' : pct >= 85 ? 'bg-status-amber' : 'bg-[#10B981]'
   const pctColor  = pct >= 100 ? 'text-status-rose' : pct >= 85 ? 'text-status-amber' : 'text-[#10B981]'
-  // Pastel tint from the project colour — hex + 12 = ~7% opacity
-  const rowTint   = `${p.color || '#0D9488'}14`
+  // Card tint from the project colour — hex + 22 = ~13% opacity
+  const rowTint   = `${p.color || '#0D9488'}22`
+  const rowBorder = `${p.color || '#0D9488'}44`
 
   return (
-    <div className="border-b border-line-subtle">
+    <div>
       <div
         role="button"
         tabIndex={0}
         aria-expanded={expanded}
         onClick={onToggle}
         onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onToggle() } }}
-        className="grid items-center px-3.5 py-3 cursor-pointer transition-all duration-150 hover:brightness-[0.96]"
-        style={{ gridTemplateColumns: ROW_GRID_COLS, columnGap: 14, background: rowTint }}
+        className="grid items-center px-3.5 py-3 cursor-pointer transition-all duration-150 hover:brightness-[0.96] rounded-2xl border"
+        style={{ gridTemplateColumns: ROW_GRID_COLS, columnGap: 14, background: rowTint, borderColor: rowBorder }}
       >
-        {/* Name + chevron + color strip + labels */}
+        {/* Name + chevron + labels */}
         <div className="flex items-center gap-2 min-w-0">
           <ChevronDown
             size={12}
             className={cn('text-muted/60 flex-shrink-0 transition-transform duration-150', !expanded && '-rotate-90')}
           />
-          <div className="w-1 h-6 rounded-full flex-shrink-0" style={{ background: p.color || '#0D9488' }} />
           <div className="min-w-0">
             <div className="flex items-center gap-1.5 flex-wrap">
               <Link
@@ -363,7 +363,11 @@ function ProjectRow({ p, expanded, onToggle }: { p: any; expanded: boolean; onTo
         </div>
       </div>
 
-      {expanded && <ProjectTasks projectId={p.id} currency={p.currency || 'AED'} />}
+      {expanded && (
+        <div className="mt-1 rounded-xl overflow-hidden border border-line-subtle">
+          <ProjectTasks projectId={p.id} currency={p.currency || 'AED'} />
+        </div>
+      )}
     </div>
   )
 }
@@ -380,21 +384,18 @@ function ClientGroup({ clientName, projects, expanded, onToggle }: {
   const groupPct       = totalEst > 0 ? Math.min(Math.round((totalLogged / totalEst) * 100), 100) : 0
   const accentColor    = groupPct >= 100 ? '#F43F5E' : groupPct >= 85 ? '#F59E0B' : '#10B981'
 
-  const initials = clientName === NO_CLIENT_KEY
-    ? '—'
-    : clientName.split(' ').map(w => w[0]).filter(Boolean).slice(0,2).join('').toUpperCase()
-
   return (
     <div>
-      {/* Slim client separator row */}
+      {/* White client card */}
       <div
         onClick={() => setOpen(o => !o)}
-        className="flex items-center gap-2.5 px-3.5 py-1.5 border-b border-line-subtle cursor-pointer select-none hover:bg-surface-hover transition-colors bg-surface-overlay"
-        style={{ borderLeft: `3px solid ${accentColor}` }}
+        className="flex items-center gap-2.5 px-4 py-2.5 border border-line-subtle rounded-[20px] cursor-pointer select-none hover:bg-surface-hover transition-colors bg-surface shadow-sm mb-1.5"
       >
-        {/* Mini avatar */}
-        <div className="w-5 h-5 rounded text-[9px] font-bold bg-accent-dim text-accent flex items-center justify-center flex-shrink-0">
-          {initials}
+        {/* Building icon */}
+        <div className="flex-shrink-0 text-muted">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21"/>
+          </svg>
         </div>
         {/* Name */}
         <span className="text-xs font-bold text-primary flex-1 min-w-0 truncate">{clientName}</span>
@@ -411,15 +412,19 @@ function ClientGroup({ clientName, projects, expanded, onToggle }: {
         <ChevronDown size={11} className={cn('text-muted/60 transition-transform duration-150 flex-shrink-0', !open && '-rotate-90')} />
       </div>
 
-      {/* Project rows */}
-      {open && projects.map(p => (
-        <ProjectRow
-          key={p.id}
-          p={p}
-          expanded={expanded.has(p.id)}
-          onToggle={() => onToggle(p.id)}
-        />
-      ))}
+      {/* Project cards — indented under client card */}
+      {open && (
+        <div className="pl-[22px] flex flex-col gap-[3px] mb-3">
+          {projects.map(p => (
+            <ProjectRow
+              key={p.id}
+              p={p}
+              expanded={expanded.has(p.id)}
+              onToggle={() => onToggle(p.id)}
+            />
+          ))}
+        </div>
+      )}
     </div>
   )
 }
@@ -460,16 +465,16 @@ function StatusSection({ status, clientGroups, expanded, onToggle }: {
         />
       </div>
 
-      {/* Flat table — column headers + client groups, all in one bordered container */}
+      {/* Cards — column headers once at top, then client groups (white card + indented project cards) */}
       {open && (
-        <div className="rounded-lg border border-line-subtle overflow-hidden">
-          {/* Column headers — one row at the very top */}
+        <div>
+          {/* Column headers — aligned to project card content (22px indent + 14px card padding = 36px) */}
           <div
-            className="grid px-3.5 py-2 bg-surface-overlay border-b border-line-subtle"
+            className="grid pb-1.5 pl-[36px] pr-3.5"
             style={{ gridTemplateColumns: ROW_GRID_COLS, columnGap: 14 }}
           >
             {['Name', 'Start', 'Deadline', 'Progress', 'Status', 'Remaining'].map(h => (
-              <div key={h} className="text-[10px] font-bold uppercase tracking-wider text-muted">{h}</div>
+              <div key={h} className="text-[9px] font-bold uppercase tracking-wider text-muted/70">{h}</div>
             ))}
           </div>
           {/* Client groups */}
