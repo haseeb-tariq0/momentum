@@ -278,9 +278,9 @@ function ProjectRow({ p, expanded, onToggle }: { p: any; expanded: boolean; onTo
   const hb        = healthBadge(pct, p.status)
   const barColor  = pct >= 100 ? 'bg-status-rose' : pct >= 85 ? 'bg-status-amber' : 'bg-[#10B981]'
   const pctColor  = pct >= 100 ? 'text-status-rose' : pct >= 85 ? 'text-status-amber' : 'text-[#10B981]'
-  // Card tint from the project colour — hex + 22 = ~13% opacity
-  const rowTint   = `${p.color || '#0D9488'}22`
-  const rowBorder = `${p.color || '#0D9488'}44`
+  // Card tint from the project colour — hex + 38 = 22% opacity, 61 = 38% opacity (matching mockup)
+  const rowTint   = `${p.color || '#0D9488'}38`
+  const rowBorder = `${p.color || '#0D9488'}61`
 
   return (
     <div>
@@ -389,7 +389,8 @@ function ClientGroup({ clientName, projects, expanded, onToggle }: {
       {/* White client card */}
       <div
         onClick={() => setOpen(o => !o)}
-        className="flex items-center gap-2.5 px-4 py-2.5 border border-line-subtle rounded-[20px] cursor-pointer select-none hover:bg-surface-hover transition-colors bg-surface shadow-sm mb-1.5"
+        className="flex items-center gap-2.5 px-4 py-2.5 rounded-[20px] cursor-pointer select-none transition-colors shadow-sm mb-1.5"
+        style={{ background: '#fff', border: '1px solid #e2e8f0' }}
       >
         {/* Building icon */}
         <div className="flex-shrink-0 text-muted">
