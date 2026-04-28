@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { usersApi, authApi, timeApi } from '@/lib/queries'
+import { usersApi, timeApi } from '@/lib/queries'
 import { useAuthStore } from '@/lib/store'
 import { showConfirm } from '@/components/ConfirmDialog'
 import { showToast } from '@/components/Toast'
@@ -72,9 +72,6 @@ function resolvePermissions(role: string, custom: Record<string, boolean> = {}):
   const base = ROLE_DEFAULTS[role] || ROLE_DEFAULTS.collaborator
   return Object.fromEntries(ALL_PERMISSIONS.map(p => [p, p in custom ? custom[p] : base[p]]))
 }
-
-type EditingUser = { id: string; field: string; value: string }
-
 
 function Toggle({ on, onChange, disabled }: { on: boolean; onChange: (v: boolean) => void; disabled?: boolean }) {
   return (
@@ -867,14 +864,37 @@ export default function AdminPage() {
   const qc = useQueryClient()
 
   // ── Core tab state ─────────────────────────────────────────────────────────
-  const [tab, setTab] = useState<'people' | 'permissions' | 'roles' | 'base_rates' | 'rate_cards' | 'departments' | 'clients' | 'labels' | 'time_categories' | 'holidays' | 'templates' | 'settings' | 'finance_import' | 'forecast_sync'>('people')
+  // The People tab moved to /team (the People page). If a deep link still
+  // points to ?tab=people, the effect below redirects to /team. Default
+  // tab is now Permissions, which used to be the second tab.
+  const [tab, setTab] = useState<'permissions' | 'roles' | 'base_rates' | 'rate_cards' | 'departments' | 'clients' | 'labels' | 'time_categories' | 'holidays' | 'templates' | 'settings' | 'finance_import' | 'forecast_sync'>('permissions')
 
-  // ── People / permissions state ─────────────────────────────────────────────
-  const [showInvite,  setShowInvite]  = useState(false)
+  // Read ?tab= and ?user= from URL on mount so the People page's "Perms"
+  // button can deep-link straight into the per-user permissions editor.
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const params = new URLSearchParams(window.location.search)
+    const urlTab = params.get('tab')
+    const urlUser = params.get('user')
+    if (urlTab === 'people') {
+      // Legacy deep link — bounce to the new People page
+      window.location.replace('/team')
+      return
+    }
+    if (urlTab && urlTab !== 'people') {
+      // Trust the union — the setter is permissive, invalid values just no-op visually
+      setTab(urlTab as any)
+    }
+    if (urlUser) {
+      setSelectedUserId(urlUser)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // ── Permissions editor state (used by Permissions / Roles tabs) ───────────
   const [showClient,  setShowClient]  = useState(false)
   const [deptName,    setDeptName]    = useState('')
   const [labelForm,   setLabelForm]   = useState({ name: '', color: '#0D9488' })
-  const [editing,     setEditing]     = useState<EditingUser | null>(null)
   const [clientForm,  setClientForm]  = useState<{ name: string; country: string; address: string; logo_url: string; parent_client_id: string }>({ name: '', country: '', address: '', logo_url: '', parent_client_id: '' })
   const [editingClient, setEditingClient] = useState<any | null>(null)
   const [mergingClient, setMergingClient] = useState<any | null>(null)
@@ -904,18 +924,15 @@ export default function AdminPage() {
     return t
   }
   const [wsForm,      setWsForm]      = useState<any>(null)
-  const [inviteForm,  setInviteForm]  = useState({ name: '', email: '', jobTitle: '', permissionProfile: 'collaborator', departmentId: '', capacityHrs: 40, internalHourlyCost: 0 })
   const [showNewRc,   setShowNewRc]   = useState(false)
   const [newRcForm,   setNewRcForm]   = useState({ name: '', currency: 'AED' })
 
 
   // ── Data queries ───────────────────────────────────────────────────────────
-  // The Admin People tab still surfaces deactivated users (rendered at 40%
-  // opacity, line ~1233) so a super-admin can see and audit them. Pass
-  // include_deactivated=true so the new active-only default on GET /users
-  // doesn't hide them. Note: this tab will be removed in the People-page
-  // merge — the /team page then handles deactivated visibility via its
-  // status filter.
+  // Permissions / Roles / Departments tabs all need the user list. Pull in
+  // deactivated rows too so a super-admin can re-grant a deactivated user's
+  // permissions or audit who used to belong to a department; the rendering
+  // here is read-only (no inline edit / Off / Perms) — those moved to /team.
   const { data: users,       isLoading } = useQuery({ queryKey: ['users', 'with-deactivated'], queryFn: () => usersApi.list({ include_deactivated: 'true' }).then((r: any) => r.data) })
   const { data: depts }                  = useQuery({ queryKey: ['departments'], queryFn: () => usersApi.departments().then((r: any) => r.data) })
   const { data: clients }                = useQuery({ queryKey: ['clients'],     queryFn: () => usersApi.clients().then((r: any) => r.data) })
@@ -966,29 +983,16 @@ export default function AdminPage() {
   }, [wsForm])
 
   // ── Mutations ──────────────────────────────────────────────────────────────
-  const invite        = useMutation({
-    mutationFn: () => {
-      // Custom role value is encoded as "base_role:uuid" — parse it before sending
-      const profile = inviteForm.permissionProfile
-      const isCustom = profile.includes(':')
-      const permissionProfile = isCustom ? profile.split(':')[0] : profile
-      const customRoleId      = isCustom ? profile.split(':')[1] : null
-      return authApi.invite({ ...inviteForm, permissionProfile, customRoleId } as any)
-    },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['users'] })
-      setShowInvite(false)
-      setInviteForm({ name:'',email:'',jobTitle:'',permissionProfile:'collaborator',departmentId:'',capacityHrs:40,internalHourlyCost:0 })
-    },
-  })
-  const updateUser    = useMutation({ mutationFn: ({ id, data }: any) => usersApi.update(id, data), onSuccess: () => { qc.invalidateQueries({ queryKey: ['users'] }); setEditing(null) } })
+  // (Invite + Off / deactivate moved to /team — this page no longer hosts
+  // user creation or deactivation. updateUser stays because the Base Rates
+  // tab uses it to set `internal_hourly_cost` per user.)
+  const updateUser    = useMutation({ mutationFn: ({ id, data }: any) => usersApi.update(id, data), onSuccess: () => { qc.invalidateQueries({ queryKey: ['users'] }) } })
   const addDept       = useMutation({ mutationFn: () => usersApi.createDept(deptName), onSuccess: () => { qc.invalidateQueries({ queryKey: ['departments'] }); setDeptName('') } })
   const deleteDept    = useMutation({ mutationFn: (id: string) => api.delete('/users/departments/' + id), onSuccess: () => qc.invalidateQueries({ queryKey: ['departments'] }) })
   const addClient        = useMutation({ mutationFn: () => usersApi.createClient(clientForm), onSuccess: () => { qc.invalidateQueries({ queryKey: ['clients'] }); setShowClient(false); setClientForm({ name:'',country:'',address:'',logo_url:'',parent_client_id:'' }) } })
   const deactivateClient = useMutation({ mutationFn: (id: string) => usersApi.updateClient(id, { active: false }), onSuccess: () => qc.invalidateQueries({ queryKey: ['clients'] }) })
   const activateClient   = useMutation({ mutationFn: (id: string) => usersApi.updateClient(id, { active: true }),  onSuccess: () => qc.invalidateQueries({ queryKey: ['clients'] }) })
   const addLabel      = useMutation({ mutationFn: () => usersApi.createLabel(labelForm), onSuccess: () => { qc.invalidateQueries({ queryKey: ['labels'] }); setLabelForm({ name:'',color:'#0D9488' }) } })
-  const deactivate    = useMutation({ mutationFn: (id: string) => usersApi.delete(id), onSuccess: () => qc.invalidateQueries({ queryKey: ['users'] }) })
   const savePerms     = useMutation({ mutationFn: ({ id, overrides }: { id: string; overrides: Record<string, boolean> }) => usersApi.updatePermissions(id, overrides), onSuccess: () => { qc.invalidateQueries({ queryKey: ['users'] }); setSavedMsg(true); setTimeout(() => setSavedMsg(false), 2000) } })
   const saveWorkspace   = useMutation({ mutationFn: (data: any) => usersApi.updateWorkspace(data), onSuccess: () => { qc.invalidateQueries({ queryKey: ['workspace'] }); setWsSaved(true); setTimeout(() => setWsSaved(false), 2000) } })
   const createRateCard  = useMutation({ mutationFn: (data: any) => usersApi.createRateCard(data), onSuccess: () => { qc.invalidateQueries({ queryKey: ['rate-cards'] }); setNewRcForm({ name:'', currency:'AED' }); setShowNewRc(false) } })
@@ -1033,27 +1037,9 @@ export default function AdminPage() {
     })
   }
 
-  function saveEdit(u: any) {
-    if (!editing || editing.id !== u.id) return
-    let val: any = editing.value
-    if (editing.field === 'capacity_hrs') {
-      const n = Number(editing.value)
-      if (!Number.isFinite(n) || n < 0 || n > 168) {
-        showToast.error('Capacity must be a number between 0 and 168')
-        return
-      }
-      val = n
-    }
-    if (editing.field === 'permission_profile' && String(val).includes(':')) {
-      // Custom role encoded as "base_role:uuid"
-      const [baseRole, roleId] = String(val).split(':')
-      updateUser.mutate({ id: u.id, data: { permission_profile: baseRole, custom_role_id: roleId } })
-    } else if (editing.field === 'permission_profile') {
-      updateUser.mutate({ id: u.id, data: { permission_profile: val, custom_role_id: null } })
-    } else {
-      updateUser.mutate({ id: u.id, data: { [editing.field]: val } })
-    }
-  }
+  // (saveEdit + EditableCell moved with the People tab to /team. The
+  // Permissions / Base Rates tabs that remain here don't need inline-edit
+  // primitives — they have their own dedicated editors.)
 
   const PROFILE_COLORS: Record<string, string> = {
     super_admin: 'text-status-rose',
@@ -1063,7 +1049,6 @@ export default function AdminPage() {
   }
 
   const ALL_TABS = [
-    { key: 'people',      label: `People (${users?.length || 0})` },
     { key: 'permissions', label: 'Permissions' },
     { key: 'roles',       label: `Roles (${customRoles.length})` },
     ...(isSuperAdmin() ? [{ key: 'base_rates', label: 'Base Rate Card' }] : []),
@@ -1078,45 +1063,6 @@ export default function AdminPage() {
     { key: 'finance_import',  label: '⟳ Finance Sheet Sync' },
     { key: 'forecast_sync',   label: '↻ Live Forecast Sync' },
   ] as const
-
-  function EditableCell({ u, field, display, options }: { u: any; field: string; display: string; options?: { value: string; label: string }[] }) {
-    const isEdit = editing?.id === u.id && editing?.field === field
-    if (isEdit) {
-      if (options) return (
-        <Select
-          autoFocus
-          size="sm"
-          aria-label={`Edit ${field}`}
-          defaultValue={editing!.value}
-          onChange={e => setEditing({ ...editing!, value: e.target.value })}
-          onBlur={() => saveEdit(u)}
-          onKeyDown={e => { if (e.key === 'Enter') saveEdit(u); if (e.key === 'Escape') setEditing(null) }}
-        >
-          {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-        </Select>
-      )
-      return (
-        <Input
-          autoFocus
-          type={field === 'capacity_hrs' ? 'number' : 'text'}
-          defaultValue={editing!.value}
-          onChange={e => setEditing({ ...editing!, value: e.target.value })}
-          onBlur={() => saveEdit(u)}
-          onKeyDown={e => { if (e.key === 'Enter') saveEdit(u); if (e.key === 'Escape') setEditing(null) }}
-          className="text-sm py-1"
-        />
-      )
-    }
-    return (
-      <div
-        title="Click to edit"
-        onClick={() => setEditing({ id: u.id, field, value: String(u[field] ?? display) })}
-        className="cursor-pointer text-sm text-secondary px-1 py-0.5 rounded-sm transition-colors hover:bg-surface-hover"
-      >
-        {display || <span className="text-muted italic">—</span>}
-      </div>
-    )
-  }
 
 
   return (
@@ -1145,185 +1091,6 @@ export default function AdminPage() {
         })}
       </div>
 
-      {/* ── PEOPLE ── */}
-      {tab === 'people' && (
-        <div>
-          {showInvite && (
-            <Card className="px-4 py-4 mb-3.5 border-line-muted">
-              <div className="text-base font-semibold text-primary mb-3">Invite Team Member</div>
-              <div className="grid grid-cols-3 gap-2.5 mb-3">
-                {([
-                  { label: 'Full Name *', key: 'name', type: 'text', placeholder: 'Jane Smith' },
-                  { label: 'Email *', key: 'email', type: 'email', placeholder: 'jane@digitalnexa.com' },
-                  { label: 'Job Title', key: 'jobTitle', type: 'text', placeholder: 'Account Manager' },
-                ] as any[]).map(f => (
-                  <div key={f.key}>
-                    <Label className="text-xs uppercase tracking-wider">{f.label}</Label>
-                    <Input
-                      type={f.type}
-                      placeholder={f.placeholder}
-                      value={(inviteForm as any)[f.key]}
-                      onChange={e => setInviteForm(frm => ({ ...frm, [f.key]: f.type === 'number' ? Number(e.target.value) : e.target.value }))}
-                    />
-                  </div>
-                ))}
-                <div>
-                  <Label className="text-xs uppercase tracking-wider">Role</Label>
-                  <Select
-                    aria-label="Role"
-                    value={inviteForm.permissionProfile}
-                    onChange={e => setInviteForm(f => ({ ...f, permissionProfile: e.target.value }))}
-                  >
-                    <optgroup label="Built-in">
-                      <option value="collaborator">Collaborator</option>
-                      <option value="account_manager">Account Manager</option>
-                      <option value="admin">Admin</option>
-                      {isSuperAdmin() && <option value="super_admin">Super Admin</option>}
-                    </optgroup>
-                    {customRoles.length > 0 && (
-                      <optgroup label="Custom Roles">
-                        {customRoles.map((r: any) => (
-                          <option key={r.id} value={r.base_role + ':' + r.id}>{r.name}</option>
-                        ))}
-                      </optgroup>
-                    )}
-                  </Select>
-                </div>
-                <div>
-                  <Label className="text-xs uppercase tracking-wider">Department</Label>
-                  <Select
-                    aria-label="Department"
-                    value={inviteForm.departmentId}
-                    onChange={e => setInviteForm(f => ({ ...f, departmentId: e.target.value }))}
-                  >
-                    <option value="">No department</option>
-                    {(depts || []).map((d: any) => <option key={d.id} value={d.id}>{d.name}</option>)}
-                  </Select>
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <Button variant="primary" onClick={() => invite.mutate()} disabled={!inviteForm.name || !inviteForm.email || invite.isPending} loading={invite.isPending}>
-                  {invite.isPending ? 'Inviting...' : 'Send Invite'}
-                </Button>
-                <Button variant="secondary" onClick={() => setShowInvite(false)}>Cancel</Button>
-              </div>
-            </Card>
-          )}
-          <Card className="p-0 relative">
-            <div className="grid grid-cols-[1.8fr_1fr_1fr_110px_70px_110px] data-row-head sticky top-0 z-sticky px-4 py-2.5 items-center bg-surface border-b border-line-subtle rounded-t-lg">
-              {['Name / Email', 'Department', 'Job Title', 'Role', 'Capacity', ''].map(h => (
-                <div key={h} className="text-[10px] font-bold uppercase tracking-wider text-muted">{h}</div>
-              ))}
-            </div>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => setShowInvite(s => !s)}
-              className="absolute top-1.5 right-3 z-sticky"
-            >
-              {showInvite ? <><X size={14} /> Cancel</> : <><Plus size={14} /> Invite Member</>}
-            </Button>
-            {isLoading && <div className="p-5 text-base text-muted">Loading...</div>}
-            {(users || []).map((u: any, i: number) => {
-              const initials  = u.name?.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase() || '??'
-              const profile   = u.permission_profile || 'collaborator'
-              const roleName  = u.custom_roles?.name || profile.replace(/_/g, ' ')
-              const hasCustom = Object.keys(u.custom_permissions || {}).length > 0
-              const isLast = i === (users?.length || 0) - 1
-              return (
-                <div
-                  key={u.id}
-                  className={cn(
-                    'grid grid-cols-[1.8fr_1fr_1fr_110px_70px_110px] px-4 py-2.5 items-center',
-                    !isLast && 'border-b border-line-subtle',
-                    u.active === false && 'opacity-40',
-                  )}
-                >
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-7 h-7 rounded-full bg-surface-overlay border border-line-muted flex items-center justify-center text-[10px] font-bold text-secondary flex-shrink-0">
-                      {initials}
-                    </div>
-                    <div>
-                      <div className="text-base font-medium text-primary flex items-center gap-1.5">
-                        <a
-                          href={`/team/${u.id}`}
-                          onClick={e => { e.preventDefault(); window.location.href = `/team/${u.id}` }}
-                          className="text-inherit no-underline cursor-pointer hover:text-accent"
-                        >{u.name}</a>
-                        {hasCustom && (
-                          <Badge variant="violet" className="text-[9px] px-1.5 py-px">CUSTOM</Badge>
-                        )}
-                      </div>
-                      <div className="text-xs text-muted">{u.email}</div>
-                    </div>
-                  </div>
-                  <EditableCell u={u} field="department_id" display={u.departments?.name || '—'} options={[{ value: '', label: 'No dept' }, ...(depts||[]).map((d: any) => ({ value: d.id, label: d.name }))]} />
-                  <EditableCell u={u} field="job_title" display={u.job_title || '—'} />
-                  <div>
-                    {editing?.id === u.id && editing?.field === 'permission_profile' ? (
-                      <Select
-                        autoFocus
-                        size="sm"
-                        aria-label="Edit role"
-                        defaultValue={profile}
-                        onChange={e => setEditing({ id: u.id, field: 'permission_profile', value: e.target.value })}
-                        onBlur={() => saveEdit(u)}
-                        onKeyDown={e => { if (e.key === 'Enter') saveEdit(u); if (e.key === 'Escape') setEditing(null) }}
-                      >
-                        <optgroup label="Built-in">
-                          <option value="collaborator">Collaborator</option>
-                          <option value="account_manager">Account Manager</option>
-                          <option value="admin">Admin</option>
-                          {isSuperAdmin() && <option value="super_admin">Super Admin</option>}
-                        </optgroup>
-                        {customRoles.length > 0 && (
-                          <optgroup label="Custom">
-                            {customRoles.map((r: any) => <option key={r.id} value={r.base_role + ':' + r.id}>{r.name}</option>)}
-                          </optgroup>
-                        )}
-                      </Select>
-                    ) : (
-                      <div
-                        onClick={() => setEditing({ id: u.id, field: 'permission_profile', value: profile })}
-                        className={cn(
-                          'cursor-pointer text-sm font-semibold px-1 py-0.5 rounded-sm inline-block capitalize hover:bg-surface-hover',
-                          PROFILE_COLORS[profile],
-                        )}
-                      >
-                        {roleName}
-                      </div>
-                    )}
-                  </div>
-                  <EditableCell u={u} field="capacity_hrs" display={`${u.capacity_hrs || 40}h`} />
-                  <div className="flex gap-1.5">
-                    {isSuperAdmin() && (
-                      <button
-                        onClick={() => openPermEditor(u)}
-                        className={cn(
-                          'rounded-sm text-xs cursor-pointer font-body px-2 py-0.5 border',
-                          hasCustom
-                            ? 'bg-status-violet-dim border-[rgba(139,92,246,0.3)] text-status-violet'
-                            : 'bg-transparent border-line-muted text-secondary',
-                        )}
-                      >
-                        Perms
-                      </button>
-                    )}
-                    {isSuperAdmin() && u.active !== false && (
-                      <button
-                        onClick={() => showConfirm(`Deactivate ${u.name}?`, () => deactivate.mutate(u.id), { confirmLabel: 'Deactivate', subtext: 'The user will lose access to the platform.' })}
-                        className="bg-none border-none text-xs text-muted hover:text-status-rose cursor-pointer font-body px-0 py-0.5"
-                      >
-                        Off
-                      </button>
-                    )}
-                  </div>
-                </div>
-              )
-            })}
-          </Card>
-        </div>
-      )}
 
       {/* ── PERMISSIONS ── */}
       {tab === 'permissions' && (() => {

@@ -259,7 +259,7 @@ export default function PersonProfilePage() {
         title={user.name}
         subtitle={
           <span className="inline-flex items-center gap-1.5">
-            <Link href="/team" className="text-muted hover:text-primary no-underline">Team</Link>
+            <Link href="/team" className="text-muted hover:text-primary no-underline">People</Link>
             <span aria-hidden>/</span>
             <span className="text-primary">{user.name}</span>
           </span>

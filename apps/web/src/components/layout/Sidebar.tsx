@@ -43,9 +43,12 @@ const NAV_SECTIONS: NavSection[] = [
     label: 'Insights',
     items: [
       { href: '/reports',          label: 'Reports',         icon: BarChart3 },
-      // Team page now gated on view_team — collaborators default to `false`
-      // so the link disappears for them unless a super admin grants it.
-      { href: '/team',             label: 'Team',            icon: Users,          perm: 'view_team' },
+      // People page (URL kept as /team for now to preserve existing email
+      // and notification deep links to /team/[id]). Gated on view_team —
+      // collaborators default to `false` so the link disappears for them
+      // unless a super admin grants it. Absorbs what used to be the
+      // Admin > People tab (invite, inline edit, deactivate, perms).
+      { href: '/team',             label: 'People',          icon: Users,          perm: 'view_team' },
     ],
   },
   {
