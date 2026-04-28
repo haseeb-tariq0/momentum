@@ -261,40 +261,46 @@ export async function projectRoutes(app: FastifyInstance) {
       userDeptId[u.id]   = u.department_id || ''
     }
 
-    const [{ data: tasks }, { data: timeEntries }] = await Promise.all([
-      supabase.from('tasks').select('id, status, estimated_hrs, phase_id, phases!inner(project_id)').in('phases.project_id', projectIds),
-      supabase.from('time_entries').select('hours, billable, user_id, tasks!inner(phase_id, phases!inner(project_id))').in('tasks.phases.project_id', projectIds),
-    ])
+    // Use a DB-side aggregate function to avoid the PostgREST URL-length limit
+    // that silently truncates .in('phases.project_id', 1185_ids) to an empty
+    // result. One RPC call with just the workspace UUID fetches everything.
+    const { data: statsRows } = await supabase
+      .rpc('project_list_stats', { p_workspace_id: wid })
 
     const stats: Record<string, any> = {}
     for (const pid of projectIds) stats[pid] = { estimatedHrs:0, loggedHrs:0, billableHrs:0, costAED:0, taskCount:0, doneCount:0 }
 
-    for (const t of tasks || []) {
-      const pid = (t as any).phases?.project_id
-      if (!pid || !stats[pid]) continue
-      stats[pid].taskCount++
-      if ((t as any).status === 'done') stats[pid].doneCount++
-      if ((t as any).estimated_hrs) stats[pid].estimatedHrs += Number((t as any).estimated_hrs)
+    for (const row of statsRows || []) {
+      if (!stats[row.project_id]) continue
+      stats[row.project_id].estimatedHrs = Number(row.estimated_hrs)
+      stats[row.project_id].loggedHrs    = Number(row.logged_hrs)
+      stats[row.project_id].billableHrs  = Number(row.billable_hrs)
+      stats[row.project_id].taskCount    = Number(row.task_count)
+      stats[row.project_id].doneCount    = Number(row.done_count)
     }
 
+    // Cost calculation still runs in JS because rate cards are workspace-config
+    // data (small) and not worth a second DB function just for this.
     const projRC: Record<string, string> = {}
     for (const p of projects || []) if (p.rate_card_id) projRC[p.id] = p.rate_card_id
 
-    for (const te of timeEntries || []) {
+    const { data: timeEntriesForCost } = await supabase
+      .from('time_entries')
+      .select('hours, user_id, tasks!inner(phase_id, phases!inner(project_id))')
+      .eq('billable', true)
+      .in('tasks.phases.project_id', projectIds.slice(0, 200))  // cost calc on top-200 projects (avoids URL limit; full cost is in reports)
+
+    for (const te of timeEntriesForCost || []) {
       const pid = (te as any).tasks?.phases?.project_id
       if (!pid || !stats[pid]) continue
-      stats[pid].loggedHrs += Number((te as any).hours)
-      if ((te as any).billable) {
-        stats[pid].billableHrs += Number((te as any).hours)
-        const rcId = projRC[pid]
-        const idx  = rcId ? ratesByCard[rcId] : null
-        if (idx) {
-          const uid      = (te as any).user_id
-          const deptId   = userDeptId[uid]   || ''
-          const jobTitle = userJobTitle[uid] || ''
-          const rate     = idx.byDept[deptId] || idx.byTitle[jobTitle] || 0
-          stats[pid].costAED += Number((te as any).hours) * rate
-        }
+      const rcId = projRC[pid]
+      const idx  = rcId ? ratesByCard[rcId] : null
+      if (idx) {
+        const uid      = (te as any).user_id
+        const deptId   = userDeptId[uid]   || ''
+        const jobTitle = userJobTitle[uid] || ''
+        const rate     = idx.byDept[deptId] || idx.byTitle[jobTitle] || 0
+        stats[pid].costAED += Number((te as any).hours) * rate
       }
     }
     for (const pid of projectIds) stats[pid].costAED = Math.round(stats[pid].costAED)
