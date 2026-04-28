@@ -8,7 +8,7 @@ import { cn } from '@/lib/cn'
 import { todayLocalISO, dateLocalISO } from '@/lib/utils'
 import { Play, Pause, CheckCircle2, ChevronDown, Plus, Lightbulb, ClipboardList } from 'lucide-react'
 import {
-  Button, Badge, Card, Skeleton, SkeletonCard, SkeletonTable,
+  Button, Badge, Card, Skeleton, SkeletonTable,
   PageHeader, StatCard, EmptyState, Input, Label, Select,
   Combobox, DatePicker,
   type BadgeProps,
@@ -64,8 +64,8 @@ const NO_CLIENT_KEY = '— No Client —'
 
 const COLORS = ['#0D9488','#7C3AED','#2563EB','#D97706','#DC2626','#059669','#0891B2','#BE185D']
 
-// Columns: chevron | name | start | deadline | client | progress | status | remaining
-const ROW_GRID_COLS = '24px minmax(200px,2fr) 100px 115px minmax(140px,1fr) 110px 130px 100px'
+// Columns: name | start | deadline | progress | status | remaining
+const ROW_GRID_COLS = 'minmax(200px,2fr) 100px 115px 110px 130px 100px'
 
 // Format hours into "30h 45m" style (matches the screenshot's Remaining Work column)
 function fmtHours(h: number): string {
@@ -179,7 +179,7 @@ function ProjectTasks({ projectId, currency }: { projectId: string; currency: st
         <div key={phase.id}>
           <div
             className="grid px-4 py-1.5 pl-10 bg-surface-overlay border-b border-line-subtle"
-            style={{ gridTemplateColumns: '24px minmax(120px,1fr) 90px 60px 56px 56px 70px' }}
+            style={{ gridTemplateColumns: '24px minmax(120px,1fr) 80px 90px 52px 56px 68px' }}
           >
             <div />
             <div className="text-[10px] font-bold text-muted uppercase tracking-wider">
@@ -204,7 +204,7 @@ function ProjectTasks({ projectId, currency }: { projectId: string; currency: st
                   'hover:bg-surface-hover hover:shadow-[inset_2px_0_0_0_var(--accent)]',
                   !isLastTask && 'border-b border-line-subtle',
                 )}
-                style={{ gridTemplateColumns: '24px minmax(120px,1fr) 90px 60px 56px 56px 70px' }}
+                style={{ gridTemplateColumns: '24px minmax(120px,1fr) 80px 90px 52px 56px 68px' }}
               >
                 <div className="flex justify-center">
                   <div
@@ -217,7 +217,7 @@ function ProjectTasks({ projectId, currency }: { projectId: string; currency: st
                 <div>
                   <span
                     className={cn(
-                      'text-base font-medium',
+                      'text-sm font-medium',
                       task.status === 'done' ? 'text-muted line-through' : 'text-primary',
                     )}
                   >
@@ -269,7 +269,7 @@ function ProjectTasks({ projectId, currency }: { projectId: string; currency: st
 }
 
 // ── Single project row ──────────────────────────────────────────────────────────────────────────
-function ProjectRow({ p, isLast, expanded, onToggle }: { p: any; isLast: boolean; expanded: boolean; onToggle: () => void }) {
+function ProjectRow({ p, expanded, onToggle }: { p: any; expanded: boolean; onToggle: () => void }) {
   const logged    = p.stats?.loggedHrs    || 0
   const est       = p.stats?.estimatedHrs || 0
   const pct       = est > 0 ? Math.min(Math.round((logged / est) * 100), 100) : 0
@@ -282,27 +282,23 @@ function ProjectRow({ p, isLast, expanded, onToggle }: { p: any; isLast: boolean
   const rowTint   = `${p.color || '#0D9488'}14`
 
   return (
-    <div className={cn(!(isLast && !expanded) && 'border-b border-line-subtle')}>
+    <div className="border-b border-line-subtle">
       <div
         role="button"
         tabIndex={0}
         aria-expanded={expanded}
         onClick={onToggle}
         onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onToggle() } }}
-        className="grid items-center px-3.5 py-2.5 cursor-pointer transition-all duration-150 hover:brightness-[0.96]"
+        className="grid items-center px-3.5 py-3 cursor-pointer transition-all duration-150 hover:brightness-[0.96]"
         style={{ gridTemplateColumns: ROW_GRID_COLS, columnGap: 14, background: rowTint }}
       >
-        {/* Chevron */}
-        <div className="text-center select-none">
+        {/* Name + chevron + color strip + labels */}
+        <div className="flex items-center gap-2 min-w-0">
           <ChevronDown
             size={12}
-            className={cn('text-muted/70 transition-transform duration-150', !expanded && '-rotate-90')}
+            className={cn('text-muted/60 flex-shrink-0 transition-transform duration-150', !expanded && '-rotate-90')}
           />
-        </div>
-
-        {/* Name + color strip + labels */}
-        <div className="flex items-center gap-2 min-w-0">
-          <div className="w-[3px] h-6 rounded-full flex-shrink-0" style={{ background: p.color || '#0D9488' }} />
+          <div className="w-1 h-6 rounded-full flex-shrink-0" style={{ background: p.color || '#0D9488' }} />
           <div className="min-w-0">
             <div className="flex items-center gap-1.5 flex-wrap">
               <Link
@@ -342,9 +338,6 @@ function ProjectRow({ p, isLast, expanded, onToggle }: { p: any; isLast: boolean
           )}
         </div>
 
-        {/* Client */}
-        <div className="text-xs text-secondary truncate">{p.clients?.name || '—'}</div>
-
         {/* Progress */}
         <div className="flex items-center gap-1.5">
           {est > 0 ? (
@@ -375,8 +368,8 @@ function ProjectRow({ p, isLast, expanded, onToggle }: { p: any; isLast: boolean
   )
 }
 
-// ── Client card — one card per client, projects nested inside ─────────────────────────────────
-function ClientCard({ clientName, projects, expanded, onToggle }: {
+// ── Client group — slim separator row + flat project rows underneath ──────────────────────────
+function ClientGroup({ clientName, projects, expanded, onToggle }: {
   clientName: string; projects: any[]; expanded: Set<string>; onToggle: (id: string) => void
 }) {
   const [open, setOpen] = useState(true)
@@ -385,84 +378,53 @@ function ClientCard({ clientName, projects, expanded, onToggle }: {
   const totalLogged    = projects.reduce((s, p) => s + (p.stats?.loggedHrs    || 0), 0)
   const totalRemaining = Math.max(0, totalEst - totalLogged)
   const groupPct       = totalEst > 0 ? Math.min(Math.round((totalLogged / totalEst) * 100), 100) : 0
-  const pctColor       = groupPct >= 100 ? 'bg-status-rose' : groupPct >= 85 ? 'bg-status-amber' : 'bg-[#10B981]'
+  const accentColor    = groupPct >= 100 ? '#F43F5E' : groupPct >= 85 ? '#F59E0B' : '#10B981'
 
   const initials = clientName === NO_CLIENT_KEY
     ? '—'
     : clientName.split(' ').map(w => w[0]).filter(Boolean).slice(0,2).join('').toUpperCase()
 
   return (
-    <Card className="overflow-hidden p-0">
-      {/* ── Card header — client identity + aggregated stats ── */}
+    <div>
+      {/* Slim client separator row */}
       <div
         onClick={() => setOpen(o => !o)}
-        className={cn(
-          'flex items-center gap-3 px-4 py-3 cursor-pointer select-none',
-          'bg-surface-raised hover:bg-surface-hover transition-colors',
-          open && 'border-b border-line-subtle',
-        )}
+        className="flex items-center gap-2.5 px-3.5 py-1.5 border-b border-line-subtle cursor-pointer select-none hover:bg-surface-hover transition-colors bg-surface-overlay"
+        style={{ borderLeft: `3px solid ${accentColor}` }}
       >
-        {/* Avatar */}
-        <div className="w-8 h-8 rounded-md bg-accent-dim border border-line-accent flex items-center justify-center text-[11px] font-bold text-accent flex-shrink-0">
+        {/* Mini avatar */}
+        <div className="w-5 h-5 rounded text-[9px] font-bold bg-accent-dim text-accent flex items-center justify-center flex-shrink-0">
           {initials}
         </div>
-
-        {/* Name + count */}
-        <div className="flex items-center gap-2 min-w-0 flex-1">
-          <span className="text-sm font-bold text-primary truncate">{clientName}</span>
-          <span className="text-[11px] font-semibold text-muted bg-surface-overlay px-1.5 py-px rounded-md flex-shrink-0">
-            {projects.length} project{projects.length !== 1 ? 's' : ''}
-          </span>
-        </div>
-
-        {/* Aggregated progress bar */}
+        {/* Name */}
+        <span className="text-xs font-bold text-primary flex-1 min-w-0 truncate">{clientName}</span>
+        {/* Count badge */}
+        <span className="text-[10px] font-semibold text-muted bg-surface px-1.5 py-px rounded flex-shrink-0">
+          {projects.length} project{projects.length !== 1 ? 's' : ''}
+        </span>
+        {/* Burn stats */}
         {totalEst > 0 && (
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <div className="w-24 h-1.5 bg-surface-overlay rounded-full overflow-hidden">
-              <div className={cn('h-full rounded-full', pctColor)} style={{ width: `${groupPct}%` }} />
-            </div>
-            <span className="text-xs text-muted tabular-nums w-8 text-right">{groupPct}%</span>
-          </div>
+          <span className="text-[11px] tabular-nums font-semibold flex-shrink-0" style={{ color: accentColor }}>
+            {groupPct}%{totalRemaining > 0 ? ` · ${fmtHours(totalRemaining)} left` : ''}
+          </span>
         )}
-
-        {/* Total remaining */}
-        {totalRemaining > 0 && (
-          <div className="text-xs text-secondary tabular-nums font-medium flex-shrink-0 text-right min-w-[60px]">
-            {fmtHours(totalRemaining)} left
-          </div>
-        )}
-
-        <ChevronDown size={14} className={cn('text-muted transition-transform duration-150 flex-shrink-0', !open && '-rotate-90')} />
+        <ChevronDown size={11} className={cn('text-muted/60 transition-transform duration-150 flex-shrink-0', !open && '-rotate-90')} />
       </div>
 
-      {/* ── Column headers ── */}
-      {open && (
-        <div
-          className="grid px-3.5 py-1.5 bg-surface-overlay border-b border-line-subtle"
-          style={{ gridTemplateColumns: ROW_GRID_COLS, columnGap: 14 }}
-        >
-          <div />
-          {['Name', 'Project Start', 'Deadline', 'Client', 'Progress', 'Status', 'Remaining Work'].map(h => (
-            <div key={h} className="text-[10px] font-bold uppercase tracking-wider text-muted">{h}</div>
-          ))}
-        </div>
-      )}
-
-      {/* ── Project rows ── */}
-      {open && projects.map((p, i) => (
+      {/* Project rows */}
+      {open && projects.map(p => (
         <ProjectRow
           key={p.id}
           p={p}
-          isLast={i === projects.length - 1}
           expanded={expanded.has(p.id)}
           onToggle={() => onToggle(p.id)}
         />
       ))}
-    </Card>
+    </div>
   )
 }
 
-// ── Status section — collapsible header + stack of client cards ────────────────────────────────
+// ── Status section — collapsible header + flat table of client groups ─────────────────────────
 function StatusSection({ status, clientGroups, expanded, onToggle }: {
   status: string
   clientGroups: Array<[string, any[]]>
@@ -475,34 +437,44 @@ function StatusSection({ status, clientGroups, expanded, onToggle }: {
   const StatusIcon  = STATUS_ICONS[status] || Play
 
   return (
-    <div className="mb-6">
+    <div className="mb-5">
       {/* Section header */}
       <div
         onClick={() => setOpen(o => !o)}
         className={cn(
-          'flex items-center gap-2.5 px-4 py-2.5 mb-3 rounded-lg cursor-pointer select-none hover:opacity-90 transition-opacity',
+          'flex items-center gap-2.5 px-4 py-2 mb-2 rounded-lg cursor-pointer select-none hover:opacity-90 transition-opacity',
           cfg.sectionBg,
         )}
       >
-        <StatusIcon size={15} className={cfg.iconClass} />
-        <span className="text-base font-bold text-primary">{cfg.label}</span>
-        <span className="text-sm font-semibold text-secondary bg-surface-overlay px-2 py-px rounded-lg">
+        <StatusIcon size={14} className={cfg.iconClass} />
+        <span className="text-sm font-bold text-primary">{cfg.label}</span>
+        <span className="text-xs font-semibold text-secondary bg-surface-overlay px-2 py-px rounded-lg">
           {allProjects.length}
         </span>
         <span className="text-xs text-muted">
           · {clientGroups.length} client{clientGroups.length !== 1 ? 's' : ''}
         </span>
         <ChevronDown
-          size={14}
+          size={13}
           className={cn('ml-auto text-muted transition-transform duration-150', !open && '-rotate-90')}
         />
       </div>
 
-      {/* Client cards */}
+      {/* Flat table — column headers + client groups, all in one bordered container */}
       {open && (
-        <div className="space-y-3">
+        <div className="rounded-lg border border-line-subtle overflow-hidden">
+          {/* Column headers — one row at the very top */}
+          <div
+            className="grid px-3.5 py-2 bg-surface-overlay border-b border-line-subtle"
+            style={{ gridTemplateColumns: ROW_GRID_COLS, columnGap: 14 }}
+          >
+            {['Name', 'Start', 'Deadline', 'Progress', 'Status', 'Remaining'].map(h => (
+              <div key={h} className="text-[10px] font-bold uppercase tracking-wider text-muted">{h}</div>
+            ))}
+          </div>
+          {/* Client groups */}
           {clientGroups.map(([clientName, projects]) => (
-            <ClientCard
+            <ClientGroup
               key={clientName}
               clientName={clientName}
               projects={projects}
