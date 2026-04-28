@@ -19,7 +19,10 @@ function PageHeader({ title, subtitle, actions, className }: PageHeaderProps) {
   return (
     <div
       className={cn(
-        'flex items-end justify-between flex-wrap gap-3 mb-6',
+        'flex items-end justify-between flex-wrap gap-3',
+        // Tighter bottom margin when there's no subtitle — the original mb-6
+        // was sized assuming a subtitle line was filling part of the space.
+        subtitle ? 'mb-6' : 'mb-4',
         className,
       )}
     >
@@ -27,8 +30,15 @@ function PageHeader({ title, subtitle, actions, className }: PageHeaderProps) {
         {/* Display-tier title — heavier weight + tighter tracking than before
             so page titles feel like Linear / Height / Vercel rather than
             a generic CMS section header. font-heading picks up the brand
-            heading font (var --font-heading in globals.css). */}
-        <h1 className="font-heading text-[28px] sm:text-[30px] font-bold text-primary tracking-[-0.02em] leading-none mb-1.5">
+            heading font (var --font-heading in globals.css).
+            Drop the mb under the title when there's no subtitle — otherwise
+            leading-none + mb-1.5 leaves a dead 6px gap before the page body. */}
+        <h1
+          className={cn(
+            'font-heading text-[28px] sm:text-[30px] font-bold text-primary tracking-[-0.02em] leading-none',
+            subtitle && 'mb-1.5',
+          )}
+        >
           {title}
         </h1>
         {subtitle && (
