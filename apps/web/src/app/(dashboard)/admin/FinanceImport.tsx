@@ -170,10 +170,6 @@ export default function FinanceImport() {
     <div>
       <div className="mb-4">
         <div className="text-lg font-semibold text-primary">Finance Sheet Sync</div>
-        <div className="text-sm text-muted">
-          Live sync from the NEXA Finance Google Sheet. Reads the <code className="text-accent">Client_Revenue</code> tab
-          via a service account. The finance team keeps editing the sheet — NextTrack reads it in the background.
-        </div>
       </div>
 
       {/* ── Integration status card ── */}
@@ -327,10 +323,6 @@ export default function FinanceImport() {
             <FileSpreadsheet size={18} className="text-accent flex-shrink-0 mt-0.5" />
             <div className="flex-1 min-w-0">
               <div className="font-semibold text-primary">Software / Subscription Costs</div>
-              <div className="text-xs text-muted mt-0.5">
-                Reads the <code className="text-accent">Software_Costs</code> tab from the same Finance Sheet. Unpivots monthly columns
-                into per-month rows. Feeds the <b>Cost of Effort</b> report as workspace overhead.
-              </div>
             </div>
             <Button variant="primary" onClick={handleSyncSoftwareCosts} disabled={swSyncing} className="flex-shrink-0">
               {swSyncing ? <><Loader2 size={14} className="animate-spin" /> Syncing...</> : <><RefreshCw size={14} /> Sync Software Costs</>}
@@ -348,9 +340,6 @@ export default function FinanceImport() {
             <div className="mt-3 text-xs text-muted">
               <b>Unmatched department names:</b>{' '}
               {swResult.unmatchedDepartments.map(d => `${d.name} (${d.count})`).join(', ')}
-              <div className="text-[11px] mt-1 italic">
-                These rows were still imported — just not linked to a workspace department. They'll show as their raw name in Cost of Effort.
-              </div>
             </div>
           )}
         </Card>
@@ -363,10 +352,7 @@ export default function FinanceImport() {
             <AlertCircle size={16} className="text-status-amber flex-shrink-0 mt-0.5" />
             <div>
               <div className="font-semibold text-primary">Unmatched client names</div>
-              <div className="text-xs text-muted mt-0.5">
-                Invoice rows not yet linked to a client. The smart matcher below analyses each name,
-                strips service-type suffixes, and suggests the best existing client — or flags it for creation.
-              </div>
+              <div className="text-xs text-muted mt-0.5">Invoice names not yet linked to a client.</div>
             </div>
           </div>
           <SmartReconcilePanel
@@ -387,7 +373,6 @@ export default function FinanceImport() {
           <div className="flex items-center gap-2">
             {showFallback ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
             <span className="text-sm font-semibold text-secondary">Manual upload (fallback)</span>
-            <span className="text-xs text-muted">— use only if the live sync is unavailable</span>
           </div>
         </button>
         {showFallback && <XlsxFallbackSection defaultCurrency={defaultCurrency} onImported={() => { refetchUnmatched(); qc.invalidateQueries({ queryKey: ['client-profitability'] }) }} />}
@@ -506,7 +491,6 @@ function XlsxFallbackSection({ defaultCurrency, onImported }: { defaultCurrency:
           <Button variant="primary" onClick={handleImport} disabled={importing}>
             {importing ? <><Loader2 size={14} className="animate-spin" /> Importing...</> : <><Upload size={14} /> Import {parsed.rows.length} rows</>}
           </Button>
-          <span className="text-xs text-muted">Safe to re-run — duplicates are skipped.</span>
         </div>
       )}
       {result && (

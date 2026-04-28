@@ -206,7 +206,7 @@ export function TemplatesPanel() {
       ) : items.length === 0 ? (
         <EmptyState
           title="No templates yet"
-          description="Planning-stage projects and reusable templates will appear here."
+          description="Create one to get started."
         />
       ) : (
         <div className="space-y-2">

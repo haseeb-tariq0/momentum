@@ -7,10 +7,7 @@ import { TemplatesPanel } from './TemplatesPanel'
 export default function TemplatesPage() {
   return (
     <div className="w-full p-6">
-      <PageHeader
-        title="Project Templates"
-        subtitle="Tasks are copied once when applied — edits don't propagate back."
-      />
+      <PageHeader title="Project Templates" />
       <TemplatesPanel />
     </div>
   )

@@ -223,7 +223,6 @@ export default function SmartReconcilePanel({ onApplied }: { onApplied: () => vo
         <Section
           icon={<Sparkles size={15} className="text-accent" />}
           title={`Likely matches — ${data.highConfidence.length} names`}
-          subtitle="Suffix stripped or exact (punctuation-ignored) match against an existing client."
           color="accent"
           defaultOpen
           headerAction={
@@ -256,7 +255,7 @@ export default function SmartReconcilePanel({ onApplied }: { onApplied: () => vo
         <Section
           icon={<AlertTriangle size={15} className="text-status-amber" />}
           title={`Possible matches — ${data.possible.length} names`}
-          subtitle="Fuzzy similarity found a candidate but confidence is lower. Review each one."
+          subtitle="Lower confidence — review before merging."
           color="amber"
           defaultOpen={showPossible}
           onToggle={() => setShowPossible(p => !p)}
@@ -282,7 +281,6 @@ export default function SmartReconcilePanel({ onApplied }: { onApplied: () => vo
         <Section
           icon={<HelpCircle size={15} className="text-muted" />}
           title={`No match found — ${data.noMatch.length} names`}
-          subtitle="These names don't resemble any existing client. Create new or link manually."
           color="muted"
           defaultOpen={showNoMatch}
           onToggle={() => setShowNoMatch(p => !p)}
@@ -317,7 +315,7 @@ function Section({
 }: {
   icon: React.ReactNode
   title: string
-  subtitle: string
+  subtitle?: string
   color: 'accent' | 'amber' | 'muted'
   children: React.ReactNode
   defaultOpen?: boolean
@@ -340,7 +338,7 @@ function Section({
           {icon}
           <div className="min-w-0">
             <div className="text-sm font-semibold text-primary">{title}</div>
-            <div className="text-xs text-muted truncate">{subtitle}</div>
+            {subtitle && <div className="text-xs text-muted truncate">{subtitle}</div>}
           </div>
         </div>
         {headerAction && (

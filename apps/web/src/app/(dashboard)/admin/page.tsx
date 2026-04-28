@@ -2689,7 +2689,7 @@ export default function AdminPage() {
             <Card className="overflow-hidden p-0 col-span-full">
               <div className="px-4 py-3 bg-surface border-b border-line-subtle flex justify-between items-center">
                 <span className="text-sm font-bold uppercase tracking-wider text-muted">Utilisation Targets — By Department</span>
-                <span className="text-xs text-muted">Leave blank to inherit workspace defaults above · click away to save</span>
+                <span className="text-xs text-muted">Blank inherits workspace default</span>
               </div>
               <div className="grid grid-cols-[1.4fr_80px_140px_140px] px-4 py-2 bg-surface border-b border-line-subtle gap-3">
                 {['Department', 'Members', 'Resource %', 'Billable %'].map(h => (
@@ -2782,7 +2782,6 @@ export default function AdminPage() {
                 <div className="flex justify-between items-center gap-3">
                   <div>
                     <div className="text-base text-primary font-medium">Submission deadline</div>
-                    <div className="text-xs text-muted mt-0.5">Which day of week timesheets must be submitted by</div>
                   </div>
                   <Select
                     size="sm"
@@ -2831,7 +2830,6 @@ export default function AdminPage() {
           <Card className="mt-6 overflow-hidden p-0">
             <div className="px-4 py-3 bg-surface border-b border-line-subtle flex justify-between items-center">
               <span className="text-sm font-bold uppercase tracking-wider text-muted">Email Notifications</span>
-              <span className="text-xs text-muted">Triggers send to all admins via SendGrid</span>
             </div>
             <div className="p-4 flex flex-col gap-3">
               {[

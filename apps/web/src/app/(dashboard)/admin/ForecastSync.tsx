@@ -62,9 +62,6 @@ export default function ForecastSync() {
         <div className="flex items-start justify-between gap-4 mb-4">
           <div>
             <h2 className="text-lg font-semibold text-primary">Live Forecast.it Sync</h2>
-            <p className="text-sm text-secondary mt-1">
-              Pulls changes from Forecast.it every 5 minutes. Safe to run alongside normal editing.
-            </p>
           </div>
           <div className="flex items-center gap-2">
             {paused ? (
