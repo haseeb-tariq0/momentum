@@ -329,13 +329,8 @@ function ProjectRow({ p, expanded, onToggle }: { p: any; expanded: boolean; onTo
         <div className="text-xs text-secondary tabular-nums">{fmtDate(p.start_date)}</div>
 
         {/* Deadline */}
-        <div>
-          <div className={cn('text-xs tabular-nums', dl.className, dl.bold && 'font-semibold')}>
-            {fmtDate(p.end_date)}
-          </div>
-          {p.end_date && (
-            <div className="text-[10px] text-muted/70 mt-px">{dl.label}</div>
-          )}
+        <div className={cn('text-xs tabular-nums', dl.className, dl.bold && 'font-semibold')}>
+          {fmtDate(p.end_date)}
         </div>
 
         {/* Progress */}
@@ -393,11 +388,8 @@ function ClientGroup({ clientName, projects, expanded, onToggle }: {
         style={{ background: '#fff', border: '1px solid #e2e8f0' }}
       >
         {/* Building icon */}
-        <div className="flex-shrink-0 text-muted">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21"/>
-          </svg>
-        </div>
+        <img src="/client-icon.png" alt="" width={24} height={24} className="flex-shrink-0 block" />
+
         {/* Name */}
         <span className="text-xs font-bold text-primary flex-1 min-w-0 truncate">{clientName}</span>
         {/* Count badge */}
