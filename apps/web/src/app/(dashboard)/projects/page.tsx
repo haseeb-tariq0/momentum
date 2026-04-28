@@ -6,7 +6,7 @@ import { useAuthStore } from '@/lib/store'
 import Link from 'next/link'
 import { cn } from '@/lib/cn'
 import { todayLocalISO, dateLocalISO } from '@/lib/utils'
-import { Play, Pause, CheckCircle2, Users, ChevronDown, Plus, Lightbulb, ClipboardList } from 'lucide-react'
+import { Play, Pause, CheckCircle2, ChevronDown, Plus, Lightbulb, ClipboardList } from 'lucide-react'
 import {
   Button, Badge, Card, Skeleton, SkeletonCard, SkeletonTable,
   PageHeader, StatCard, EmptyState, Input, Label, Select,
@@ -64,8 +64,26 @@ const NO_CLIENT_KEY = '— No Client —'
 
 const COLORS = ['#0D9488','#7C3AED','#2563EB','#D97706','#DC2626','#059669','#0891B2','#BE185D']
 
-// Client column removed from rows — client is now the section header.
-const ROW_GRID_COLS = '24px minmax(220px,1fr) 140px 52px 160px 110px 120px'
+// Columns: chevron | name | start | deadline | client | progress | status | remaining
+const ROW_GRID_COLS = '24px minmax(200px,2fr) 100px 115px minmax(140px,1fr) 110px 130px 100px'
+
+// Format hours into "30h 45m" style (matches the screenshot's Remaining Work column)
+function fmtHours(h: number): string {
+  if (h <= 0) return '—'
+  const totalMin = Math.round(h * 60)
+  const hrs = Math.floor(totalMin / 60)
+  const min = totalMin % 60
+  if (hrs === 0) return `${min}m`
+  if (min === 0) return `${hrs}h`
+  return `${hrs}h ${min}m`
+}
+
+// Format a YYYY-MM-DD date string as "01 JUL 2023"
+function fmtDate(d: string | null | undefined): string {
+  if (!d) return '—'
+  const dt = new Date(d + 'T00:00:00')
+  return dt.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase()
+}
 
 // ── Helpers ───────────────────────────────────────────────────────────────────────────
 type DaysLeft = { label: string; className: string; bold: boolean }
@@ -254,14 +272,14 @@ function ProjectTasks({ projectId, currency }: { projectId: string; currency: st
 function ProjectRow({ p, isLast, expanded, onToggle }: { p: any; isLast: boolean; expanded: boolean; onToggle: () => void }) {
   const logged    = p.stats?.loggedHrs    || 0
   const est       = p.stats?.estimatedHrs || 0
-  const tasks     = p.stats?.taskCount    || 0
-  const done      = p.stats?.doneCount    || 0
-  const teamCount = p.stats?.teamCount    || 0
   const pct       = est > 0 ? Math.min(Math.round((logged / est) * 100), 100) : 0
+  const remaining = Math.max(0, est - logged)
   const dl        = daysLeft(p.end_date)
   const hb        = healthBadge(pct, p.status)
   const barColor  = pct >= 100 ? 'bg-status-rose' : pct >= 85 ? 'bg-status-amber' : 'bg-[#10B981]'
   const pctColor  = pct >= 100 ? 'text-status-rose' : pct >= 85 ? 'text-status-amber' : 'text-[#10B981]'
+  // Pastel tint from the project colour — hex + 12 = ~7% opacity
+  const rowTint   = `${p.color || '#0D9488'}14`
 
   return (
     <div className={cn(!(isLast && !expanded) && 'border-b border-line-subtle')}>
@@ -271,35 +289,26 @@ function ProjectRow({ p, isLast, expanded, onToggle }: { p: any; isLast: boolean
         aria-expanded={expanded}
         onClick={onToggle}
         onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onToggle() } }}
-        className={cn(
-          'grid items-center px-3.5 py-2 cursor-pointer transition-all duration-150',
-          // Left-edge accent on hover — subtle "you're on a row" signal
-          // without the density-hostile look of a full zebra stripe.
-          'hover:bg-surface-hover hover:shadow-[inset_2px_0_0_0_var(--accent)]',
-          expanded ? 'bg-surface' : 'bg-surface-raised',
-        )}
-        style={{ gridTemplateColumns: ROW_GRID_COLS, columnGap: 14 }}
+        className="grid items-center px-3.5 py-2.5 cursor-pointer transition-all duration-150 hover:brightness-[0.96]"
+        style={{ gridTemplateColumns: ROW_GRID_COLS, columnGap: 14, background: rowTint }}
       >
         {/* Chevron */}
         <div className="text-center select-none">
           <ChevronDown
             size={12}
-            className={cn('text-muted transition-transform duration-150', !expanded && '-rotate-90')}
+            className={cn('text-muted/70 transition-transform duration-150', !expanded && '-rotate-90')}
           />
         </div>
 
-        {/* Name + color + labels */}
+        {/* Name + color strip + labels */}
         <div className="flex items-center gap-2 min-w-0">
-          <div
-            className="w-1 h-5 rounded-sm flex-shrink-0"
-            style={{ background: p.color || '#0D9488' }}
-          />
+          <div className="w-[3px] h-6 rounded-full flex-shrink-0" style={{ background: p.color || '#0D9488' }} />
           <div className="min-w-0">
             <div className="flex items-center gap-1.5 flex-wrap">
               <Link
                 href={`/projects/${p.id}`}
                 onClick={e => e.stopPropagation()}
-                className="text-base font-semibold text-primary no-underline truncate hover:text-accent"
+                className="text-sm font-semibold text-primary no-underline truncate hover:text-accent"
               >
                 {p.name}
               </Link>
@@ -317,68 +326,47 @@ function ProjectRow({ p, isLast, expanded, onToggle }: { p: any; isLast: boolean
                 </span>
               ))}
             </div>
-            {tasks > 0 && (
-              <div className="text-[10px] text-muted mt-px">{done}/{tasks} tasks done</div>
-            )}
           </div>
         </div>
 
-        {/* Budget — surfaces whichever of {budget_amount, budget_hrs} is populated.
-            Retainers in hours mode show "40h / month"; amount mode shows currency. */}
+        {/* Project Start */}
+        <div className="text-xs text-secondary tabular-nums">{fmtDate(p.start_date)}</div>
+
+        {/* Deadline */}
         <div>
-          <span className="text-[10px] font-semibold text-muted bg-surface-overlay px-1.5 py-px rounded-sm mr-1">
-            {BUDGET_LABEL[p.budget_type] || 'Fixed'}
-          </span>
-          <span className="text-sm text-secondary">
-            {p.budget_hrs
-              ? `${Number(p.budget_hrs).toLocaleString()}h${p.budget_type === 'retainer' ? ' / mo' : ''}`
-              : p.budget_amount
-              ? `${p.currency || 'AED'} ${Number(p.budget_amount).toLocaleString()}`
-              : '—'}
-          </span>
+          <div className={cn('text-xs tabular-nums', dl.className, dl.bold && 'font-semibold')}>
+            {fmtDate(p.end_date)}
+          </div>
+          {p.end_date && (
+            <div className="text-[10px] text-muted/70 mt-px">{dl.label}</div>
+          )}
         </div>
 
-        {/* Team */}
-        <div className="text-sm text-muted text-center overflow-hidden">
-          {teamCount > 0 ? (
-            <span
-              title={`${teamCount} team member${teamCount !== 1 ? 's' : ''}`}
-              className="flex items-center justify-center gap-0.5"
-            >
-              <Users size={12} className="text-muted" />
-              <span className="text-xs">{teamCount}</span>
-            </span>
-          ) : '—'}
-        </div>
+        {/* Client */}
+        <div className="text-xs text-secondary truncate">{p.clients?.name || '—'}</div>
 
         {/* Progress */}
-        {est > 0 ? (
-          <div>
-            <div className="flex justify-between items-baseline mb-1">
-              <span className="text-[10px] text-muted tabular-nums">
-                {logged.toFixed(1)}h / {est.toFixed(1)}h
+        <div className="flex items-center gap-1.5">
+          {est > 0 ? (
+            <>
+              <div className="flex-1 h-1 rounded-sm overflow-hidden" style={{ background: 'rgba(0,0,0,0.08)' }}>
+                <div className={cn('h-full rounded-sm', barColor)} style={{ width: `${pct}%` }} />
+              </div>
+              <span className={cn('text-xs font-bold tabular-nums min-w-[32px] text-right', pctColor)}>
+                {pct}%
               </span>
-              <span className={cn('text-xs font-bold tabular-nums', pctColor)}>{pct}%</span>
-            </div>
-            <div className="h-1 bg-surface-overlay rounded-sm overflow-hidden">
-              <div
-                className={cn('h-full rounded-sm transition-[width] duration-300', barColor)}
-                style={{ width: `${pct}%` }}
-              />
-            </div>
-          </div>
-        ) : (
-          <span className="text-xs text-muted">—</span>
-        )}
-
-        {/* Days remaining */}
-        <div className={cn('overflow-hidden whitespace-nowrap text-xs', dl.className, dl.bold && 'font-semibold')}>
-          {dl.label}
+            </>
+          ) : (
+            <span className="text-xs text-muted">—</span>
+          )}
         </div>
 
-        {/* Health badge */}
-        <div>
-          <Badge variant={hb.variant}>{hb.label}</Badge>
+        {/* Status badge */}
+        <div><Badge variant={hb.variant}>{hb.label}</Badge></div>
+
+        {/* Remaining work */}
+        <div className="text-xs text-secondary text-right tabular-nums font-medium">
+          {fmtHours(remaining)}
         </div>
       </div>
 
@@ -392,36 +380,64 @@ function ClientGroup({ clientName, projects, expanded, onToggle, isLast }: {
   clientName: string; projects: any[]; expanded: Set<string>; onToggle: (id: string) => void; isLast: boolean
 }) {
   const [open, setOpen] = useState(true)
-  const totalBudget = projects.reduce((s, p) => s + Number(p.budget_amount || 0), 0)
-  const currency    = projects[0]?.currency || 'AED'
+
+  // Aggregate stats across all projects in this client group
+  const totalEst       = projects.reduce((s, p) => s + (p.stats?.estimatedHrs || 0), 0)
+  const totalLogged    = projects.reduce((s, p) => s + (p.stats?.loggedHrs    || 0), 0)
+  const totalRemaining = Math.max(0, totalEst - totalLogged)
+  const groupPct       = totalEst > 0 ? Math.min(Math.round((totalLogged / totalEst) * 100), 100) : 0
+
   const initials = clientName === NO_CLIENT_KEY
     ? '—'
     : clientName.split(' ').map(w => w[0]).filter(Boolean).slice(0,2).join('').toUpperCase()
 
   return (
     <div className={cn(!isLast && 'border-b border-line-subtle')}>
-      {/* Client sub-header */}
+      {/* Client sub-header — uses same grid as project rows so columns align */}
       <div
         onClick={() => setOpen(o => !o)}
         className={cn(
-          'flex items-center gap-2 px-3.5 py-1.5 cursor-pointer select-none hover:bg-surface-hover transition-colors bg-surface',
+          'grid items-center px-3.5 py-2 cursor-pointer select-none bg-surface hover:bg-surface-hover transition-colors',
           open && 'border-b border-line-subtle',
         )}
+        style={{ gridTemplateColumns: ROW_GRID_COLS, columnGap: 14 }}
       >
-        <ChevronDown
-          size={11}
-          className={cn('text-muted transition-transform duration-150', !open && '-rotate-90')}
-        />
-        <div className="w-5 h-5 rounded-sm bg-accent-dim border border-line-accent flex items-center justify-center text-[9px] font-bold text-accent flex-shrink-0">
-          {initials}
+        {/* Chevron */}
+        <ChevronDown size={11} className={cn('text-muted transition-transform duration-150', !open && '-rotate-90')} />
+
+        {/* Client name + count */}
+        <div className="flex items-center gap-2 min-w-0">
+          <div className="w-5 h-5 rounded-sm bg-surface-overlay border border-line-subtle flex items-center justify-center text-[9px] font-bold text-secondary flex-shrink-0">
+            {initials}
+          </div>
+          <span className="text-sm font-bold text-primary truncate">{clientName}</span>
+          <span className="text-[11px] font-semibold text-muted bg-surface-overlay px-1.5 py-px rounded-md flex-shrink-0">
+            {projects.length}
+          </span>
         </div>
-        <span className="text-sm font-semibold text-primary truncate">{clientName}</span>
-        <span className="text-[11px] font-semibold text-muted bg-surface-overlay px-1.5 py-px rounded-md ml-0.5">
-          {projects.length}
-        </span>
-        {totalBudget > 0 && (
-          <span className="text-[11px] text-muted ml-1">· {currency} {totalBudget.toLocaleString()}</span>
-        )}
+
+        {/* Start / Deadline / Client — empty in group row */}
+        <div /><div /><div />
+
+        {/* Aggregated progress */}
+        <div className="flex items-center gap-1.5">
+          {totalEst > 0 ? (
+            <>
+              <div className="flex-1 h-1 bg-surface-overlay rounded-sm overflow-hidden">
+                <div className="h-full bg-accent/40 rounded-sm" style={{ width: `${groupPct}%` }} />
+              </div>
+              <span className="text-xs text-muted tabular-nums min-w-[32px] text-right">{groupPct}%</span>
+            </>
+          ) : <span className="text-xs text-muted">—</span>}
+        </div>
+
+        {/* Status — empty */}
+        <div />
+
+        {/* Total remaining */}
+        <div className="text-xs text-secondary text-right tabular-nums font-medium">
+          {fmtHours(totalRemaining)}
+        </div>
       </div>
 
       {/* Project rows */}
@@ -492,7 +508,7 @@ function StatusSection({ status, clientGroups, expanded, onToggle }: {
           style={{ gridTemplateColumns: ROW_GRID_COLS, columnGap: 14 }}
         >
           <div />
-          {['Project','Budget','Team','Progress','Timeline','Status'].map(h => (
+          {['Name', 'Project Start', 'Deadline', 'Client', 'Progress', 'Status', 'Remaining Work'].map(h => (
             <div key={h} className="text-[10px] font-bold uppercase tracking-wider text-muted">{h}</div>
           ))}
         </div>
