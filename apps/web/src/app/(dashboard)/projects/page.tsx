@@ -375,133 +375,67 @@ function ProjectRow({ p, isLast, expanded, onToggle }: { p: any; isLast: boolean
   )
 }
 
-// ── Client sub-group (nested inside a status section) ──────────────────────────────────────────
-function ClientGroup({ clientName, projects, expanded, onToggle, isLast }: {
-  clientName: string; projects: any[]; expanded: Set<string>; onToggle: (id: string) => void; isLast: boolean
+// ── Client card — one card per client, projects nested inside ─────────────────────────────────
+function ClientCard({ clientName, projects, expanded, onToggle }: {
+  clientName: string; projects: any[]; expanded: Set<string>; onToggle: (id: string) => void
 }) {
   const [open, setOpen] = useState(true)
 
-  // Aggregate stats across all projects in this client group
   const totalEst       = projects.reduce((s, p) => s + (p.stats?.estimatedHrs || 0), 0)
   const totalLogged    = projects.reduce((s, p) => s + (p.stats?.loggedHrs    || 0), 0)
   const totalRemaining = Math.max(0, totalEst - totalLogged)
   const groupPct       = totalEst > 0 ? Math.min(Math.round((totalLogged / totalEst) * 100), 100) : 0
+  const pctColor       = groupPct >= 100 ? 'bg-status-rose' : groupPct >= 85 ? 'bg-status-amber' : 'bg-[#10B981]'
 
   const initials = clientName === NO_CLIENT_KEY
     ? '—'
     : clientName.split(' ').map(w => w[0]).filter(Boolean).slice(0,2).join('').toUpperCase()
 
   return (
-    <div className={cn(!isLast && 'border-b border-line-subtle')}>
-      {/* Client sub-header — uses same grid as project rows so columns align */}
+    <Card className="overflow-hidden p-0">
+      {/* ── Card header — client identity + aggregated stats ── */}
       <div
         onClick={() => setOpen(o => !o)}
         className={cn(
-          'grid items-center px-3.5 py-2 cursor-pointer select-none bg-surface hover:bg-surface-hover transition-colors',
+          'flex items-center gap-3 px-4 py-3 cursor-pointer select-none',
+          'bg-surface-raised hover:bg-surface-hover transition-colors',
           open && 'border-b border-line-subtle',
         )}
-        style={{ gridTemplateColumns: ROW_GRID_COLS, columnGap: 14 }}
       >
-        {/* Chevron */}
-        <ChevronDown size={11} className={cn('text-muted transition-transform duration-150', !open && '-rotate-90')} />
+        {/* Avatar */}
+        <div className="w-8 h-8 rounded-md bg-accent-dim border border-line-accent flex items-center justify-center text-[11px] font-bold text-accent flex-shrink-0">
+          {initials}
+        </div>
 
-        {/* Client name + count */}
-        <div className="flex items-center gap-2 min-w-0">
-          <div className="w-5 h-5 rounded-sm bg-surface-overlay border border-line-subtle flex items-center justify-center text-[9px] font-bold text-secondary flex-shrink-0">
-            {initials}
-          </div>
+        {/* Name + count */}
+        <div className="flex items-center gap-2 min-w-0 flex-1">
           <span className="text-sm font-bold text-primary truncate">{clientName}</span>
           <span className="text-[11px] font-semibold text-muted bg-surface-overlay px-1.5 py-px rounded-md flex-shrink-0">
-            {projects.length}
+            {projects.length} project{projects.length !== 1 ? 's' : ''}
           </span>
         </div>
 
-        {/* Start / Deadline / Client — empty in group row */}
-        <div /><div /><div />
-
-        {/* Aggregated progress */}
-        <div className="flex items-center gap-1.5">
-          {totalEst > 0 ? (
-            <>
-              <div className="flex-1 h-1 bg-surface-overlay rounded-sm overflow-hidden">
-                <div className="h-full bg-accent/40 rounded-sm" style={{ width: `${groupPct}%` }} />
-              </div>
-              <span className="text-xs text-muted tabular-nums min-w-[32px] text-right">{groupPct}%</span>
-            </>
-          ) : <span className="text-xs text-muted">—</span>}
-        </div>
-
-        {/* Status — empty */}
-        <div />
+        {/* Aggregated progress bar */}
+        {totalEst > 0 && (
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="w-24 h-1.5 bg-surface-overlay rounded-full overflow-hidden">
+              <div className={cn('h-full rounded-full', pctColor)} style={{ width: `${groupPct}%` }} />
+            </div>
+            <span className="text-xs text-muted tabular-nums w-8 text-right">{groupPct}%</span>
+          </div>
+        )}
 
         {/* Total remaining */}
-        <div className="text-xs text-secondary text-right tabular-nums font-medium">
-          {fmtHours(totalRemaining)}
-        </div>
+        {totalRemaining > 0 && (
+          <div className="text-xs text-secondary tabular-nums font-medium flex-shrink-0 text-right min-w-[60px]">
+            {fmtHours(totalRemaining)} left
+          </div>
+        )}
+
+        <ChevronDown size={14} className={cn('text-muted transition-transform duration-150 flex-shrink-0', !open && '-rotate-90')} />
       </div>
 
-      {/* Project rows */}
-      {open && projects.map((p, i) => (
-        <ProjectRow
-          key={p.id}
-          p={p}
-          isLast={i === projects.length - 1}
-          expanded={expanded.has(p.id)}
-          onToggle={() => onToggle(p.id)}
-        />
-      ))}
-    </div>
-  )
-}
-
-// ── Status section (outer) — contains one or more ClientGroups ─────────────────────────────────
-function StatusSection({ status, clientGroups, expanded, onToggle }: {
-  status: string
-  clientGroups: Array<[string, any[]]>
-  expanded: Set<string>
-  onToggle: (id: string) => void
-}) {
-  // Collapsed by default so the page opens at a glance; users click a section
-  // to drill in. Running is the most-used one but even that stays collapsed for
-  // consistency — we can revisit if Murtaza asks.
-  const [open, setOpen] = useState(false)
-  const cfg = STATUS_CFG[status] || STATUS_CFG.running
-  const allProjects = clientGroups.flatMap(([, ps]) => ps)
-  const totalBudget = allProjects.reduce((s, p) => s + Number(p.budget_amount || 0), 0)
-  const currency    = allProjects[0]?.currency || 'AED'
-  const StatusIcon  = STATUS_ICONS[status] || Play
-
-  return (
-    <div className="mb-4 border border-line-subtle rounded-lg overflow-hidden">
-      {/* Section header */}
-      <div
-        onClick={() => setOpen(o => !o)}
-        className={cn(
-          'flex items-center gap-2.5 px-3.5 py-2 cursor-pointer select-none hover:opacity-85 transition-opacity',
-          cfg.sectionBg,
-          open && 'border-b border-line-subtle',
-        )}
-      >
-        <StatusIcon size={14} className={cfg.iconClass} />
-        <span className="text-lg font-bold text-primary">{cfg.label}</span>
-        <span className="text-sm font-semibold text-secondary bg-surface-overlay px-2 py-px rounded-lg ml-0.5">
-          {allProjects.length}
-        </span>
-        <span className="text-xs text-muted ml-1">
-          · {clientGroups.length} client{clientGroups.length !== 1 ? 's' : ''}
-        </span>
-        {totalBudget > 0 && (
-          <span className="text-xs text-muted ml-1">· {currency} {totalBudget.toLocaleString()} total</span>
-        )}
-        <div className="ml-auto flex items-center gap-2">
-          <ChevronDown
-            size={14}
-            className={cn('text-muted transition-transform duration-150', !open && '-rotate-90')}
-          />
-        </div>
-      </div>
-
-      {/* Column headers (only when open) */}
+      {/* ── Column headers ── */}
       {open && (
         <div
           className="grid px-3.5 py-1.5 bg-surface-overlay border-b border-line-subtle"
@@ -514,17 +448,70 @@ function StatusSection({ status, clientGroups, expanded, onToggle }: {
         </div>
       )}
 
-      {/* Client groups */}
-      {open && clientGroups.map(([clientName, projects], i) => (
-        <ClientGroup
-          key={clientName}
-          clientName={clientName}
-          projects={projects}
-          expanded={expanded}
-          onToggle={onToggle}
-          isLast={i === clientGroups.length - 1}
+      {/* ── Project rows ── */}
+      {open && projects.map((p, i) => (
+        <ProjectRow
+          key={p.id}
+          p={p}
+          isLast={i === projects.length - 1}
+          expanded={expanded.has(p.id)}
+          onToggle={() => onToggle(p.id)}
         />
       ))}
+    </Card>
+  )
+}
+
+// ── Status section — collapsible header + stack of client cards ────────────────────────────────
+function StatusSection({ status, clientGroups, expanded, onToggle }: {
+  status: string
+  clientGroups: Array<[string, any[]]>
+  expanded: Set<string>
+  onToggle: (id: string) => void
+}) {
+  const [open, setOpen] = useState(status === 'running') // Running open by default
+  const cfg         = STATUS_CFG[status] || STATUS_CFG.running
+  const allProjects = clientGroups.flatMap(([, ps]) => ps)
+  const StatusIcon  = STATUS_ICONS[status] || Play
+
+  return (
+    <div className="mb-6">
+      {/* Section header */}
+      <div
+        onClick={() => setOpen(o => !o)}
+        className={cn(
+          'flex items-center gap-2.5 px-4 py-2.5 mb-3 rounded-lg cursor-pointer select-none hover:opacity-90 transition-opacity',
+          cfg.sectionBg,
+        )}
+      >
+        <StatusIcon size={15} className={cfg.iconClass} />
+        <span className="text-base font-bold text-primary">{cfg.label}</span>
+        <span className="text-sm font-semibold text-secondary bg-surface-overlay px-2 py-px rounded-lg">
+          {allProjects.length}
+        </span>
+        <span className="text-xs text-muted">
+          · {clientGroups.length} client{clientGroups.length !== 1 ? 's' : ''}
+        </span>
+        <ChevronDown
+          size={14}
+          className={cn('ml-auto text-muted transition-transform duration-150', !open && '-rotate-90')}
+        />
+      </div>
+
+      {/* Client cards */}
+      {open && (
+        <div className="space-y-3">
+          {clientGroups.map(([clientName, projects]) => (
+            <ClientCard
+              key={clientName}
+              clientName={clientName}
+              projects={projects}
+              expanded={expanded}
+              onToggle={onToggle}
+            />
+          ))}
+        </div>
+      )}
     </div>
   )
 }
