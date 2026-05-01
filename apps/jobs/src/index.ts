@@ -65,15 +65,35 @@ snapshotWorker.on('error',  (err) => { console.error('[jobs] snapshotWorker erro
 snapshotWorker.on('failed',  (job, err) => { console.error(`[jobs] snapshot job ${job?.id} failed:`, err?.message || err) })
 
 // ── Notification scheduler ────────────────────────────────────────────────
-// Two recurring jobs:
-//   1. budget-check     — daily at 09:00, scans projects for budget threshold breaches
-//   2. timesheet-reminder — every Monday at 09:00, nudges users with missing timesheets
+// Four recurring jobs (all stagger-started to keep the notification-service
+// from getting four parallel sweeps at exactly :00):
+//   1. budget-check       — daily 09:00 — scans projects for threshold breaches
+//   2. deadline-reminders — daily 09:05 — DMs assignees about due / overdue tasks
+//   3. timesheet-reminder — Monday 09:00 — nudges users with missing timesheets
+//   4. weekly-digest      — Monday 09:05 — emails admins last-week stats
 //
 // Each job iterates active workspaces and POSTs to the notification service.
+// The endpoint mapping below is the single source of truth — adding a new
+// scheduled notification means adding it here AND to OUR_JOBS in
+// scheduleRecurring().
+
+type JobName =
+  | 'budget-check'
+  | 'timesheet-reminder'
+  | 'weekly-digest'
+  | 'deadline-reminders'
+
+const ENDPOINT_BY_JOB: Record<JobName, string> = {
+  'budget-check':       '/notify/budget-check',
+  'timesheet-reminder': '/notify/timesheet-reminders',
+  'weekly-digest':      '/notify/weekly-digest',
+  'deadline-reminders': '/notify/deadline-reminders',
+}
 
 const notifyWorker = new Worker('notifications', async (job) => {
-  const kind = job.name as 'budget-check' | 'timesheet-reminder'
-  const endpoint = kind === 'budget-check' ? '/notify/budget-check' : '/notify/timesheet-reminders'
+  const kind     = job.name as JobName
+  const endpoint = ENDPOINT_BY_JOB[kind]
+  if (!endpoint) throw new Error(`unknown notification job: ${kind}`)
   console.log(`📣 Running ${kind} for all workspaces`)
   const { data: workspaces } = await supabase
     .from('workspaces').select('id, name').is('deleted_at', null)
@@ -127,11 +147,31 @@ async function scheduleRecurring() {
   // regardless of prior state.
   const OUR_JOBS = [
     { name: 'budget-check',       pattern: '0 9 * * *' },
+    { name: 'deadline-reminders', pattern: '5 9 * * *' },
     { name: 'timesheet-reminder', pattern: '0 9 * * 1' },
+    { name: 'weekly-digest',      pattern: '5 9 * * 1' },
   ]
+  // Names that USED to be scheduled but should no longer fire. Any repeatable
+  // matching one of these is removed from Redis on startup. Once a deployment
+  // has cycled through this and the Redis entry is gone, the name can be
+  // dropped from this list.
+  // Apr 30: deadline-reminders was deprecated Apr 29 then re-instated the next
+  // day with daily 09:05 cadence. Keep this set empty until something else
+  // actually gets retired — leaving stale names here is harmless but noisy.
+  const DEPRECATED_JOBS = new Set<string>([])
+
   const existing = await queue.getRepeatableJobs()
   for (const r of existing) {
-    const ours = OUR_JOBS.find(j => j.name === r.name && (r.cron === j.pattern || r.pattern === j.pattern))
+    // BullMQ used to expose the schedule as `r.cron`; current versions only
+    // populate `r.pattern`. Cast to `any` keeps the legacy match working for
+    // any stale Redis entries created by old code, without breaking the type
+    // check on the new BullMQ types.
+    if (DEPRECATED_JOBS.has(r.name)) {
+      await queue.removeRepeatableByKey(r.key)
+      console.log(`🧹 Removed deprecated repeatable: ${r.name} (no longer scheduled)`)
+      continue
+    }
+    const ours = OUR_JOBS.find(j => j.name === r.name && ((r as any).cron === j.pattern || r.pattern === j.pattern))
     if (!ours) continue
     if (r.tz !== tz) {
       await queue.removeRepeatableByKey(r.key)
@@ -154,13 +194,32 @@ async function scheduleRecurring() {
     jobId:  'recurring-budget-check',         // stable id prevents duplicates
     ...retryOpts,
   })
+  // Daily deadline reminders at 09:05 ${tz} — staggered 5 min after
+  // budget-check so the notification-service isn't hit by both at once.
+  await queue.add('deadline-reminders', {}, {
+    repeat: { pattern: '5 9 * * *', tz },
+    jobId:  'recurring-deadline-reminders',
+    ...retryOpts,
+  })
   // Weekly timesheet reminder — every Monday at 09:00 ${tz}
   await queue.add('timesheet-reminder', {}, {
     repeat: { pattern: '0 9 * * 1', tz },
     jobId:  'recurring-timesheet-reminder',
     ...retryOpts,
   })
-  console.log(`📅 Scheduled: budget-check daily 09:00 ${tz} · timesheet-reminder Monday 09:00 ${tz}`)
+  // Weekly admin digest — Mondays at 09:05 ${tz}, after the reminders go out.
+  // The 5-min offset means the digest's "Timesheets in" stat reflects the
+  // settled prior-week reality, not whatever Monday-morning rush happens
+  // between the reminder firing and admins opening the digest.
+  await queue.add('weekly-digest', {}, {
+    repeat: { pattern: '5 9 * * 1', tz },
+    jobId:  'recurring-weekly-digest',
+    ...retryOpts,
+  })
+  console.log(
+    `📅 Scheduled (${tz}): budget-check 09:00 daily · deadline-reminders 09:05 daily · ` +
+    `timesheet-reminder 09:00 Mon · weekly-digest 09:05 Mon`,
+  )
 }
 
 scheduleRecurring().catch((e) => console.warn('Failed to schedule recurring jobs:', e?.message))

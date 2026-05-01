@@ -12,7 +12,7 @@
     "@forecast/db": "workspace:*",
     "@forecast/types": "workspace:*",
     "@forecast/events": "workspace:*",
-    "@sendgrid/mail": "^8.1.0",
+    "googleapis": "^144.0.0",
     "dotenv": "^16.4.0",
     "fastify": "^4.27.0",
     "@fastify/cors": "^9.0.0",
