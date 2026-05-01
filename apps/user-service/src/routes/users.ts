@@ -1277,6 +1277,66 @@ export async function userRoutes(app: FastifyInstance) {
     }
   })
 
+  // POST /slack/test-dm — DM a test message to the LOGGED-IN user's Slack.
+  // Unlike /slack/test (which posts to the configured workspace channel),
+  // this resolves the caller's email → Slack user_id via users.lookupByEmail
+  // and sends a direct message. No channel needs to be configured. Useful as
+  // a "does the bot know who I am in Slack?" check before relying on per-user
+  // notifications.
+  app.post('/slack/test-dm', async (req, reply) => {
+    const user = (req as any).user
+    const { data: ws } = await supabase.from('workspaces').select('sync_state').eq('id', user.workspaceId).single()
+    const slack = ((ws as any)?.sync_state)?.slack
+    if (!slack?.botToken) return reply.status(400).send({ errors: [{ code: 'NOT_CONFIGURED', message: 'Connect Slack first.' }] })
+
+    // Email is not on the JWT — fetch from the users table. We look up by
+    // verified id (from the gateway-set header) so a spoofed x-user-id can
+    // only DM that user's Slack, not someone else's.
+    const { data: u } = await supabase.from('users')
+      .select('email, name').eq('id', user.id).eq('active', true).single()
+    if (!u?.email) return reply.status(404).send({ errors: [{ code: 'NO_EMAIL', message: 'Could not find your email.' }] })
+
+    try {
+      // 1. Look up Slack user_id by email
+      const lookup = await fetch(`https://slack.com/api/users.lookupByEmail?email=${encodeURIComponent(u.email)}`, {
+        headers: { Authorization: `Bearer ${slack.botToken}` },
+      })
+      const lookupJson = await lookup.json() as any
+      if (!lookupJson.ok) {
+        // users_not_found = the caller's Momentum email isn't in the
+        // workspace the bot is installed to. Surface a friendly message.
+        if (lookupJson.error === 'users_not_found') {
+          return reply.status(404).send({ errors: [{
+            code: 'NOT_IN_SLACK',
+            message: `No Slack user found for ${u.email}. Make sure your Slack account uses the same email.`,
+          }] })
+        }
+        return reply.status(500).send({ errors: [{ code: 'LOOKUP_FAILED', message: lookupJson.error }] })
+      }
+      const slackUserId = lookupJson.user.id
+
+      // 2. DM via chat.postMessage — channel=<user_id> auto-opens IM
+      const firstName = (u.name || '').split(' ')[0] || 'there'
+      const post = await fetch('https://slack.com/api/chat.postMessage', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${slack.botToken}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          channel: slackUserId,
+          text: `:wave: Hi ${firstName}, this is a test DM from Momentum. Your Slack is connected.`,
+          blocks: [
+            { type: 'section', text: { type: 'mrkdwn',
+              text: `:wave: *Hi ${firstName}*, this is a test DM from Momentum.\nYour Slack account is connected — you'll get notifications here when we wire them up.` } },
+          ],
+        }),
+      })
+      const postJson = await post.json() as any
+      if (!postJson.ok) return reply.status(500).send({ errors: [{ code: 'POST_FAILED', message: postJson.error }] })
+      return reply.status(200).send({ sent: true, slackUserId })
+    } catch (e: any) {
+      return reply.status(500).send({ errors: [{ message: e.message }] })
+    }
+  })
+
   app.delete('/slack/disconnect', async (req, reply) => {
     const user = (req as any).user
     const { data: ws } = await supabase.from('workspaces').select('sync_state').eq('id', user.workspaceId).single()
@@ -1284,6 +1344,32 @@ export async function userRoutes(app: FastifyInstance) {
     const { slack: _, ...rest } = currentState
     await supabase.from('workspaces').update({ sync_state: rest }).eq('id', user.workspaceId)
     return reply.status(200).send({ data: { message: 'Disconnected' } })
+  })
+
+  // POST /email/test-reminder — send a real timesheet-reminder email to the
+  // currently logged-in user so admins can preview the production template
+  // without waiting for Monday + without spamming the team. Goes through
+  // notification-service so the same code path the cron uses is exercised.
+  app.post('/email/test-reminder', async (req, reply) => {
+    const user = (req as any).user
+    const { data: u } = await supabase.from('users')
+      .select('email, name').eq('id', user.id).eq('active', true).single()
+    if (!u?.email) return reply.status(404).send({ errors: [{ code: 'NO_EMAIL', message: 'Could not find your email.' }] })
+
+    const NOTIF_URL = process.env.NOTIFICATION_SERVICE_URL || `http://localhost:${process.env.NOTIFICATION_SERVICE_PORT || 3006}`
+    try {
+      const res = await fetch(`${NOTIF_URL}/notify/test-timesheet-reminder`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ email: u.email, name: u.name }),
+        signal:  AbortSignal.timeout(15_000),
+      })
+      const json: any = await res.json().catch(() => ({}))
+      if (!res.ok) return reply.status(res.status).send({ errors: [{ code: 'SEND_FAILED', message: json?.error || `notif HTTP ${res.status}` }] })
+      return reply.status(200).send({ sent: true, sentTo: u.email, weekLabel: json?.weekLabel })
+    } catch (e: any) {
+      return reply.status(500).send({ errors: [{ code: 'NOTIF_DOWN', message: e?.message || 'notification service unreachable' }] })
+    }
   })
 }
 

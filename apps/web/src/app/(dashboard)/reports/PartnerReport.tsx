@@ -2,6 +2,7 @@
 import { useState, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { reportsApi, usersApi } from '@/lib/queries'
+import { exportToSheet } from '@/lib/exportToSheet'
 import { useAuthStore } from '@/lib/store'
 import { Card, StatCard, EmptyState, Combobox, Badge } from '@/components/ui'
 import { ArrowUp, ArrowDown, ArrowUpDown } from 'lucide-react'
@@ -179,22 +180,15 @@ export default function PartnerReport({
   const rangeLabel  = `${dateFrom} → ${dateTo}`
 
   async function doGoogleSheet() {
-    const popup = window.open('about:blank', '_blank')
-    try {
-      const res: any = await reportsApi.exportGoogleSheet({
-        title: `NextTrack — ${reportTitle} — ${rangeLabel}`,
-        sheets: [
-          { name: 'By Department', headers: deptHeaders, rows: deptExportRows() },
-          { name: 'By Project',    headers: projHeaders, rows: projExportRows() },
-          { name: 'Detail',        headers: entryHeaders, rows: entryExportRows() },
-        ],
-      })
-      if (popup) popup.location.href = res.url
-      else showToast.success(`Sheet created: ${res.url} (popup blocked — click the link)`)
-    } catch (e: any) {
-      if (popup) popup.close()
-      showToast.error('Export failed: ' + (e?.message || 'unknown'))
-    }
+    await exportToSheet({
+      title:      `Momentum — ${reportTitle} — ${rangeLabel}`,
+      exportName: 'Partner Report',
+      sheets: [
+        { name: 'By Department', headers: deptHeaders, rows: deptExportRows() },
+        { name: 'By Project',    headers: projHeaders, rows: projExportRows() },
+        { name: 'Detail',        headers: entryHeaders, rows: entryExportRows() },
+      ],
+    })
   }
 
   // ── Render ──────────────────────────────────────────────────────────────

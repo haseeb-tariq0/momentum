@@ -2,6 +2,7 @@
 import { Fragment, useState, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { reportsApi, usersApi } from '@/lib/queries'
+import { exportToSheet } from '@/lib/exportToSheet'
 import { useAuthStore } from '@/lib/store'
 import { ChevronDown, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react'
 import { Card, StatCard, Badge, EmptyState, Combobox } from '@/components/ui'
@@ -200,18 +201,11 @@ export default function ClientProfitabilityReport({
                 { label: 'Cost of Effort',   value: formatCurrency(totals.cost) },
               ])}
               onGoogleSheet={async () => {
-                const popup = window.open('about:blank', '_blank')
-                try {
-                  const res: any = await reportsApi.exportGoogleSheet({
-                    title: `NextTrack — Client Profitability — ${monthLabel}`,
-                    sheets: [{ name: 'Client Profitability', headers, rows: exportRows() }],
-                  })
-                  if (popup) popup.location.href = res.url
-                  else showToast.success(`Sheet created: ${res.url} (popup blocked — click the link)`)
-                } catch (e: any) {
-                  if (popup) popup.close()
-                  showToast.error('Export failed: ' + (e?.message || 'unknown'))
-                }
+                await exportToSheet({
+                  title:      `Momentum — Client Profitability — ${monthLabel}`,
+                  exportName: 'Client Profitability Report',
+                  sheets:     [{ name: 'Client Profitability', headers, rows: exportRows() }],
+                })
               }}
             />
           )}

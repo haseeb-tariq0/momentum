@@ -326,5 +326,24 @@ export const slackApi = {
   channels:     () => api.get('/users/slack/channels'),
   setChannel:   (channelId: string, channelName: string) => api.patch('/users/slack/channel', { channelId, channelName }),
   sendTest:     () => api.post('/users/slack/test', {}),
+  // DMs the currently logged-in user via email lookup. No channel needed.
+  sendTestDM:   () => api.post('/users/slack/test-dm', {}),
   disconnect:   () => api.delete('/users/slack/disconnect'),
+}
+
+// Email integration — runs through the existing notification-service +
+// SendGrid path. There's no OAuth/token storage here (unlike Slack); this
+// API just exposes the "send me a test reminder" trigger so admins can
+// preview the production email template on demand.
+export const emailApi = {
+  sendTestReminder: () => api.post('/users/email/test-reminder', {}),
+}
+
+// Google Drive — per-user OAuth so "Export to Sheets" lands in the
+// caller's own Drive. Connection state is per-user (each user must
+// connect their own Google account).
+export const gdriveApi = {
+  status:     () => api.get<{ connected: boolean; grantedEmail?: string; grantedAt?: string; lastUsedAt?: string; scopes?: string[] }>('/integrations/google-drive/status'),
+  getAuthUrl: () => api.get<{ url: string }>('/integrations/google-drive/connect'),
+  disconnect: () => api.delete('/integrations/google-drive'),
 }

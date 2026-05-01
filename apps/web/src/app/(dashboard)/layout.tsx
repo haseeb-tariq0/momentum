@@ -7,6 +7,7 @@ import Sidebar from '@/components/layout/Sidebar'
 import GlobalSearch from '@/components/GlobalSearch'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { Toaster } from '@/components/Toast'
+import { ConnectDriveModal } from '@/components/ConnectDriveModal'
 
 export const dynamic = 'force-dynamic'
 
@@ -73,6 +74,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <GlobalSearch open={searchOpen} onClose={closeSearch} />
       <ConfirmDialog />
       <Toaster />
+      <ConnectDriveModal />
     </div>
   )
 }

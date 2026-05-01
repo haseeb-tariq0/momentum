@@ -538,3 +538,23 @@ model SavedReportConfig {
   @@index([workspaceId], map: "saved_report_configs_ws_idx")
   @@map("saved_report_configs")
 }
+
+// Per-user OAuth refresh tokens for third-party integrations (Google Drive
+// today, more later). One active grant per (user, provider). The refresh
+// token field stores the AES-256-GCM encrypted value, NOT plaintext — see
+// apps/user-service/src/lib/tokenCrypto.ts.
+model UserOAuthGrant {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId          String    @map("user_id") @db.Uuid
+  provider        String
+  refreshTokenEnc String    @map("refresh_token_enc")
+  scopes          String[]  @default([])
+  grantedEmail    String?   @map("granted_email")
+  grantedAt       DateTime  @default(now()) @map("granted_at")
+  lastUsedAt      DateTime? @map("last_used_at")
+  revokedAt       DateTime? @map("revoked_at")
+
+  @@unique([userId, provider], map: "user_oauth_grants_user_provider_key")
+  @@index([userId], map: "user_oauth_grants_user_id_idx")
+  @@map("user_oauth_grants")
+}

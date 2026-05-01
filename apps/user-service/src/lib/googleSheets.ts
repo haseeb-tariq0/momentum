@@ -6,7 +6,16 @@
 // The service account JSON key is stored base64-encoded in .env.local as
 // GOOGLE_SHEETS_SERVICE_ACCOUNT_B64 — avoids shell-quoting issues with the
 // multiline private_key field.
+//
+// Per-user OAuth path lives at the bottom of the file (createSpreadsheetForUser)
+// and uses the refresh token from user_oauth_grants instead of the service
+// account, so exports land in the user's own Drive. That's the path the
+// /reports/export-google-sheet endpoint uses now; the service-account path
+// stays for finance-sheet reads + as a fallback.
 import { google, sheets_v4, drive_v3 } from 'googleapis'
+import { OAuth2Client } from 'google-auth-library'
+import { supabase } from '@forecast/db'
+import { decryptToken } from './tokenCrypto.js'
 
 type ServiceAccountCreds = {
   client_email: string
@@ -457,4 +466,157 @@ export async function readSoftwareCostsRows(
 
   const sheetUrl = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/edit`
   return { rows, sheetTitle, sheetUrl }
+}
+
+// ─── Per-user OAuth path ─────────────────────────────────────────────────────
+// Used by /reports/export-google-sheet so the spreadsheet lands in the
+// caller's own Drive instead of the service account's shared drive.
+//
+// Flow:
+//   1. Look up active grant for (userId, 'google_drive')
+//   2. Decrypt the refresh token
+//   3. Build an OAuth2Client; google-auth-library auto-refreshes the access
+//      token from the refresh token on every API call
+//   4. Use sheets.spreadsheets.create — the file is owned by the user
+//      (not the service account), no shared-drive plumbing needed
+//
+// Errors surfaced to callers:
+//   NotConnectedError      — user hasn't connected Drive yet
+//   GrantInvalidError      — token decrypt fails or Google rejects the refresh
+//                            (revoked from Google's side, password change, etc.)
+
+export class NotConnectedError extends Error {
+  code = 'NOT_CONNECTED'
+  constructor() { super('Google Drive not connected for this user') }
+}
+export class GrantInvalidError extends Error {
+  code = 'GRANT_INVALID'
+  constructor(detail: string) { super(`Google Drive grant invalid: ${detail}`) }
+}
+
+async function getUserDriveClient(userId: string): Promise<{
+  sheets: sheets_v4.Sheets
+  drive:  drive_v3.Drive
+  grantedEmail: string | null
+  grantId: string
+}> {
+  const { data: grant } = await supabase
+    .from('user_oauth_grants')
+    .select('id, refresh_token_enc, granted_email, scopes')
+    .eq('user_id', userId)
+    .eq('provider', 'google_drive')
+    .is('revoked_at', null)
+    .maybeSingle()
+
+  if (!grant) throw new NotConnectedError()
+
+  const clientId     = process.env.GOOGLE_OAUTH_CLIENT_ID
+  const clientSecret = process.env.GOOGLE_OAUTH_CLIENT_SECRET
+  if (!clientId || !clientSecret) {
+    throw new GrantInvalidError('GOOGLE_OAUTH_CLIENT_ID/SECRET not set on the server')
+  }
+
+  let refreshToken: string
+  try {
+    refreshToken = decryptToken((grant as any).refresh_token_enc)
+  } catch (e: any) {
+    // Either OAUTH_TOKEN_ENC_KEY changed (key rotation without re-grant)
+    // or the row is corrupted. Log the detail server-side; surface a
+    // generic reason to the caller so we don't tell an attacker
+    // *which* failure mode we hit (helps an attacker tell key-rotation
+    // from row-tampering).
+    console.warn('[gdrive] token decrypt failed for user', userId, '-', e?.message || 'unknown')
+    throw new GrantInvalidError('token decrypt failed')
+  }
+
+  const oauth2 = new OAuth2Client(clientId, clientSecret)
+  oauth2.setCredentials({ refresh_token: refreshToken })
+
+  return {
+    sheets:       google.sheets({ version: 'v4', auth: oauth2 }),
+    drive:        google.drive ({ version: 'v3', auth: oauth2 }),
+    grantedEmail: (grant as any).granted_email || null,
+    grantId:      (grant as any).id,
+  }
+}
+
+/** Mark a grant as recently used. Best-effort; failures are silent.
+ *  Skips revoked rows so a disconnect that races with an in-flight
+ *  export doesn't see its `revoked_at` overshadowed by a stale
+ *  last_used_at write. */
+async function touchGrant(grantId: string): Promise<void> {
+  try {
+    await supabase
+      .from('user_oauth_grants')
+      .update({ last_used_at: new Date().toISOString() })
+      .eq('id', grantId)
+      .is('revoked_at', null)
+  } catch { /* non-fatal */ }
+}
+
+/**
+ * Create a Google Sheet in the calling user's own Drive, populated with
+ * the provided tabs. Returns the spreadsheet ID + URL the frontend can
+ * open in a new tab.
+ *
+ * The user becomes the owner of the file — they can rename, share,
+ * download, or delete it however they like. Momentum can only see /
+ * modify this file (because we requested `drive.file` scope, not full
+ * drive read), so the integration is least-privilege from the user's
+ * perspective.
+ */
+export async function createSpreadsheetForUser(opts: {
+  userId: string
+  title:  string
+  sheets: Array<{ name: string; headers: string[]; rows: any[][] }>
+}): Promise<{ spreadsheetId: string; url: string; ownerEmail: string | null }> {
+  const { sheets: sheetsApi, grantedEmail, grantId } = await getUserDriveClient(opts.userId)
+  const tabs = opts.sheets.length ? opts.sheets : [{ name: 'Sheet1', headers: [], rows: [] }]
+
+  let spreadsheetId: string
+  try {
+    const createRes = await sheetsApi.spreadsheets.create({
+      requestBody: {
+        properties: { title: opts.title },
+        sheets: tabs.map(t => ({ properties: { title: sanitizeTabName(t.name) } })),
+      },
+      fields: 'spreadsheetId',
+    })
+    if (!createRes.data.spreadsheetId) throw new Error('spreadsheets.create returned no id')
+    spreadsheetId = createRes.data.spreadsheetId
+  } catch (e: any) {
+    // 401 invalid_grant means Google revoked our refresh token — typical
+    // causes are user password change, app removal from Google Account
+    // permissions, or > 6 months unused. Surface as GrantInvalid so the
+    // route can prompt a reconnect.
+    if (/invalid_grant|invalid token|unauthorized/i.test(e?.message || '')) {
+      throw new GrantInvalidError(e?.message || 'Google rejected the refresh token')
+    }
+    throw e
+  }
+
+  // Write data into each tab in one batch call.
+  const batchData = tabs.map(t => ({
+    range: `${sanitizeTabName(t.name)}!A1`,
+    values: [
+      t.headers.map(cellValue),
+      ...t.rows.map(r => (r || []).map(cellValue)),
+    ],
+  }))
+  await sheetsApi.spreadsheets.values.batchUpdate({
+    spreadsheetId,
+    requestBody: {
+      valueInputOption: 'USER_ENTERED',
+      data: batchData,
+    },
+  })
+
+  // Best-effort touch — telemetry only, never block the response on this.
+  void touchGrant(grantId)
+
+  return {
+    spreadsheetId,
+    url:        `https://docs.google.com/spreadsheets/d/${spreadsheetId}/edit`,
+    ownerEmail: grantedEmail,
+  }
 }

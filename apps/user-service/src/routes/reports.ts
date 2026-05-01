@@ -1,6 +1,12 @@
 import type { FastifyInstance } from 'fastify'
 import { supabase } from '@forecast/db'
-import { createSpreadsheet, isGoogleSheetsConfigured } from '../lib/googleSheets.js'
+import {
+  createSpreadsheet,
+  isGoogleSheetsConfigured,
+  createSpreadsheetForUser,
+  NotConnectedError,
+  GrantInvalidError,
+} from '../lib/googleSheets.js'
 
 export async function reportRoutes(app: FastifyInstance) {
   const isAdminRole = (p: string) => ['super_admin', 'admin'].includes(p)
@@ -1281,26 +1287,24 @@ export async function reportRoutes(app: FastifyInstance) {
   })
 
   // ── POST /reports/export-google-sheet ────────────────────────────────────
-  // Create a real Google Sheet in the service account's Drive, populate with
-  // report data, and share it with the requesting user. Returns the URL so
-  // the frontend can open it in a new tab.
+  // Create a Google Sheet in the caller's own Drive, populate with report
+  // data, and return the URL the frontend opens in a new tab.
   //
   // Apr 15 meeting: Murtaza said many people don't have Excel, so Google
-  // Sheets is the preferred export format — with the resulting sheet saved
-  // somewhere they can open it.
+  // Sheets is the preferred export format.
+  //
+  // Apr 30: opened export to all roles (was admin-gated) and switched the
+  // storage path from "service account -> Shared Drive folder" to
+  // "per-user OAuth -> user's own Drive". The hard-gate is intentional:
+  // a 412 NOT_CONNECTED tells the UI to show the Connect-Drive modal
+  // instead of silently falling back to a workspace-owned file the user
+  // didn't expect.
   app.post('/export-google-sheet', async (req: any, reply: any) => {
     const caller = req.user
-    if (!isAdminRole(caller.profile)) return reply.status(403).send({ errors: [{ code: 'FORBIDDEN' }] })
-
-    if (!isGoogleSheetsConfigured()) {
-      return reply.status(400).send({ errors: [{
-        code: 'NOT_CONFIGURED',
-        message: 'GOOGLE_SHEETS_SERVICE_ACCOUNT_B64 not set in .env.local',
-      }] })
-    }
+    if (!caller?.id) return reply.status(401).send({ errors: [{ code: 'NO_USER' }] })
 
     const body = (req.body as any) || {}
-    const title: string = String(body.title || 'NextTrack Export').slice(0, 200)
+    const title: string = String(body.title || 'Momentum Export').slice(0, 200)
     const sheets: Array<{ name: string; headers: string[]; rows: any[][] }> =
       Array.isArray(body.sheets) ? body.sheets : []
 
@@ -1308,38 +1312,48 @@ export async function reportRoutes(app: FastifyInstance) {
       return reply.status(400).send({ errors: [{ code: 'NO_SHEETS', message: 'sheets[] required' }] })
     }
 
-    // Look up caller email so we can share the sheet with them
-    const { data: userRow } = await supabase
-      .from('users')
-      .select('email')
-      .eq('id', caller.id)
-      .maybeSingle()
-    const shareWith = (userRow as any)?.email || null
-
     try {
-      const result = await createSpreadsheet({ title, sheets, shareWith })
+      const result = await createSpreadsheetForUser({ userId: caller.id, title, sheets })
       return reply.status(200).send({
-        ok: true,
+        ok:            true,
         spreadsheetId: result.spreadsheetId,
         url:           result.url,
-        sharedWith:    shareWith,
+        ownerEmail:    result.ownerEmail,
       })
     } catch (e: any) {
+      // Hard-gate signal — frontend reads this and shows the Connect-Drive
+      // modal instead of a generic toast. 412 because it's a precondition
+      // (Drive must be connected) rather than 401 (no user) or 403 (forbidden).
+      if (e instanceof NotConnectedError) {
+        return reply.status(412).send({
+          errors: [{
+            code: 'NOT_CONNECTED',
+            message: 'Connect your Google Drive in Settings -> Integrations to export reports as Sheets.',
+          }],
+        })
+      }
+      // Token revoked / decrypt failed — user must reconnect.
+      if (e instanceof GrantInvalidError) {
+        return reply.status(412).send({
+          errors: [{
+            code: 'GRANT_INVALID',
+            message: 'Your Google Drive connection has expired. Reconnect in Settings -> Integrations.',
+          }],
+        })
+      }
       const msg = e?.message || 'Export failed'
-      // Friendlier messages for the most common config issues
+      // Friendlier messages for the most common Google-project-level
+      // config issues (these affect the OAuth client, so they hit every
+      // user the same way — distinct from per-user grant problems above).
       let userMessage = msg
-      if (/shared drive not found|file not found/i.test(msg)) {
-        userMessage = 'Service account is not a member of the configured Shared Drive. Add nexttrack-sheets-reader@nexttrack-493307.iam.gserviceaccount.com as Content Manager on the exports Shared Drive.'
-      } else if (/not been used in project|has not been enabled|API has not been used/i.test(msg)) {
+      if (/not been used in project|has not been enabled|API has not been used/i.test(msg)) {
         userMessage = 'Google Drive API is not enabled. Go to https://console.cloud.google.com/apis/library/drive.googleapis.com?project=nexttrack-493307 and click Enable, then wait ~30 seconds.'
+      } else if (/sheets api.*not.*enabled|sheets.*has not been used/i.test(msg)) {
+        userMessage = 'Google Sheets API is not enabled. Go to https://console.cloud.google.com/apis/library/sheets.googleapis.com?project=nexttrack-493307 and click Enable, then wait ~30 seconds.'
       } else if (/storage quota|quota.*exceeded/i.test(msg)) {
-        userMessage = 'Drive storage quota exceeded. Either clean up old exports or point GOOGLE_EXPORTS_FOLDER_ID at a Shared Drive (files in shared drives don\u2019t consume the service account\u2019s personal quota).'
-      } else if (!process.env.GOOGLE_EXPORTS_FOLDER_ID && /caller does not have permission|insufficient permissions|forbidden/i.test(msg)) {
-        // Service accounts can't create files in their own Drive — need a Shared Drive folder
-        userMessage = 'GOOGLE_EXPORTS_FOLDER_ID not set in .env.local. Set it to the ID of a Shared Drive where the service account is a Content Manager. (Service accounts can\u2019t create files in their own Drive — they need a Shared Drive to write into.)'
+        userMessage = 'Your Google Drive storage is full. Free up space in Drive and try again.'
       } else if (/caller does not have permission|insufficient permissions|forbidden/i.test(msg)) {
-        // Folder is set but we still got 403 — likely service account lost access or drive is restricted
-        userMessage = 'Permission denied by Google. Check that the service account is still a Content Manager on the Shared Drive (ID: ' + process.env.GOOGLE_EXPORTS_FOLDER_ID + ').'
+        userMessage = 'Google denied permission for the export. Try disconnecting Google Drive in Settings and reconnecting.'
       }
       console.warn('[export-google-sheet] error:', msg)
       return reply.status(500).send({ errors: [{ message: userMessage, raw: msg }] })

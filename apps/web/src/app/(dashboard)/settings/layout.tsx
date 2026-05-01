@@ -1,7 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { User, Lock, Plug, Settings as SettingsIcon } from 'lucide-react'
+import { User, Lock, Plug, Palette, Settings as SettingsIcon } from 'lucide-react'
 import { cn } from '@/lib/cn'
 import { PageHeader } from '@/components/ui'
 
@@ -17,6 +17,12 @@ const GROUPS: Group[] = [
     items: [
       { href: '/settings/profile',      label: 'Profile',      Icon: User, hint: 'Name, title, identity' },
       { href: '/settings/password',     label: 'Password',     Icon: Lock, hint: 'Change your password' },
+    ],
+  },
+  {
+    label: 'Preferences',
+    items: [
+      { href: '/settings/appearance',   label: 'Appearance',   Icon: Palette, hint: 'Theme and display' },
     ],
   },
   {

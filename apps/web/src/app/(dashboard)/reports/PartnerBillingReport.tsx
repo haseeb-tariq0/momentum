@@ -2,6 +2,7 @@
 import { Fragment, useState, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { reportsApi } from '@/lib/queries'
+import { exportToSheet } from '@/lib/exportToSheet'
 import { useAuthStore } from '@/lib/store'
 import { ChevronDown, ChevronRight, Receipt, CheckCircle2, AlertCircle } from 'lucide-react'
 import { Card, StatCard, Badge, EmptyState } from '@/components/ui'
@@ -188,18 +189,11 @@ export default function PartnerBillingReport({
               onCSV={() => downloadCSV(`${tag}.csv`, exportHeaders, exportRows())}
               onExcel={() => downloadXLSX(`${tag}.xlsx`, exportHeaders, exportRows(), 'Partner Billing')}
               onGoogleSheet={async () => {
-                const popup = window.open('about:blank', '_blank')
-                try {
-                  const res: any = await reportsApi.exportGoogleSheet({
-                    title: `NextTrack — Partner Billing — ${rangeLabel}`,
-                    sheets: [{ name: 'Partner Billing', headers: exportHeaders, rows: exportRows() }],
-                  })
-                  if (popup) popup.location.href = res.url
-                  else showToast.success(`Sheet created: ${res.url}`)
-                } catch (e: any) {
-                  if (popup) popup.close()
-                  showToast.error('Export failed: ' + (e?.message || 'unknown'))
-                }
+                await exportToSheet({
+                  title:      `Momentum — Partner Billing — ${rangeLabel}`,
+                  exportName: 'Partner Billing Report',
+                  sheets:     [{ name: 'Partner Billing', headers: exportHeaders, rows: exportRows() }],
+                })
               }}
             />
           )}

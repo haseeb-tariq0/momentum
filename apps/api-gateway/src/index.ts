@@ -72,6 +72,17 @@ async function main() {
     for (const h of TRUST_HEADERS) delete req.headers[h]
     if (req.method === 'OPTIONS') return
     if (req.url?.startsWith('/api/v1/auth')) return
+    // OAuth callbacks come from Google's browser-side redirect with no
+    // session cookie — they authenticate via signed `state` instead.
+    // Same exemption we'd give Slack's callback if it lived here.
+    //
+    // Match the path exactly (after stripping query string) — `startsWith`
+    // would also exempt `/callbackfoo`, `/callback/admin`, etc., so any
+    // sibling route someone adds later silently inherits the JWT bypass.
+    if (req.url) {
+      const path = req.url.split('?', 1)[0]
+      if (path === '/api/v1/integrations/google-drive/callback') return
+    }
     if (req.url === '/health') return
     await authMiddleware(req, reply, redis)
   })
@@ -92,6 +103,9 @@ async function main() {
 
   // Notifications → user-service /notifications routes
   await app.register(httpProxy, { upstream: SERVICES.users,    prefix: '/api/v1/notifications',  rewritePrefix: '/notifications' })
+
+  // Per-user third-party integrations (Google Drive today) → user-service
+  await app.register(httpProxy, { upstream: SERVICES.users,    prefix: '/api/v1/integrations',   rewritePrefix: '/integrations' })
 
   // Email triggers → notification-service (port 3006)
   await app.register(httpProxy, { upstream: `http://localhost:${process.env.NOTIFICATION_SERVICE_PORT || 3006}`, prefix: '/api/v1/notify', rewritePrefix: '/notify' })

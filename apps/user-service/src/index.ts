@@ -17,6 +17,10 @@ async function loadOptionalRoutes(app: ReturnType<typeof Fastify>) {
     const { notificationRoutes } = await import('./routes/notifications.js')
     await app.register(notificationRoutes, { prefix: '/notifications' })
   } catch (e: any) { console.warn('⚠️  Notification routes failed:', e?.message) }
+  try {
+    const { integrationsRoutes } = await import('./routes/integrations.js')
+    await app.register(integrationsRoutes, { prefix: '/integrations' })
+  } catch (e: any) { console.warn('⚠️  Integrations routes failed:', e?.message) }
 }
 
 async function main() {

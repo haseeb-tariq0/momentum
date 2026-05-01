@@ -143,15 +143,15 @@ importers:
       '@forecast/types':
         specifier: workspace:*
         version: link:../../packages/types
-      '@sendgrid/mail':
-        specifier: ^8.1.0
-        version: 8.1.6
       dotenv:
         specifier: ^16.4.0
         version: 16.6.1
       fastify:
         specifier: ^4.27.0
         version: 4.29.1
+      googleapis:
+        specifier: ^144.0.0
+        version: 144.0.0
       ioredis:
         specifier: ^5.3.2
         version: 5.10.1
@@ -367,6 +367,9 @@ importers:
       fastify:
         specifier: ^4.27.0
         version: 4.29.1
+      google-auth-library:
+        specifier: ^9.0.0
+        version: 9.15.1
       googleapis:
         specifier: ^144.0.0
         version: 144.0.0
@@ -1679,33 +1682,6 @@ packages:
       react-dom: 18.3.1(react@18.3.1)
     dev: false
 
-  /@sendgrid/client@8.1.6:
-    resolution: {integrity: sha512-/BHu0hqwXNHr2aLhcXU7RmmlVqrdfrbY9KpaNj00KZHlVOVoRxRVrpOCabIB+91ISXJ6+mLM9vpaVUhK6TwBWA==}
-    engines: {node: '>=12.*'}
-    dependencies:
-      '@sendgrid/helpers': 8.0.0
-      axios: 1.13.6
-    transitivePeerDependencies:
-      - debug
-    dev: false
-
-  /@sendgrid/helpers@8.0.0:
-    resolution: {integrity: sha512-Ze7WuW2Xzy5GT5WRx+yEv89fsg/pgy3T1E3FS0QEx0/VvRmigMZ5qyVGhJz4SxomegDkzXv/i0aFPpHKN8qdAA==}
-    engines: {node: '>= 12.0.0'}
-    dependencies:
-      deepmerge: 4.3.1
-    dev: false
-
-  /@sendgrid/mail@8.1.6:
-    resolution: {integrity: sha512-/ZqxUvKeEztU9drOoPC/8opEPOk+jLlB2q4+xpx6HVLq6aFu3pMpalkTpAQz8XfRfpLp8O25bh6pGPcHDCYpqg==}
-    engines: {node: '>=12.*'}
-    dependencies:
-      '@sendgrid/client': 8.1.6
-      '@sendgrid/helpers': 8.0.0
-    transitivePeerDependencies:
-      - debug
-    dev: false
-
   /@supabase/auth-js@2.100.1:
     resolution: {integrity: sha512-c5FB4nrG7cs1mLSzFGuIVl2iR2YO5XkSJ96uF4zubYm8YDn71XOi2emE9sBm/avfGCj61jaRBLOvxEAVnpys0Q==}
     engines: {node: '>=20.0.0'}
@@ -2275,11 +2251,6 @@ packages:
 
   /decimal.js-light@2.5.1:
     resolution: {integrity: sha512-qIMFpTMZmny+MMIitAB6D7iVPEorVw6YQRWkvarTkT4tBeSLLiHzcwj6q0MmYSFCiVpiqPJTJEYIrpcPzVEIvg==}
-    dev: false
-
-  /deepmerge@4.3.1:
-    resolution: {integrity: sha512-3sUqbMEc77XqpdNO7FRyRog+eW3ph+GYCbj+rK+uYyRMuwsVy0rMiVtPn+QJlKFvWP/1PYpapqYn0Me2knFn+A==}
-    engines: {node: '>=0.10.0'}
     dev: false
 
   /delayed-stream@1.0.0:

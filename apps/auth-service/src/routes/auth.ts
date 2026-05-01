@@ -239,7 +239,11 @@ export async function authRoutes(app: FastifyInstance) {
     }
     const clientId = process.env.SLACK_CLIENT_ID!
     const redirectUri = encodeURIComponent(process.env.SLACK_REDIRECT_URI || 'http://localhost:3000/api/v1/auth/slack/callback')
-    const scopes = encodeURIComponent('chat:write,channels:read,groups:read')
+    // Bot scopes — the trailing three (im:write, users:read, users:read.email)
+    // unlock per-user DMs via users.lookupByEmail, in addition to the workspace
+    // channel posting that the leading three already supported. Re-requesting
+    // an existing install does not re-prompt unless the scope set changes.
+    const scopes = encodeURIComponent('chat:write,channels:read,groups:read,im:write,users:read,users:read.email')
     const url = `https://slack.com/oauth/v2/authorize?client_id=${clientId}&scope=${scopes}&redirect_uri=${redirectUri}`
     return reply.status(200).send({ url })
   })

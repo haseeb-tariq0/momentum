@@ -2,6 +2,7 @@
 import { useState, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { reportsApi } from '@/lib/queries'
+import { exportToSheet } from '@/lib/exportToSheet'
 import { useAuthStore } from '@/lib/store'
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import { Card, StatCard, Badge, EmptyState, Select, Button } from '@/components/ui'
@@ -218,22 +219,15 @@ export default function ActiveProjectsReport({ dateFrom, dateTo, onDateFromChang
     { label: 'Active', value: String(active) },
   ])
 
+  // Synchronous popup + 412→modal handling lives inside the helper now.
+  // See apps/web/src/lib/exportToSheet.ts for the story behind the
+  // about:blank dance and how NOT_CONNECTED bubbles into the modal.
   const doGoogleSheet = async () => {
-    // Open blank tab synchronously (popup blockers close the window if it's
-    // opened after an await). See CostOfEffortReport history for the story
-    // behind this — pattern carried forward.
-    const popup = window.open('about:blank', '_blank')
-    try {
-      const res: any = await reportsApi.exportGoogleSheet({
-        title: `NextTrack — Active Projects — ${tag}`,
-        sheets: [{ name: 'Active Projects', headers, rows: exportRows() }],
-      })
-      if (popup) popup.location.href = res.url
-      else showToast.success(`Sheet created: ${res.url} (popup blocked — click the link)`)
-    } catch (e: any) {
-      if (popup) popup.close()
-      showToast.error('Export failed: ' + (e?.message || 'unknown'))
-    }
+    await exportToSheet({
+      title:      `Momentum — Active Projects — ${tag}`,
+      exportName: 'Active Projects Report',
+      sheets:     [{ name: 'Active Projects', headers, rows: exportRows() }],
+    })
   }
 
   // ── Render ─────────────────────────────────────────────────────────────
