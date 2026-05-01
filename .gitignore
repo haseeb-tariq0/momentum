@@ -51,6 +51,32 @@ FEATURE_GAP_REPORT.html
 forecast-migration-verification.postman_collection.json
 push-momentum.ps1
 
+# Working design artifacts — HTML mockups + screenshots used during
+# concept review. The final designs are wired into apps/web; these are
+# scratch files that don't belong in the production tree.
+/design-concepts.html
+/design-concept-*.html
+/login-concepts*.html
+/login-final.html
+/logo-concepts.html
+/mockup-*.html
+/screenshots/
+/_screenshot_runner/
+
+# Backup archives + handoff packages at repo root
+/forecast-backup.ps1
+/forecast-full-backup-*/
+/forecast-full-backup-*.zip
+/handoff-*/
+/handoff-*.zip
+/Momentum Logo.zip
+/Momentum Logo.zipDownload Zip.url
+/Momentum Logo/
+/Momentum-Designer-Handoff-*.zip
+
+# Loose root-level files (use apps/web/public/* instead)
+/client-icon.png
+
 # IDE / local tool caches
 .claude/
 **/tsconfig.tsbuildinfo

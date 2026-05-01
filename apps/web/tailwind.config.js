@@ -99,6 +99,8 @@ module.exports = {
         body:    'var(--font-body)',
         heading: 'var(--font-heading)',
         mono:    'var(--font-mono)',
+        display: 'var(--font-display)',
+        serif:   'var(--font-serif)',
       },
 
       /* ── Sidebar width ────────────────────────────────────────────── */
