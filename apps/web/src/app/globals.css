@@ -57,9 +57,30 @@
      System fallbacks kept so the UI still renders when Google Fonts is blocked. */
   --font-body:    'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-heading: 'Chakra Petch', 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+  /* Brand-lockup fonts — Inter for the "Momentum" wordmark (matches the
+     redesign's tighter 500-weight feel), Instrument Serif for editorial
+     italic accents in marketing/auth surfaces. Both are loaded in
+     app/layout.tsx Google Fonts <link>. */
+  --font-display: 'Inter', 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-serif:   'Instrument Serif', Georgia, serif;
   --font-mono:    'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
   --sidebar-width: 200px;
 }
+
+/* ── Theme-scoped visibility helpers ─────────────────────────────────────────
+   Use `.theme-light-only` / `.theme-dark-only` on assets that must swap
+   between themes (e.g. the brand lockup PNG, which has a fixed wordmark
+   color baked in and needs different files for dark vs. light backgrounds).
+   The anti-flash <script> in app/layout.tsx applies data-theme before
+   first paint, so these rules resolve before React hydration — no flash. */
+[data-theme="dark"]  .theme-light-only { display: none !important; }
+[data-theme="light"] .theme-dark-only  { display: none !important; }
+
+/* ── Theme-invert helper ──────────────────────────────────────────────────
+   Use `.invert-on-dark` on dark/black PNG icons that need to flip white
+   for dark mode (e.g. /client-icon.png — designed for light backgrounds).
+   filter: invert(1) flips luminance only; pure black → pure white. */
+[data-theme="dark"] .invert-on-dark { filter: invert(1); }
 
 /* ── Light theme ──────────────────────────────────────────────────────────── */
 [data-theme="light"] {

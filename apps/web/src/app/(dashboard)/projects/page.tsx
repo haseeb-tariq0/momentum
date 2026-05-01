@@ -381,19 +381,23 @@ function ClientGroup({ clientName, projects, expanded, onToggle }: {
 
   return (
     <div>
-      {/* White client card */}
+      {/* Client card — uses theme tokens so it works in both dark + light
+          modes. Was previously hardcoded #fff/#e2e8f0 which looked fine in
+          light mode but rendered as a glaring white slab in dark mode. */}
       <div
         onClick={() => setOpen(o => !o)}
-        className="flex items-center gap-2.5 px-4 py-2.5 rounded-[20px] cursor-pointer select-none transition-colors shadow-sm mb-1.5"
-        style={{ background: '#fff', border: '1px solid #e2e8f0' }}
+        className="flex items-center gap-2.5 px-4 py-2.5 rounded-[20px] cursor-pointer select-none transition-colors shadow-sm mb-1.5 bg-surface-raised border border-line-subtle hover:bg-surface-hover hover:border-line-muted"
       >
-        {/* Building icon */}
-        <img src="/client-icon.png" alt="" width={24} height={24} className="flex-shrink-0 block" />
+        {/* Building icon — PNG is built for light mode (dark glyph). The
+            `invert-on-dark` helper (globals.css) flips luminance to white
+            when [data-theme="dark"] is active so it stays visible against
+            the dark surface. */}
+        <img src="/client-icon.png" alt="" width={24} height={24} className="flex-shrink-0 block invert-on-dark" />
 
         {/* Name */}
         <span className="text-xs font-bold text-primary flex-1 min-w-0 truncate">{clientName}</span>
         {/* Count badge */}
-        <span className="text-[10px] font-semibold text-muted bg-surface px-1.5 py-px rounded flex-shrink-0">
+        <span className="text-[10px] font-semibold text-muted bg-surface-overlay px-1.5 py-px rounded flex-shrink-0">
           {projects.length} project{projects.length !== 1 ? 's' : ''}
         </span>
         {/* Burn stats */}
